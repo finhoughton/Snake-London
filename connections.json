@@ -1,0 +1,1015 @@
+{
+  "lines": {
+    "Picc": {
+      "display_name": "Piccadilly Line",
+      "has_branches": false,
+      "stations": [
+        "Rayners Lane",
+        "Park Royal",
+        "Ealing Common",
+        "Acton Town",
+        "Turnham Green",
+        "Hammersmith",
+        "Barons Court",
+        "Earl's Court",
+        "Gloucester Road",
+        "South Kensington",
+        "Green Park",
+        "Piccadilly Circus",
+        "Leicester Square",
+        "Holborn",
+        "King's Cross",
+        "Caledonian Road",
+        "Finsbury Park",
+        "Manor House"
+      ]
+    },
+    "Central": {
+      "display_name": "Central Line",
+      "has_branches": true,
+      "stations": [
+        "Park Royal",
+        "Ealing Broadway",
+        "Wood Lane",
+        "Shepard's Bush",
+        "Notting Hill Gate",
+        "Bond Street",
+        "Oxford Circus",
+        "Tottenham Court Road",
+        "Holborn",
+        "St Paul's",
+        "Bank",
+        "Liverpool Street",
+        "Bethnal Green",
+        "Mile End",
+        "Stratford",
+        "Leytonstone"
+      ]
+    },
+    "Bakerloo": {
+      "display_name": "Bakerloo Line",
+      "has_branches": false,
+      "stations": [
+        "Kenton",
+        "Wilsden Junction",
+        "Queen's Park",
+        "Paddington",
+        "Edgware Road",
+        "Baker Street",
+        "Oxford Circus",
+        "Piccadilly Circus",
+        "Charing Cross",
+        "Embankment",
+        "Waterloo",
+        "Elephant and Castle"
+      ]
+    },
+    "Jubilee": {
+      "display_name": "Jubilee Line",
+      "has_branches": false,
+      "stations": [
+        "Wembley Park",
+        "West Hampstead",
+        "Finchley Road",
+        "Swiss Cottage",
+        "Baker Street",
+        "Bond Street",
+        "Green Park",
+        "Westminster",
+        "Waterloo",
+        "London Bridge",
+        "Canada Water",
+        "Canary Wharf",
+        "North Greenwich",
+        "Canning Town",
+        "West Ham",
+        "Stratford"
+      ]
+    },
+    "Victoria": {
+      "display_name": "Victoria Line",
+      "has_branches": false,
+      "stations": [
+        "Walthamstow Central",
+        "Blackhorse Road",
+        "Seven Sisters",
+        "Finsbury Park",
+        "Highbury and Islington",
+        "King's Cross",
+        "Euston",
+        "Warren Street",
+        "Oxford Circus",
+        "Green Park",
+        "Victoria",
+        "Stockwell"
+      ]
+    },
+    "CX Branch": {
+      "display_name": "Charing Cross Line",
+      "has_branches": false,
+      "stations": [
+        "Archway",
+        "Kentish Town",
+        "Camden Town",
+        "Euston",
+        "Warren Street",
+        "Tottenham Court Road",
+        "Leicester Square",
+        "Charing Cross",
+        "Embankment",
+        "Waterloo",
+        "Kennington"
+      ]
+    },
+    "Bank Branch": {
+      "display_name": "Bank Line",
+      "has_branches": false,
+      "stations": [
+        "Euston",
+        "King's Cross",
+        "Liverpool Street",
+        "Bank",
+        "London Bridge",
+        "Elephant and Castle",
+        "Kennington",
+        "Stockwell",
+        "Clapham North",
+        "Tooting Broadway",
+        "South Wimbledon"
+      ]
+    },
+    "W&C": {
+      "display_name": "Waterloo and City Line",
+      "has_branches": false,
+      "stations": ["Waterloo", "Bank"]
+    },
+    "Met": {
+      "display_name": "Metropolitan Line",
+      "has_branches": false,
+      "stations": [
+        "Rayners Lane",
+        "Kenton",
+        "Wembley Park",
+        "Finchley Road",
+        "Baker Street",
+        "Euston",
+        "King's Cross",
+        "Farringdon",
+        "Liverpool Street"
+      ]
+    },
+    "H&C": {
+      "display_name": "Hammersmith and City Line",
+      "has_branches": false,
+      "stations": [
+        "Hammersmith",
+        "Wood Lane",
+        "Paddington",
+        "Edgware Road",
+        "Baker Street",
+        "Euston",
+        "King's Cross",
+        "Farringdon",
+        "Liverpool Street",
+        "Aldgate East",
+        "Whitechapel",
+        "Mile End",
+        "Bow Road",
+        "West Ham",
+        "Barking"
+      ]
+    },
+    "N Circle": {
+      "display_name": "North Circle Line",
+      "has_branches": false,
+      "stations": [
+        "Hammersmith",
+        "Wood Lane",
+        "Paddington",
+        "Edgware Road",
+        "Baker Street",
+        "Euston",
+        "King's Cross",
+        "Farringdon",
+        "Liverpool Street"
+      ]
+    },
+    "S Circle": {
+      "display_name": "South Circle Line",
+      "has_branches": false,
+      "stations": [
+        "Edgware Road",
+        "Paddington",
+        "Notting Hill Gate",
+        "Gloucester Road",
+        "South Kensington",
+        "Victoria",
+        "Westminster",
+        "Embankment",
+        "Blackfriars",
+        "Bank",
+        "Tower Hill",
+        "Liverpool Street"
+      ]
+    },
+    "District": {
+      "display_name": "District Line",
+      "has_branches": true,
+      "stations": [
+        "Ealing Broadway",
+        "Ealing Common",
+        "Acton Town",
+        "Turnham Green",
+        "Gunnersbury",
+        "Hammersmith",
+        "Barons Court",
+        "Earl's Court",
+        "Wimbledon",
+        "West Brompton",
+        "Olympia",
+        "Notting Hill Gate",
+        "Paddington",
+        "Edgware Road",
+        "Gloucester Road",
+        "South Kensington",
+        "Victoria",
+        "Westminster",
+        "Embankment",
+        "Blackfriars",
+        "Bank",
+        "Tower Hill",
+        "Aldgate East",
+        "Whitechapel",
+        "Mile End",
+        "Bow Road",
+        "West Ham",
+        "Barking"
+      ]
+    },
+    "Lioness": {
+      "display_name": "Lioness Line",
+      "has_branches": false,
+      "stations": [
+        "Kenton",
+        "Wilsden Junction",
+        "Queen's Park",
+        "Swiss Cottage",
+        "Euston"
+      ]
+    },
+    "Mildmay": {
+      "display_name": "Mildmay Line",
+      "has_branches": true,
+      "stations": [
+        "Stratford",
+        "Hackney Central",
+        "Canonbury",
+        "Highbury and Islington",
+        "Caledonian Road",
+        "Camden Town",
+        "Gospel Oak",
+        "West Hampstead",
+        "Wilsden Junction",
+        "Gunnersbury",
+        "Shepard's Bush",
+        "Olympia",
+        "West Brompton",
+        "Clapham Junction"
+      ]
+    },
+    "Weaver": {
+      "display_name": "Weaver Line",
+      "has_branches": true,
+      "stations": [
+        "Seven Sisters",
+        "Walthamstow Central",
+        "Hackney Central",
+        "Bethnal Green",
+        "Liverpool Street"
+      ]
+    },
+    "Suffragette": {
+      "display_name": "Suffragette Line",
+      "has_branches": false,
+      "stations": [
+        "Gospel Oak",
+        "Archway",
+        "Manor House",
+        "Seven Sisters",
+        "Blackhorse Road",
+        "Walthamstow Central",
+        "Leytonstone",
+        "Wansted Park",
+        "Barking"
+      ]
+    },
+    "Windrush": {
+      "display_name": "Windrush Line",
+      "has_branches": true,
+      "stations": [
+        "Highbury and Islington",
+        "Canonbury",
+        "Whitechapel",
+        "Shadwell",
+        "Canada Water",
+        "Denmark Hill",
+        "Clapham North",
+        "Clapham Junction",
+        "Norwood Junction",
+        "West Croydon"
+      ]
+    },
+    "Elizabeth": {
+      "display_name": "Elizabeth Line",
+      "has_branches": true,
+      "stations": [
+        "Ealing Broadway",
+        "Paddington",
+        "Bond Street",
+        "Tottenham Court Road",
+        "Farringdon",
+        "Liverpool Street",
+        "Whitechapel",
+        "Stratford",
+        "Wansted Park",
+        "Canary Wharf",
+        "Custom House",
+        "Abbey Wood"
+      ]
+    },
+    "L DLR": {
+      "display_name": "Lewisham DLR Line",
+      "has_branches": true,
+      "stations": [
+        "Bank",
+        "Shadwell",
+        "Westferry",
+        "Canary Wharf",
+        "Greenwich",
+        "Poplar",
+        "Bow Road",
+        "Stratford"
+      ]
+    },
+    "W DLR": {
+      "display_name": "Woolwich DLR Line",
+      "has_branches": true,
+      "stations": [
+        "Bank",
+        "Shadwell",
+        "Westferry",
+        "Poplar",
+        "Canning Town",
+        "West Ham",
+        "Stratford",
+        "Woolwich Arsenal"
+      ]
+    },
+    "B DLR": {
+      "display_name": "Beckton DLR Line",
+      "has_branches": false,
+      "stations": [
+        "Tower Hill",
+        "Shadwell",
+        "Westferry",
+        "Poplar",
+        "Canning Town",
+        "Royal Victoria",
+        "Custom House"
+      ]
+    },
+    "Thameslink": {
+      "display_name": "Thameslink",
+      "has_branches": true,
+      "stations": [
+        "West Hampstead",
+        "Kentish Town",
+        "Finsbury Park",
+        "King's Cross",
+        "Farringdon",
+        "St Paul's",
+        "Blackfriars",
+        "London Bridge",
+        "Greenwich",
+        "Woolwich Arsenal",
+        "Abbey Wood",
+        "Norwood Junction",
+        "East Croydon",
+        "Elephant and Castle",
+        "Denmark Hill",
+        "Tooting Broadway",
+        "Wimbledon",
+        "Mitcham Junction"
+      ]
+    },
+    "Trams": {
+      "display_name": "Trams",
+      "has_branches": false,
+      "stations": [
+        "Wimbledon",
+        "South Wimbledon",
+        "Mitcham Junction",
+        "West Croydon",
+        "East Croydon"
+      ]
+    },
+    "Cable Car": {
+      "display_name": "Cable Car",
+      "has_branches": false,
+      "stations": ["North Greenwich", "Royal Victoria"]
+    }
+  },
+
+  "stations": {
+    "Rayners Lane": {
+      "display_name": "Rayners Lane",
+      "Picc": ["Park Royal"],
+      "Met": ["Kenton"]
+    },
+    "Park Royal": {
+      "display_name": "Park Royal / Hangar Lane",
+      "Picc": ["Rayners Lane", "Ealing Common"],
+      "Central": ["Wood Lane"]
+    },
+    "Ealing Common": {
+      "display_name": "Ealing Common",
+      "Picc": ["Park Royal", "Acton Town"],
+      "District": ["Ealing Broadway", "Acton Town"]
+    },
+    "Acton Town": {
+      "display_name": "Acton Town",
+      "Picc": ["Ealing Common", "Turnham Green"],
+      "District": ["Ealing Common", "Turnham Green"]
+    },
+    "Turnham Green": {
+      "display_name": "Turnham Green",
+      "Picc": ["Acton Town", "Hammersmith"],
+      "District": ["Acton Town", "Gunnersbury", "Hammersmith"]
+    },
+    "Hammersmith": {
+      "display_name": "Hammersmith",
+      "Picc": ["Turnham Green", "Barons Court"],
+      "H&C": ["Wood Lane"],
+      "N Circle": ["Wood Lane"],
+      "District": ["Turnham Green", "Barons Court"]
+    },
+    "Barons Court": {
+      "display_name": "Barons Court",
+      "Picc": ["Hammersmith", "Earl's Court"],
+      "District": ["Hammersmith", "Earl's Court"]
+    },
+    "Earl's Court": {
+      "display_name": "Earl's Court",
+      "Picc": ["Barons Court", "Gloucester Road"],
+      "District": [
+        "Olympia",
+        "Barons Court",
+        "West Brompton",
+        "Gloucester Road",
+        "Notting Hill Gate"
+      ]
+    },
+    "Gloucester Road": {
+      "display_name": "Gloucester Road",
+      "Picc": ["Earl's Court", "South Kensington"],
+      "S Circle": ["Notting Hill Gate", "South Kensington"],
+      "District": ["Earl's Court", "South Kensington"]
+    },
+    "South Kensington": {
+      "display_name": "South Kensington",
+      "Picc": ["Gloucester Road", "Green Park"],
+      "S Circle": ["Gloucester Road", "Victoria"],
+      "District": ["Gloucester Road", "Victoria"]
+    },
+    "Green Park": {
+      "display_name": "Green Park",
+      "Picc": ["South Kensington", "Piccadilly Circus"],
+      "Jubilee": ["Bond Street", "Westminster"],
+      "Victoria": ["Oxford Circus", "Victoria"]
+    },
+    "Piccadilly Circus": {
+      "display_name": "Piccadilly Circus",
+      "Picc": ["Green Park", "Leicester Square"],
+      "Bakerloo": ["Oxford Circus", "Charing Cross"]
+    },
+    "Leicester Square": {
+      "display_name": "Leicester Square",
+      "Picc": ["Piccadilly Circus", "Holborn"],
+      "CX Branch": ["Tottenham Court Road", "Charing Cross"]
+    },
+    "Holborn": {
+      "display_name": "Holborn",
+      "Picc": ["Leicester Square", "King's Cross"],
+      "Central": ["Tottenham Court Road", "St Paul's"]
+    },
+    "King's Cross": {
+      "display_name": "King's Cross St Pancras",
+      "weight": 11,
+      "Picc": ["Holborn", "Caledonian Road"],
+      "Victoria": ["Highbury and Islington", "Euston"],
+      "Bank Branch": ["Euston", "Liverpool Street"],
+      "Met": ["Euston", "Farringdon"],
+      "H&C": ["Euston", "Farringdon"],
+      "N Circle": ["Euston", "Farringdon"],
+      "Thameslink": ["Kentish Town", "Finsbury Park", "Farringdon"]
+    },
+    "Caledonian Road": {
+      "display_name": "Caledonian Road",
+      "Picc": ["King's Cross", "Finsbury Park"],
+      "Mildmay": ["Camden Town", "Highbury and Islington"]
+    },
+    "Finsbury Park": {
+      "display_name": "Finsbury Park",
+      "Picc": ["Caledonian Road", "Manor House"],
+      "Victoria": ["Seven Sisters", "Highbury and Islington"],
+      "Thameslink": ["King's Cross"]
+    },
+    "Manor House": {
+      "display_name": "Manor House / Harringay Green Lanes",
+      "Picc": ["Finsbury Park"],
+      "Suffragette": ["Archway", "Seven Sisters"]
+    },
+    "Ealing Broadway": {
+      "display_name": "Ealing Broadway",
+      "Central": ["Wood Lane"],
+      "District": ["Ealing Common"],
+      "Elizabeth": ["Paddington"]
+    },
+    "Wood Lane": {
+      "display_name": "Wood Lane / White City",
+      "Central": ["Ealing Broadway", "Park Royal", "Shepard's Bush"],
+      "H&C": ["Hammersmith", "Paddington"],
+      "N Circle": ["Hammersmith", "Paddington"]
+    },
+    "Shepard's Bush": {
+      "display_name": "Shepard's Bush",
+      "Central": ["Wood Lane", "Notting Hill Gate"],
+      "Mildmay": ["Olympia", "Wilsden Junction"]
+    },
+    "Notting Hill Gate": {
+      "display_name": "Notting Hill Gate",
+      "Central": ["Shepard's Bush", "Bond Street"],
+      "S Circle": ["Paddington", "Gloucester Road"],
+      "District": ["Paddington", "Earl's Court"]
+    },
+    "Bond Street": {
+      "display_name": "Bond Street",
+      "Central": ["Notting Hill Gate", "Oxford Circus"],
+      "Jubilee": ["Baker Street", "Green Park"],
+      "Elizabeth": ["Paddington", "Tottenham Court Road"]
+    },
+    "Oxford Circus": {
+      "display_name": "Oxford Circus",
+      "weight": 8,
+      "Central": ["Bond Street", "Tottenham Court Road"],
+      "Bakerloo": ["Baker Street", "Piccadilly Circus"],
+      "Victoria": ["Warren Street", "Green Park"]
+    },
+    "Tottenham Court Road": {
+      "display_name": "Tottenham Court Road",
+      "Central": ["Oxford Circus", "Holborn"],
+      "CX Branch": ["Warren Street", "Leicester Square"],
+      "Elizabeth": ["Bond Street", "Farringdon"]
+    },
+    "St Paul's": {
+      "display_name": "St Paul's / City Thameslink",
+      "Central": ["Holborn", "Bank"],
+      "Thameslink": ["Farringdon", "Blackfriars"]
+    },
+    "Bank": {
+      "display_name": "Bank / Monument",
+      "Central": ["St Paul's", "Liverpool Street"],
+      "Bank Branch": ["Liverpool Street", "London Bridge"],
+      "W&C": ["Waterloo"],
+      "S Circle": ["Blackfriars", "Tower Hill"],
+      "District": ["Blackfriars", "Tower Hill"],
+      "L DLR": ["Shadwell"],
+      "W DLR": ["Shadwell"]
+    },
+    "Liverpool Street": {
+      "display_name": "Liverpool Street / Moorgate",
+      "weight": 11,
+      "Central": ["Bank", "Bethnal Green"],
+      "Bank Branch": ["King's Cross", "Bank"],
+      "Met": ["Farringdon"],
+      "H&C": ["Farringdon", "Aldgate East"],
+      "N Circle": ["Farringdon"],
+      "S Circle": ["Tower Hill"],
+      "Weaver": ["Bethnal Green"],
+      "Elizabeth": ["Farringdon", "Whitechapel"]
+    },
+    "Bethnal Green": {
+      "display_name": "Bethnal Green",
+      "Central": ["Liverpool Street", "Mile End"],
+      "Weaver": ["Liverpool Street", "Hackney Central"]
+    },
+    "Mile End": {
+      "display_name": "Mile End",
+      "Central": ["Bethnal Green", "Stratford"],
+      "H&C": ["Whitechapel", "Bow Road"],
+      "District": ["Whitechapel", "Bow Road"]
+    },
+    "Stratford": {
+      "display_name": "Stratford",
+      "Central": ["Mile End", "Leytonstone"],
+      "Jubilee": ["West Ham"],
+      "Mildmay": ["Hackney Central"],
+      "Elizabeth": ["Whitechapel", "Wansted Park"],
+      "L DLR": ["Bow Road"],
+      "W DLR": ["West Ham"]
+    },
+    "Leytonstone": {
+      "display_name": "Leytonstone / Leytonstone High Road",
+      "Central": ["Stratford"],
+      "Suffragette": ["Walthamstow Central", "Wansted Park"]
+    },
+    "Kenton": {
+      "display_name": "Kenton / Northwick Park",
+      "Bakerloo": ["Wilsden Junction"],
+      "Met": ["Rayners Lane", "Wembley Park"],
+      "Lioness": ["Wilsden Junction"]
+    },
+    "Wilsden Junction": {
+      "display_name": "Wilsden Junction",
+      "Bakerloo": ["Kenton", "Queen's Park"],
+      "Lioness": ["Kenton", "Queen's Park"],
+      "Mildmay": ["Gunnersbury", "West Hampstead", "Shepard's Bush"]
+    },
+    "Queen's Park": {
+      "display_name": "Queen's Park",
+      "Lioness": ["Wilsden Junction", "Swiss Cottage"],
+      "Bakerloo": ["Wilsden Junction", "Paddington"]
+    },
+    "Paddington": {
+      "display_name": "Paddington",
+      "Bakerloo": ["Queen's Park", "Edgware Road"],
+      "H&C": ["Wood Lane", "Edgware Road"],
+      "N Circle": ["Wood Lane", "Edgware Road"],
+      "S Circle": ["Edgware Road", "Notting Hill Gate"],
+      "District": ["Edgware Road", "Notting Hill Gate"],
+      "Elizabeth": ["Ealing Broadway", "Bond Street"]
+    },
+    "Edgware Road": {
+      "display_name": "Edgware Road",
+      "Bakerloo": ["Paddington", "Baker Street"],
+      "H&C": ["Paddington", "Baker Street"],
+      "N Circle": ["Paddington", "Baker Street"],
+      "S Circle": ["Paddington"],
+      "District": ["Paddington"]
+    },
+    "Baker Street": {
+      "display_name": "Baker Street",
+      "weight": 8,
+      "Bakerloo": ["Edgware Road", "Oxford Circus"],
+      "Jubilee": ["Swiss Cottage", "Bond Street"],
+      "Met": ["Finchley Road", "Euston"],
+      "H&C": ["Edgware Road", "Euston"],
+      "N Circle": ["Edgware Road", "Euston"]
+    },
+    "Charing Cross": {
+      "display_name": "Charing Cross",
+      "Bakerloo": ["Piccadilly Circus", "Embankment"],
+      "CX Branch": ["Leicester Square", "Embankment"]
+    },
+    "Embankment": {
+      "display_name": "Embankment",
+      "Bakerloo": ["Charing Cross", "Waterloo"],
+      "CX Branch": ["Charing Cross", "Waterloo"],
+      "S Circle": ["Westminster", "Blackfriars"],
+      "District": ["Westminster", "Blackfriars"]
+    },
+    "Waterloo": {
+      "display_name": "Waterloo",
+      "Bakerloo": ["Embankment", "Elephant and Castle"],
+      "Jubilee": ["Westminster", "London Bridge"],
+      "CX Branch": ["Embankment", "Kennington"],
+      "W&C": ["Bank"]
+    },
+    "Elephant and Castle": {
+      "display_name": "Elephant and Castle",
+      "Bakerloo": ["Waterloo"],
+      "Bank Branch": ["London Bridge", "Kennington"],
+      "Thameslink": [
+        "Denmark Hill",
+        "Tooting Broadway",
+        "Mitcham Junction",
+        "Blackfriars"
+      ]
+    },
+    "Wembley Park": {
+      "display_name": "Wembley Park",
+      "Jubilee": ["West Hampstead"],
+      "Met": ["Kenton", "Finchley Road"]
+    },
+    "West Hampstead": {
+      "display_name": "West Hampstead",
+      "Jubilee": ["Wembley Park", "Finchley Road"],
+      "Mildmay": ["Wilsden Junction", "Gospel Oak"],
+      "Thameslink": ["Kentish Town"]
+    },
+    "Finchley Road": {
+      "display_name": "Finchley Road",
+      "Jubilee": ["West Hampstead", "Swiss Cottage"],
+      "Met": ["Wembley Park", "Baker Street"]
+    },
+    "Swiss Cottage": {
+      "display_name": "Swiss Cottage / South Hampstead",
+      "Jubilee": ["Finchley Road", "Baker Street"],
+      "Lioness": ["Queen's Park", "Euston"]
+    },
+    "Westminster": {
+      "display_name": "Westminster",
+      "Jubilee": ["Green Park", "Waterloo"],
+      "S Circle": ["Victoria", "Embankment"],
+      "District": ["Victoria", "Embankment"]
+    },
+    "London Bridge": {
+      "display_name": "London Bridge",
+      "Jubilee": ["Waterloo", "Canada Water"],
+      "Bank Branch": ["Bank", "Elephant and Castle"],
+      "Thameslink": ["Blackfriars", "Greenwich", "Norwood Junction"]
+    },
+    "Canada Water": {
+      "display_name": "Canada Water",
+      "Jubilee": ["London Bridge", "Canary Wharf"],
+      "Windrush": ["Shadwell", "Denmark Hill", "Norwood Junction"]
+    },
+    "Canary Wharf": {
+      "display_name": "Canary Wharf",
+      "Jubilee": ["Canada Water", "North Greenwich"],
+      "Elizabeth": ["Whitechapel", "Custom House"],
+      "L DLR": ["Poplar", "Westferry", "Greenwich"]
+    },
+    "North Greenwich": {
+      "display_name": "North Greenwich",
+      "Jubilee": ["Canary Wharf", "Canning Town"],
+      "Cable Car": ["Royal Victoria"]
+    },
+    "Canning Town": {
+      "display_name": "Canning Town",
+      "Jubilee": ["North Greenwich", "West Ham"],
+      "W DLR": ["Poplar", "Woolwich Arsenal", "West Ham"],
+      "B DLR": ["Poplar", "Royal Victoria"]
+    },
+    "West Ham": {
+      "display_name": "West Ham",
+      "Jubilee": ["Canning Town", "Stratford"],
+      "H&C": ["Bow Road", "Barking"],
+      "District": ["Bow Road", "Barking"],
+      "W DLR": ["Stratford", "Canning Town"]
+    },
+    "Walthamstow Central": {
+      "display_name": "Walthamstow Central / Walthamstow Queen's Road",
+      "Victoria": ["Blackhorse Road"],
+      "Weaver": ["Hackney Central"],
+      "Suffragette": ["Blackhorse Road", "Leytonstone"]
+    },
+    "Blackhorse Road": {
+      "display_name": "Blackhorse Road",
+      "Victoria": ["Walthamstow Central", "Seven Sisters"],
+      "Suffragette": ["Seven Sisters", "Walthamstow Central"]
+    },
+    "Seven Sisters": {
+      "display_name": "Seven Sisters / South Tottenham",
+      "Victoria": ["Blackhorse Road", "Finsbury Park"],
+      "Weaver": ["Hackney Central"],
+      "Suffragette": ["Manor House", "Blackhorse Road"]
+    },
+    "Highbury and Islington": {
+      "display_name": "Highbury and Islington",
+      "Victoria": ["Finsbury Park", "King's Cross"],
+      "Mildmay": ["Caledonian Road", "Canonbury"],
+      "Windrush": ["Canonbury"]
+    },
+    "Euston": {
+      "display_name": "Euston / Euston Square",
+      "weight": 9,
+      "Victoria": ["King's Cross", "Warren Street"],
+      "CX Branch": ["Camden Town", "Warren Street"],
+      "Bank Branch": ["King's Cross"],
+      "Met": ["Baker Street", "King's Cross"],
+      "H&C": ["Baker Street", "King's Cross"],
+      "N Circle": ["Baker Street", "King's Cross"],
+      "Lioness": ["Swiss Cottage"]
+    },
+    "Warren Street": {
+      "display_name": "Warren Street",
+      "Victoria": ["Euston", "Oxford Circus"],
+      "CX Branch": ["Euston", "Tottenham Court Road"]
+    },
+    "Victoria": {
+      "display_name": "Victoria",
+      "Victoria": ["Green Park", "Stockwell"],
+      "S Circle": ["South Kensington", "Westminster"],
+      "District": ["South Kensington", "Westminster"]
+    },
+    "Stockwell": {
+      "display_name": "Stockwell",
+      "Victoria": ["Victoria"],
+      "Bank Branch": ["Kennington", "Clapham North"]
+    },
+    "Archway": {
+      "display_name": "Archway / Upper Holloway",
+      "CX Branch": ["Kentish Town"],
+      "Suffragette": ["Gospel Oak", "Manor House"]
+    },
+    "Kentish Town": {
+      "display_name": "Kentish Town",
+      "CX Branch": ["Archway", "Camden Town"],
+      "Thameslink": ["West Hampstead", "King's Cross"]
+    },
+    "Camden Town": {
+      "display_name": "Camden Town",
+      "CX Branch": ["Kentish Town", "Euston"],
+      "Mildmay": ["Gospel Oak", "Caledonian Road"]
+    },
+    "Kennington": {
+      "display_name": "Kennington",
+      "CX Branch": ["Waterloo"],
+      "Bank Branch": ["Elephant and Castle", "Stockwell"]
+    },
+    "Clapham North": {
+      "display_name": "Clapham North",
+      "Bank Branch": ["Stockwell", "Tooting Broadway"],
+      "Windrush": ["Clapham Junction", "Denmark Hill"]
+    },
+    "Tooting Broadway": {
+      "display_name": "Tooting Broadway / Tooting",
+      "Bank Branch": ["Clapham North", "South Wimbledon"],
+      "Thameslink": ["Wimbledon", "Elephant and Castle"]
+    },
+    "South Wimbledon": {
+      "display_name": "South Wimbledon / Morden Road",
+      "Bank Branch": ["Tooting Broadway"],
+      "Trams": ["Wimbledon", "Mitcham Junction"]
+    },
+    "Farringdon": {
+      "display_name": "Farringdon",
+      "weight": 9,
+      "Met": ["King's Cross", "Liverpool Street"],
+      "H&C": ["King's Cross", "Liverpool Street"],
+      "N Circle": ["King's Cross", "Liverpool Street"],
+      "Elizabeth": ["Tottenham Court Road", "Liverpool Street"],
+      "Thameslink": ["King's Cross", "St Paul's"]
+    },
+    "Aldgate East": {
+      "display_name": "Aldgate East",
+      "H&C": ["Liverpool Street", "Whitechapel"],
+      "District": ["Tower Hill", "Whitechapel"]
+    },
+    "Whitechapel": {
+      "display_name": "Whitechapel",
+      "H&C": ["Aldgate East", "Mile End"],
+      "District": ["Aldgate East", "Mile End"],
+      "Windrush": ["Canonbury", "Shadwell"],
+      "Elizabeth": ["Liverpool Street", "Stratford", "Canary Wharf"]
+    },
+    "Bow Road": {
+      "display_name": "Bow Road / Bow Church",
+      "H&C": ["Mile End", "West Ham"],
+      "District": ["Mile End", "West Ham"],
+      "L DLR": ["Stratford", "Poplar"]
+    },
+    "Barking": {
+      "display_name": "Barking",
+      "H&C": ["West Ham"],
+      "District": ["West Ham"],
+      "Suffragette": ["Wansted Park"]
+    },
+    "Blackfriars": {
+      "display_name": "Blackfriars",
+      "S Circle": ["Embankment", "Bank"],
+      "District": ["Embankment", "Bank"],
+      "Thameslink": [
+        "St Paul's",
+        "Elephant and Castle",
+        "London Bridge"
+      ]
+    },
+    "Tower Hill": {
+      "display_name": "Tower Hill",
+      "S Circle": ["Bank", "Liverpool Street"],
+      "District": ["Bank", "Aldgate East"],
+      "B DLR": ["Shadwell"]
+    },
+    "Gunnersbury": {
+      "display_name": "Gunnersbury",
+      "District": ["Turnham Green"],
+      "Mildmay": ["Wilsden Junction"]
+    },
+    "Wimbledon": {
+      "display_name": "Wimbledon",
+      "District": ["West Brompton"],
+      "Thameslink": ["Tooting Broadway"],
+      "Trams": ["South Wimbledon"]
+    },
+    "West Brompton": {
+      "display_name": "West Brompton",
+      "District": ["Wimbledon", "Earl's Court"],
+      "Mildmay": ["Olympia", "Clapham Junction"]
+    },
+    "Olympia": {
+      "display_name": "Kensington (Olympia)",
+      "District": ["Earl's Court"],
+      "Mildmay": ["Shepard's Bush", "West Brompton"]
+    },
+    "Hackney Central": {
+      "display_name": "Hackney Central",
+      "Mildmay": ["Canonbury", "Stratford"],
+      "Weaver": [
+        "Seven Sisters",
+        "Walthamstow Central",
+        "Bethnal Green"
+      ]
+    },
+    "Canonbury": {
+      "display_name": "Canonbury",
+      "Mildmay": ["Highbury and Islington", "Hackney Central"],
+      "Windrush": ["Highbury and Islington", "Whitechapel"]
+    },
+    "Gospel Oak": {
+      "display_name": "Gospel Oak",
+      "Mildmay": ["West Hampstead", "Camden Town"],
+      "Suffragette": ["Archway"]
+    },
+    "Clapham Junction": {
+      "display_name": "Clapham Junction",
+      "Mildmay": ["West Brompton"],
+      "Windrush": ["Clapham North"]
+    },
+    "Wansted Park": {
+      "display_name": "Wansted Park / Forest Gate",
+      "Suffragette": ["Leytonstone", "Barking"],
+      "Elizabeth": ["Stratford"]
+    },
+    "Shadwell": {
+      "display_name": "Shadwell",
+      "Windrush": ["Whitechapel", "Canada Water"],
+      "L DLR": ["Bank", "Westferry"],
+      "W DLR": ["Bank", "Westferry"],
+      "B DLR": ["Tower Hill", "Westferry"]
+    },
+    "Denmark Hill": {
+      "display_name": "Denmark Hill",
+      "Windrush": ["Clapham North", "Canada Water"],
+      "Thameslink": ["Elephant and Castle"]
+    },
+    "Norwood Junction": {
+      "display_name": "Norwood Junction",
+      "Windrush": ["West Croydon", "Canada Water"],
+      "Thameslink": ["London Bridge", "East Croydon"]
+    },
+    "West Croydon": {
+      "display_name": "West Croydon",
+      "Windrush": ["Norwood Junction"],
+      "Trams": ["Mitcham Junction", "East Croydon"]
+    },
+    "Custom House": {
+      "display_name": "Custom House",
+      "Elizabeth": ["Canary Wharf", "Abbey Wood"],
+      "B DLR": ["Royal Victoria"]
+    },
+    "Abbey Wood": {
+      "display_name": "Abbey Wood",
+      "Elizabeth": ["Custom House"],
+      "Thameslink": ["Woolwich Arsenal"]
+    },
+    "Westferry": {
+      "display_name": "Westferry",
+      "L DLR": ["Shadwell", "Canary Wharf"],
+      "W DLR": ["Shadwell", "Poplar"],
+      "B DLR": ["Shadwell", "Poplar"]
+    },
+    "Greenwich": {
+      "display_name": "Greenwich",
+      "L DLR": ["Canary Wharf"],
+      "Thameslink": ["London Bridge", "Woolwich Arsenal"]
+    },
+    "Poplar": {
+      "display_name": "Poplar",
+      "L DLR": ["Canary Wharf", "Bow Road"],
+      "W DLR": ["Westferry", "Canning Town"],
+      "B DLR": ["Westferry", "Canning Town"]
+    },
+    "Woolwich Arsenal": {
+      "display_name": "Woolwich Arsenal",
+      "W DLR": ["Canning Town"],
+      "Thameslink": ["Greenwich", "Abbey Wood"]
+    },
+    "Royal Victoria": {
+      "display_name": "Royal Victoria",
+      "B DLR": ["Canning Town", "Custom House"],
+      "Cable Car": ["North Greenwich"]
+    },
+    "East Croydon": {
+      "display_name": "East Croydon",
+      "Thameslink": ["Norwood Junction"],
+      "Trams": ["West Croydon"]
+    },
+    "Mitcham Junction": {
+      "display_name": "Mitcham Junction",
+      "Thameslink": ["Elephant and Castle"],
+      "Trams": ["South Wimbledon", "West Croydon"]
+    }
+  }
+}
