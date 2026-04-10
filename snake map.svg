@@ -22,8 +22,8 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="0.25"
-     inkscape:cx="2030"
-     inkscape:cy="878"
+     inkscape:cx="2018"
+     inkscape:cy="1566"
      inkscape:window-width="2560"
      inkscape:window-height="1412"
      inkscape:window-x="0"
@@ -1596,6 +1596,14 @@
          id="path159-6" />
     </clipPath>
   </defs>
+  <rect
+     style="fill:#ffffff;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.75;stroke-dasharray:none"
+     id="background"
+     width="4233"
+     height="2697"
+     x="0"
+     y="0"
+     rx="15.011938" />
   <path
      fill="#bcf0ff"
      d="m 2780.234,1322.029 21.366,13.24 z M 96.712,1801.715 h 2190.016 v -50.272 H 96.712 Z m 2540.032,-200.415 164.855,-266.032 -42.73,-26.48 -165.1709,266.5106 z m 250.322,-313.613 h 26.8 v -50.272 h -26.8 z m 26.8,0 h 68.495 v -50.272 h -68.495 z m 169.038,100.543 v 436.106 h 50.272 V 1388.23 Z m 150.815,586.92 h 94.259 v -50.271 h -94.26 z m 245.073,-150.814 v -289.062 h -50.271 v 289.062 z m 169.667,-289.062 v 258.27 h 50.271 v -258.27 z m 150.815,409.085 h 360.698 v -50.272 h -360.698 z m 360.698,0 v -50.272 z m -511.513,-150.815 c 0,83.292 67.523,150.815 150.815,150.815 v -50.272 c -55.53,0 -100.544,-45.013 -100.544,-100.543 z m -84.833,-343.103 c 46.85,0 84.833,37.984 84.833,84.833 h 50.271 c 0,-74.617 -60.488,-135.105 -135.104,-135.105 z m -84.834,84.833 c 0,-46.85 37.984,-84.833 84.834,-84.833 v -50.272 c -74.617,0 -135.105,60.488 -135.105,135.105 z m -395.888,289.062 c 0,83.291 67.523,150.814 150.815,150.814 v -50.271 c -55.53,0 -100.543,-45.014 -100.543,-100.543 z m -100.543,-536.649 c 55.53,0 100.543,45.014 100.543,100.543 h 50.272 c 0,-83.292 -67.523,-150.815 -150.815,-150.815 z m -180.761,47.581 c 18.3342,-29.5827 50.6626,-47.5807 85.466,-47.581 v -50.272 c -52.206,0 -100.695,26.997 -128.197,71.372 z m 526.378,639.882 c 83.292,0 150.815,-67.523 150.815,-150.814 h -50.272 c 0,55.53 -45.014,100.543 -100.543,100.543 z m -1041.25,-173.437 c 143.74,0 277.368,-77.267 350.3,-200.88 l -43.3,-25.548 c -63.997,108.477 -181.262,176.157 -307,176.157 z"
@@ -1816,142 +1824,297 @@
        style="stroke-width:.0628395;stroke-dasharray:none"
        id="path289" />
   </g>
-  <text
+  <g
+     id="Wansted Park Label">
+    <text
      xml:space="preserve"
      x="3815.318"
      y="211.294"
-     style="font-size:21.3654px;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-width:.0471296;stroke-dasharray:none"
-     id="Wansted Park Label"><tspan
+     style="font-size:21.3654px;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Wansted Park Label_h"><tspan
        x="3815.318"
        y="211.294"
-       style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;stroke-width:.0471296;stroke-dasharray:none"
-       id="tspan432">Wansted Park / Forest Gate</tspan></text>
-  <text
+       style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;stroke-width:5;stroke-dasharray:none"
+       id="tspan432_h">Wansted Park / Forest Gate</tspan></text>
+    <text
      xml:space="preserve"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:22.6667px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#fz);display:inline;fill:#000000;fill-opacity:1;stroke-width:0.05;stroke-dasharray:none"
+     x="3815.318"
+     y="211.294"
+     style="font-size:21.3654px;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-dasharray:none;stroke-width:0"
+     id="Wansted Park Label_c"><tspan
+       x="3815.318"
+       y="211.294"
+       style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;stroke-dasharray:none;stroke-width:0"
+       id="tspan432_c">Wansted Park / Forest Gate</tspan></text>
+  </g>
+  <g
+     id="Kenton Label">
+    <text
+     xml:space="preserve"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:22.6667px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#fz);display:inline;fill:#000000;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
      transform="matrix(0.9426,0,0,0.9426,-822.055,-1100.28)"
-     id="Kenton Label"><tspan
+     id="Kenton Label_h"><tspan
        x="1553.127"
        y="1317.9913"
-       id="tspan1">Kenton / </tspan><tspan
+       id="tspan3_h">Kenton / </tspan><tspan
        x="1553.127"
        y="1346.3247"
-       id="tspan2">Northwick Park</tspan></text>
-  <text
+       id="tspan4_h">Northwick Park</tspan></text>
+    <text
+     xml:space="preserve"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:22.6667px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#fz);display:inline;fill:#000000;fill-opacity:1;stroke-dasharray:none;stroke-width:0"
+     transform="matrix(0.9426,0,0,0.9426,-822.055,-1100.28)"
+     id="Kenton Label_c"><tspan
+       x="1553.127"
+       y="1317.9913"
+       id="tspan3_c">Kenton / </tspan><tspan
+       x="1553.127"
+       y="1346.3247"
+       id="tspan4_c">Northwick Park</tspan></text>
+  </g>
+  <g
+     id="Ealing Broadway Label">
+    <text
      xml:space="preserve"
      x="171.553"
      y="1248.413"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke:#46a24e;stroke-width:.0282777;stroke-dasharray:none;stroke-opacity:.795455"
-     id="Ealing Broadway Label"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Ealing Broadway Label_h"><tspan
        x="171.553"
        y="1248.413"
-       style="fill:#000;stroke:#6f7970;stroke-width:.0282777;stroke-dasharray:none;stroke-opacity:.109375"
-       id="tspan442">Ealing Broadway</tspan></text>
-  <text
+       style="fill:#000;stroke-width:5;stroke-dasharray:none"
+       id="tspan442_h">Ealing Broadway</tspan></text>
+    <text
+     xml:space="preserve"
+     x="171.553"
+     y="1248.413"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke-dasharray:none;stroke-width:0"
+     id="Ealing Broadway Label_c"><tspan
+       x="171.553"
+       y="1248.413"
+       style="fill:#000;stroke:#6f7970;stroke-dasharray:none;stroke-opacity:.109375;stroke-width:0"
+       id="tspan442_c">Ealing Broadway</tspan></text>
+  </g>
+  <g
+     id="Park Royal Label">
+    <text
      xml:space="preserve"
      x="142.269"
      y="1009.752"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#6950a1;fill-opacity:1;stroke:#6f7970;stroke-width:0;stroke-dasharray:none;stroke-opacity:0"
-     id="Park Royal Label"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#6950a1;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Park Royal Label_h"><tspan
        x="142.269"
        y="1009.752"
-       style="fill:#000;fill-opacity:1;stroke-width:0;stroke-dasharray:none"
-       id="tspan443">Park Royal /</tspan><tspan
+       style="fill:#000;fill-opacity:1;stroke-width:5;stroke-dasharray:none"
+       id="tspan443_h">Park Royal /</tspan><tspan
        x="142.269"
        y="1036.458"
-       style="fill:#000;fill-opacity:1;stroke-width:0;stroke-dasharray:none"
-       id="tspan444">Hangar Lane</tspan></text>
-  <text
+       style="fill:#000;fill-opacity:1;stroke-width:5;stroke-dasharray:none"
+       id="tspan444_h">Hangar Lane</tspan></text>
+    <text
+     xml:space="preserve"
+     x="142.269"
+     y="1009.752"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#6950a1;fill-opacity:1;stroke-dasharray:none;stroke-width:0"
+     id="Park Royal Label_c"><tspan
+       x="142.269"
+       y="1009.752"
+       style="fill:#000;fill-opacity:1;stroke-dasharray:none;stroke-width:0"
+       id="tspan443_c">Park Royal /</tspan><tspan
+       x="142.269"
+       y="1036.458"
+       style="fill:#000;fill-opacity:1;stroke-dasharray:none;stroke-width:0"
+       id="tspan444_c">Hangar Lane</tspan></text>
+  </g>
+  <g
+     id="West Brompton Label">
+    <text
      xml:space="preserve"
      x="847.43"
      y="1735.163"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke:#6f7970;stroke-width:0;stroke-dasharray:none;stroke-opacity:0"
-     id="West Brompton Label"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="West Brompton Label_h"><tspan
        x="847.43"
        y="1735.163"
-       style="stroke-width:0;stroke-dasharray:none"
-       id="tspan445">West Brompton</tspan></text>
-  <text
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan445_h">West Brompton</tspan></text>
+    <text
+     xml:space="preserve"
+     x="847.43"
+     y="1735.163"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke-dasharray:none;stroke-width:0"
+     id="West Brompton Label_c"><tspan
+       x="847.43"
+       y="1735.163"
+       style="stroke-dasharray:none;stroke-width:0"
+       id="tspan445_c">West Brompton</tspan></text>
+  </g>
+  <g
+     id="Clapham North Label">
+    <text
      xml:space="preserve"
      x="1700.363"
      y="2054.18"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke:#6f7970;stroke-width:0;stroke-dasharray:none;stroke-opacity:0"
-     id="Clapham North Label"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Clapham North Label_h"><tspan
        x="1700.363"
        y="2054.18"
-       style="stroke-width:0;stroke-dasharray:none"
-       id="tspan446">Clapham North /</tspan><tspan
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan446_h">Clapham North /</tspan><tspan
        x="1700.363"
        y="2080.887"
-       style="stroke-width:0;stroke-dasharray:none"
-       id="tspan447">Clapham High Street</tspan></text>
-  <text
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan447_h">Clapham High Street</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1700.363"
+     y="2054.18"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke-dasharray:none;stroke-width:0"
+     id="Clapham North Label_c"><tspan
+       x="1700.363"
+       y="2054.18"
+       style="stroke-dasharray:none;stroke-width:0"
+       id="tspan446_c">Clapham North /</tspan><tspan
+       x="1700.363"
+       y="2080.887"
+       style="stroke-dasharray:none;stroke-width:0"
+       id="tspan447_c">Clapham High Street</tspan></text>
+  </g>
+  <g
+     id="Tooting Broadway Label">
+    <text
      xml:space="preserve"
      x="1408.321"
      y="2289.702"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke:#6f7970;stroke-width:0;stroke-dasharray:none;stroke-opacity:0"
-     id="Tooting Broadway Label"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Tooting Broadway Label_h"><tspan
        x="1408.321"
        y="2289.702"
-       style="stroke-width:0;stroke-dasharray:none"
-       id="tspan448">Tooting Broadway /</tspan><tspan
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan448_h">Tooting Broadway /</tspan><tspan
        x="1408.321"
        y="2316.409"
-       style="stroke-width:0;stroke-dasharray:none"
-       id="tspan449">Tooting</tspan></text>
-  <text
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan449_h">Tooting</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1408.321"
+     y="2289.702"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke-dasharray:none;stroke-width:0"
+     id="Tooting Broadway Label_c"><tspan
+       x="1408.321"
+       y="2289.702"
+       style="stroke-dasharray:none;stroke-width:0"
+       id="tspan448_c">Tooting Broadway /</tspan><tspan
+       x="1408.321"
+       y="2316.409"
+       style="stroke-dasharray:none;stroke-width:0"
+       id="tspan449_c">Tooting</tspan></text>
+  </g>
+  <g
+     id="St Paul's Label">
+    <text
      xml:space="preserve"
      x="2302.626"
      y="1419.863"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke:#6f7970;stroke-width:0;stroke-dasharray:none;stroke-opacity:0"
-     id="St Paul's Label"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="St Paul's Label_h"><tspan
        x="2302.626"
        y="1419.863"
-       style="stroke-width:0;stroke-dasharray:none"
-       id="tspan450">St Paul's /</tspan><tspan
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan450_h">St Paul's /</tspan><tspan
        x="2302.626"
        y="1446.57"
-       style="stroke-width:0;stroke-dasharray:none"
-       id="tspan451">City Thameslink</tspan></text>
-  <text
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan451_h">City Thameslink</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2302.626"
+     y="1419.863"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke-dasharray:none;stroke-width:0"
+     id="St Paul's Label_c"><tspan
+       x="2302.626"
+       y="1419.863"
+       style="stroke-dasharray:none;stroke-width:0"
+       id="tspan450_c">St Paul's /</tspan><tspan
+       x="2302.626"
+       y="1446.57"
+       style="stroke-dasharray:none;stroke-width:0"
+       id="tspan451_c">City Thameslink</tspan></text>
+  </g>
+  <g
+     id="Leytonstone Label">
+    <text
      xml:space="preserve"
      x="3515.682"
      y="68.906"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke:#6f7970;stroke-width:0;stroke-dasharray:none;stroke-opacity:0"
-     id="Leytonstone Label"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Leytonstone Label_h"><tspan
        x="3515.682"
        y="68.906"
-       style="stroke-width:0;stroke-dasharray:none"
-       id="tspan452">Leytonstone / </tspan><tspan
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan452_h">Leytonstone / </tspan><tspan
        x="3515.682"
        y="95.612"
-       style="stroke-width:0;stroke-dasharray:none"
-       id="tspan453">Leytonstone High Road</tspan></text>
-  <text
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan453_h">Leytonstone High Road</tspan></text>
+    <text
+     xml:space="preserve"
+     x="3515.682"
+     y="68.906"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke-dasharray:none;stroke-width:0"
+     id="Leytonstone Label_c"><tspan
+       x="3515.682"
+       y="68.906"
+       style="stroke-dasharray:none;stroke-width:0"
+       id="tspan452_c">Leytonstone / </tspan><tspan
+       x="3515.682"
+       y="95.612"
+       style="stroke-dasharray:none;stroke-width:0"
+       id="tspan453_c">Leytonstone High Road</tspan></text>
+  </g>
+  <g
+     id="Bow Road Label">
+    <text
      xml:space="preserve"
      x="3310.27"
      y="882.667"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke:#6f7970;stroke-width:0;stroke-dasharray:none;stroke-opacity:0"
-     id="Bow Road Label"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Bow Road Label_h"><tspan
        x="3310.27"
        y="882.667"
-       style="stroke-width:0;stroke-dasharray:none"
-       id="tspan454">Bow Road / </tspan><tspan
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan454_h">Bow Road / </tspan><tspan
        x="3310.27"
        y="909.373"
-       style="stroke-width:0;stroke-dasharray:none"
-       id="tspan455">Bow Church</tspan></text>
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan455_h">Bow Church</tspan></text>
+    <text
+     xml:space="preserve"
+     x="3310.27"
+     y="882.667"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;fill-opacity:1;stroke-dasharray:none;stroke-width:0"
+     id="Bow Road Label_c"><tspan
+       x="3310.27"
+       y="882.667"
+       style="stroke-dasharray:none;stroke-width:0"
+       id="tspan454_c">Bow Road / </tspan><tspan
+       x="3310.27"
+       y="909.373"
+       style="stroke-dasharray:none;stroke-width:0"
+       id="tspan455_c">Bow Church</tspan></text>
+  </g>
   <g
      id="Bethnal Green Label">
     <text
        xml:space="preserve"
        x="2907.532"
        y="913.852"
-       style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:3.75000001;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.35"
+       style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.35"
        id="text765"><tspan
          x="2907.532"
          y="913.852"
-         style="stroke-width:3.75000001;stroke-dasharray:none"
+         style="stroke-width:5;stroke-dasharray:none"
          id="tspan765">Bethnal Green</tspan></text>
     <text
        xml:space="preserve"
@@ -1964,414 +2127,930 @@
          style="stroke-width:0;stroke-dasharray:none"
          id="tspan480">Bethnal Green</tspan></text>
   </g>
-  <text
+  <g
+     id="Euston Label">
+    <text
      xml:space="preserve"
      x="1962.162"
      y="649.505"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#b36305;fill-opacity:1;stroke:#fff;stroke-width:0;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.35"
-     id="Euston Label"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#b36305;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Euston Label_h"><tspan
+       x="1962.162"
+       y="649.505"
+       style="fill:#000;fill-opacity:1;stroke-width:5;stroke-dasharray:none"
+       id="tspan497_h">Euston /</tspan><tspan
+       x="1962.162"
+       y="676.212"
+       style="fill:#000;fill-opacity:1;stroke-width:5;stroke-dasharray:none"
+       id="tspan498_h">Euston Square</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1962.162"
+     y="649.505"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#b36305;fill-opacity:1;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-width:0"
+     id="Euston Label_c"><tspan
        x="1962.162"
        y="649.505"
        style="fill:#000;fill-opacity:1;stroke-width:0"
-       id="tspan497">Euston /</tspan><tspan
+       id="tspan497_c">Euston /</tspan><tspan
        x="1962.162"
        y="676.212"
        style="fill:#000;fill-opacity:1;stroke-width:0"
-       id="tspan498">Euston Square</tspan></text>
-  <text
+       id="tspan498_c">Euston Square</tspan></text>
+  </g>
+  <g
+     id="Archway Label">
+    <text
      xml:space="preserve"
      x="1875.602"
      y="65.851"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:0;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.35"
-     id="Archway Label"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Archway Label_h"><tspan
+       x="1875.602"
+       y="65.851"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan499_h">Archway /</tspan><tspan
+       x="1875.602"
+       y="92.558"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan500_h">Upper Holloway</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1875.602"
+     y="65.851"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-width:0"
+     id="Archway Label_c"><tspan
        x="1875.602"
        y="65.851"
        style="stroke-width:0"
-       id="tspan499">Archway /</tspan><tspan
+       id="tspan499_c">Archway /</tspan><tspan
        x="1875.602"
        y="92.558"
        style="stroke-width:0"
-       id="tspan500">Upper Holloway</tspan></text>
-  <text
+       id="tspan500_c">Upper Holloway</tspan></text>
+  </g>
+  <g
+     id="Seven Sisters Label">
+    <text
      xml:space="preserve"
      x="2585.857"
      y="66.268"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:0;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.35"
-     id="Seven Sisters Label"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Seven Sisters Label_h"><tspan
+       x="2585.857"
+       y="66.268"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan501_h">Seven Sisters /</tspan><tspan
+       x="2585.857"
+       y="92.975"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan502_h">South Tottenham</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2585.857"
+     y="66.268"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-width:0"
+     id="Seven Sisters Label_c"><tspan
        x="2585.857"
        y="66.268"
        style="stroke-width:0"
-       id="tspan501">Seven Sisters /</tspan><tspan
+       id="tspan501_c">Seven Sisters /</tspan><tspan
        x="2585.857"
        y="92.975"
        style="stroke-width:0"
-       id="tspan502">South Tottenham</tspan></text>
-  <text
+       id="tspan502_c">South Tottenham</tspan></text>
+  </g>
+  <g
+     id="Walthamstow Central Label">
+    <text
      xml:space="preserve"
      x="3045.4587"
      y="65.916367"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000000;fill-opacity:1;stroke:#ffffff;stroke-width:0;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.35"
-     id="Walthamstow Central Label"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000000;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Walthamstow Central Label_h"><tspan
+       x="3045.4587"
+       y="65.916367"
+       style="font-size:21px;stroke-width:5;stroke-dasharray:none"
+       id="tspan503_h">Walthamstow Central /</tspan><tspan
+       x="3045.4587"
+       y="92.166367"
+       style="font-size:21px;stroke-width:5;stroke-dasharray:none"
+       id="tspan504_h">Walthamstow QR</tspan></text>
+    <text
+     xml:space="preserve"
+     x="3045.4587"
+     y="65.916367"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000000;fill-opacity:1;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-width:0"
+     id="Walthamstow Central Label_c"><tspan
        x="3045.4587"
        y="65.916367"
        style="font-size:21px;stroke-width:0"
-       id="tspan503">Walthamstow Central /</tspan><tspan
+       id="tspan503_c">Walthamstow Central /</tspan><tspan
        x="3045.4587"
        y="92.166367"
        style="font-size:21px;stroke-width:0"
-       id="tspan504">Walthamstow QR</tspan></text>
-  <text
+       id="tspan504_c">Walthamstow QR</tspan></text>
+  </g>
+  <g
+     id="Manor House Label">
+    <text
      xml:space="preserve"
      x="2155.831"
      y="64.787"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:0;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.35"
-     id="Manor House Label"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Manor House Label_h"><tspan
+       x="2155.831"
+       y="64.787"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan505_h">Manor House /</tspan><tspan
+       x="2155.831"
+       y="91.493"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan506_h">Harringay Green Lanes</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2155.831"
+     y="64.787"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-width:0"
+     id="Manor House Label_c"><tspan
        x="2155.831"
        y="64.787"
        style="stroke-width:0"
-       id="tspan505">Manor House /</tspan><tspan
+       id="tspan505_c">Manor House /</tspan><tspan
        x="2155.831"
        y="91.493"
        style="stroke-width:0"
-       id="tspan506">Harringay Green Lanes</tspan></text>
-  <text
+       id="tspan506_c">Harringay Green Lanes</tspan></text>
+  </g>
+  <g
+     id="Canary Wharf Label">
+    <text
      xml:space="preserve"
      x="3308.227"
      y="1359.658"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:0;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
-     id="Canary Wharf Label"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Canary Wharf Label_h"><tspan
+       x="3308.227"
+       y="1359.658"
+       style="font-size:21px;fill:#000;stroke-width:5;stroke-dasharray:none"
+       id="tspan513_h">Canary Wharf</tspan></text>
+    <text
+     xml:space="preserve"
+     x="3308.227"
+     y="1359.658"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-width:0"
+     id="Canary Wharf Label_c"><tspan
        x="3308.227"
        y="1359.658"
        style="font-size:21px;fill:#000;stroke-width:0"
-       id="tspan513">Canary Wharf</tspan></text>
-  <text
+       id="tspan513_c">Canary Wharf</tspan></text>
+  </g>
+  <g
+     id="Swiss Cottage Label">
+    <text
      xml:space="preserve"
      x="1626.895"
      y="596.201"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:0;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
-     id="Swiss Cottage Label"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Swiss Cottage Label_h"><tspan
+       x="1626.895"
+       y="596.201"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan514_h">Swiss Cottage /</tspan><tspan
+       x="1626.895"
+       y="622.451"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan515_h">South Hampstead</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1626.895"
+     y="596.201"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-width:0"
+     id="Swiss Cottage Label_c"><tspan
        x="1626.895"
        y="596.201"
        style="stroke-width:0"
-       id="tspan514">Swiss Cottage /</tspan><tspan
+       id="tspan514_c">Swiss Cottage /</tspan><tspan
        x="1626.895"
        y="622.451"
        style="stroke-width:0"
-       id="tspan515">South Hampstead</tspan></text>
-  <text
+       id="tspan515_c">South Hampstead</tspan></text>
+  </g>
+  <g
+     id="Camden Town Label">
+    <text
      xml:space="preserve"
      x="1962.203"
      y="377.811"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:0;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
-     id="Camden Town Label"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Camden Town Label_h"><tspan
+       x="1962.203"
+       y="377.811"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan516_h">Camden Town /</tspan><tspan
+       x="1962.203"
+       y="404.061"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan517_h">Camden Road</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1962.203"
+     y="377.811"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-width:0"
+     id="Camden Town Label_c"><tspan
        x="1962.203"
        y="377.811"
        style="stroke-width:0"
-       id="tspan516">Camden Town /</tspan><tspan
+       id="tspan516_c">Camden Town /</tspan><tspan
        x="1962.203"
        y="404.061"
        style="stroke-width:0"
-       id="tspan517">Camden Road</tspan></text>
-  <text
+       id="tspan517_c">Camden Road</tspan></text>
+  </g>
+  <g
+     id="Hackney Central Label">
+    <text
      xml:space="preserve"
      x="2946.131"
      y="452.079"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:0;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
-     id="Hackney Central Label"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Hackney Central Label_h"><tspan
+       x="2946.131"
+       y="452.079"
+       style="fill:#000;stroke-width:5;stroke-dasharray:none"
+       id="tspan537_h">Hackney Central /</tspan><tspan
+       x="2946.131"
+       y="478.329"
+       style="fill:#000;stroke-width:5;stroke-dasharray:none"
+       id="tspan538_h">Hackney Downs</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2946.131"
+     y="452.079"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000;fill-opacity:1;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-width:0"
+     id="Hackney Central Label_c"><tspan
        x="2946.131"
        y="452.079"
        style="fill:#000;stroke-width:0"
-       id="tspan537">Hackney Central /</tspan><tspan
+       id="tspan537_c">Hackney Central /</tspan><tspan
        x="2946.131"
        y="478.329"
        style="fill:#000;stroke-width:0"
-       id="tspan538">Hackney Downs</tspan></text>
-  <text
+       id="tspan538_c">Hackney Downs</tspan></text>
+  </g>
+  <g
+     id="Kennington Label">
+    <text
      xml:space="preserve"
      x="1914.5422"
      y="1875.799"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000000;fill-opacity:1;stroke:#ffffff;stroke-width:0;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.65"
-     id="Kennington Label"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000000;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Kennington Label_h"><tspan
+       x="1914.5422"
+       y="1875.799"
+       style="fill:#000000;fill-opacity:1;stroke-width:5;stroke-dasharray:none"
+       id="tspan539_h">Kennington</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1914.5422"
+     y="1875.799"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000000;fill-opacity:1;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-width:0"
+     id="Kennington Label_c"><tspan
        x="1914.5422"
        y="1875.799"
        style="fill:#000000;fill-opacity:1;stroke-width:0"
-       id="tspan539">Kennington</tspan></text>
-  <text
+       id="tspan539_c">Kennington</tspan></text>
+  </g>
+  <g
+     id="Westferry Label">
+    <text
      xml:space="preserve"
      x="3132.7031"
      y="1099.6823"
-     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000000;fill-opacity:1;stroke:#ffffff;stroke-width:0;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.65"
-     id="Westferry Label"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000000;fill-opacity:1;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Westferry Label_h"><tspan
+       x="3132.7031"
+       y="1099.6823"
+       style="fill:#000000;fill-opacity:1;stroke-width:5;stroke-dasharray:none"
+       id="tspan571_h">Westferry</tspan></text>
+    <text
+     xml:space="preserve"
+     x="3132.7031"
+     y="1099.6823"
+     style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;opacity:1;fill:#000000;fill-opacity:1;stroke-linecap:butt;stroke-linejoin:round;stroke-dasharray:none;stroke-width:0"
+     id="Westferry Label_c"><tspan
        x="3132.7031"
        y="1099.6823"
        style="fill:#000000;fill-opacity:1;stroke-width:0"
-       id="tspan571">Westferry</tspan></text>
-  <text
+       id="tspan571_c">Westferry</tspan></text>
+  </g>
+  <g
+     id="Rayners Lane Label">
+    <text
      xml:space="preserve"
      x="57.563"
      y="167.119"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Rayners Lane Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Rayners Lane Label_h"><tspan
+       x="57.563"
+       y="167.119"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan633_h">Rayners Lane</tspan></text>
+    <text
+     xml:space="preserve"
+     x="57.563"
+     y="167.119"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Rayners Lane Label_c"><tspan
        x="57.563"
        y="167.119"
        style="stroke-width:0"
-       id="tspan633">Rayners Lane</tspan></text>
-  <text
+       id="tspan633_c">Rayners Lane</tspan></text>
+  </g>
+  <g
+     id="Wembley Park Label">
+    <text
      xml:space="preserve"
      x="877.375"
      y="229.325"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Wembley Park Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Wembley Park Label_h"><tspan
+       x="877.375"
+       y="229.325"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan634_h">Wembley Park</tspan></text>
+    <text
+     xml:space="preserve"
+     x="877.375"
+     y="229.325"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Wembley Park Label_c"><tspan
        x="877.375"
        y="229.325"
        style="stroke-width:0"
-       id="tspan634">Wembley Park</tspan></text>
-  <text
+       id="tspan634_c">Wembley Park</tspan></text>
+  </g>
+  <g
+     id="Ealing Common Label">
+    <text
      xml:space="preserve"
      x="168.319"
      y="1367.193"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Ealing Common Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Ealing Common Label_h"><tspan
+       x="168.319"
+       y="1367.193"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan635_h">Ealing Common</tspan></text>
+    <text
+     xml:space="preserve"
+     x="168.319"
+     y="1367.193"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Ealing Common Label_c"><tspan
        x="168.319"
        y="1367.193"
        style="stroke-width:0"
-       id="tspan635">Ealing Common</tspan></text>
-  <text
+       id="tspan635_c">Ealing Common</tspan></text>
+  </g>
+  <g
+     id="Acton Town Label">
+    <text
      xml:space="preserve"
      x="174.16051"
      y="1568.869"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.65"
-     id="Acton Town Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Acton Town Label_h"><tspan
+       x="174.16051"
+       y="1568.869"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan636_h">Acton Town</tspan></text>
+    <text
+     xml:space="preserve"
+     x="174.16051"
+     y="1568.869"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;stroke-linejoin:round;stroke-width:0"
+     id="Acton Town Label_c"><tspan
        x="174.16051"
        y="1568.869"
        style="stroke-width:0"
-       id="tspan636">Acton Town</tspan></text>
-  <text
+       id="tspan636_c">Acton Town</tspan></text>
+  </g>
+  <g
+     id="Turnham Green Label">
+    <text
      xml:space="preserve"
      x="391.992"
      y="1487.094"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Turnham Green Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Turnham Green Label_h"><tspan
+       x="391.992"
+       y="1487.094"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan637_h">Turnham Green</tspan></text>
+    <text
+     xml:space="preserve"
+     x="391.992"
+     y="1487.094"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Turnham Green Label_c"><tspan
        x="391.992"
        y="1487.094"
        style="stroke-width:0"
-       id="tspan637">Turnham Green</tspan></text>
-  <text
+       id="tspan637_c">Turnham Green</tspan></text>
+  </g>
+  <g
+     id="Gunnersbury Label">
+    <text
      xml:space="preserve"
      x="416.41699"
      y="1708.2787"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.65"
-     id="Gunnersbury Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Gunnersbury Label_h"><tspan
+       x="416.41699"
+       y="1708.2787"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan638_h">Gunnersbury</tspan></text>
+    <text
+     xml:space="preserve"
+     x="416.41699"
+     y="1708.2787"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;stroke-linejoin:round;stroke-width:0"
+     id="Gunnersbury Label_c"><tspan
        x="416.41699"
        y="1708.2787"
        style="stroke-width:0"
-       id="tspan638">Gunnersbury</tspan></text>
-  <text
+       id="tspan638_c">Gunnersbury</tspan></text>
+  </g>
+  <g
+     id="Hammersmith Label">
+    <text
      xml:space="preserve"
      x="549.429"
      y="1572.544"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Hammersmith Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Hammersmith Label_h"><tspan
+       x="549.429"
+       y="1572.544"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan639_h">Hammersmith</tspan></text>
+    <text
+     xml:space="preserve"
+     x="549.429"
+     y="1572.544"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Hammersmith Label_c"><tspan
        x="549.429"
        y="1572.544"
        style="stroke-width:0"
-       id="tspan639">Hammersmith</tspan></text>
-  <text
+       id="tspan639_c">Hammersmith</tspan></text>
+  </g>
+  <g
+     id="Olympia Label">
+    <text
      xml:space="preserve"
      x="745.132"
      y="1327.243"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Olympia Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Olympia Label_h"><tspan
+       x="745.132"
+       y="1327.243"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan640_h">Kensington</tspan><tspan
+       x="745.132"
+       y="1354.743"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan641_h">Olympia</tspan></text>
+    <text
+     xml:space="preserve"
+     x="745.132"
+     y="1327.243"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Olympia Label_c"><tspan
        x="745.132"
        y="1327.243"
        style="stroke-width:0"
-       id="tspan640">Kensington</tspan><tspan
+       id="tspan640_c">Kensington</tspan><tspan
        x="745.132"
        y="1354.743"
        style="stroke-width:0"
-       id="tspan641">Olympia</tspan></text>
-  <text
+       id="tspan641_c">Olympia</tspan></text>
+  </g>
+  <g
+     id="Shepard's Bush Label">
+    <text
      xml:space="preserve"
      x="745.132"
      y="1250.73"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Shepard's Bush Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Shepard's Bush Label_h"><tspan
+       x="745.132"
+       y="1250.73"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan642_h">Shepard's Bush</tspan></text>
+    <text
+     xml:space="preserve"
+     x="745.132"
+     y="1250.73"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Shepard's Bush Label_c"><tspan
        x="745.132"
        y="1250.73"
        style="stroke-width:0"
-       id="tspan642">Shepard's Bush</tspan></text>
-  <text
+       id="tspan642_c">Shepard's Bush</tspan></text>
+  </g>
+  <g
+     id="Wilsden Junction Label">
+    <text
      xml:space="preserve"
      x="654.847"
      y="868.561"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Wilsden Junction Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Wilsden Junction Label_h"><tspan
+       x="654.847"
+       y="868.561"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan643_h">Wilsden</tspan><tspan
+       x="654.847"
+       y="896.061"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan644_h">Junction</tspan></text>
+    <text
+     xml:space="preserve"
+     x="654.847"
+     y="868.561"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Wilsden Junction Label_c"><tspan
        x="654.847"
        y="868.561"
        style="stroke-width:0"
-       id="tspan643">Wilsden</tspan><tspan
+       id="tspan643_c">Wilsden</tspan><tspan
        x="654.847"
        y="896.061"
        style="stroke-width:0"
-       id="tspan644">Junction</tspan></text>
-  <text
+       id="tspan644_c">Junction</tspan></text>
+  </g>
+  <g
+     id="Queen's Park Label">
+    <text
      xml:space="preserve"
      x="793.782"
      y="933.986"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Queen's Park Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Queen's Park Label_h"><tspan
+       x="793.782"
+       y="933.986"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan645_h">Queen's Park</tspan></text>
+    <text
+     xml:space="preserve"
+     x="793.782"
+     y="933.986"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Queen's Park Label_c"><tspan
        x="793.782"
        y="933.986"
        style="stroke-width:0"
-       id="tspan645">Queen's Park</tspan></text>
-  <text
+       id="tspan645_c">Queen's Park</tspan></text>
+  </g>
+  <g
+     id="Paddington Label">
+    <text
      xml:space="preserve"
      x="1357.457"
      y="880.865"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Paddington Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Paddington Label_h"><tspan
+       x="1357.457"
+       y="880.865"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan646_h">Paddington</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1357.457"
+     y="880.865"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Paddington Label_c"><tspan
        x="1357.457"
        y="880.865"
        style="stroke-width:0"
-       id="tspan646">Paddington</tspan></text>
-  <text
+       id="tspan646_c">Paddington</tspan></text>
+  </g>
+  <g
+     id="Edgware Road Label">
+    <text
      xml:space="preserve"
      x="1411.018"
      y="682.31"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Edgware Road Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Edgware Road Label_h"><tspan
+       x="1411.018"
+       y="682.31"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan647_h">Edgware</tspan><tspan
+       x="1411.018"
+       y="709.81"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan648_h">Road</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1411.018"
+     y="682.31"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Edgware Road Label_c"><tspan
        x="1411.018"
        y="682.31"
        style="stroke-width:0"
-       id="tspan647">Edgware</tspan><tspan
+       id="tspan647_c">Edgware</tspan><tspan
        x="1411.018"
        y="709.81"
        style="stroke-width:0"
-       id="tspan648">Road</tspan></text>
-  <text
+       id="tspan648_c">Road</tspan></text>
+  </g>
+  <g
+     id="Baker Street Label">
+    <text
      xml:space="preserve"
      x="1626.683"
      y="700.046"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Baker Street Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Baker Street Label_h"><tspan
+       x="1626.683"
+       y="700.046"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan649_h">Baker Street</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1626.683"
+     y="700.046"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Baker Street Label_c"><tspan
        x="1626.683"
        y="700.046"
        style="stroke-width:0"
-       id="tspan649">Baker Street</tspan></text>
-  <text
+       id="tspan649_c">Baker Street</tspan></text>
+  </g>
+  <g
+     id="Notting Hill Gate Label">
+    <text
      xml:space="preserve"
      x="1101.934"
      y="1253.421"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Notting Hill Gate Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Notting Hill Gate Label_h"><tspan
+       x="1101.934"
+       y="1253.421"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan650_h">Notting Hill Gate</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1101.934"
+     y="1253.421"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Notting Hill Gate Label_c"><tspan
        x="1101.934"
        y="1253.421"
        style="stroke-width:0"
-       id="tspan650">Notting Hill Gate</tspan></text>
-  <text
+       id="tspan650_c">Notting Hill Gate</tspan></text>
+  </g>
+  <g
+     id="Earl's Court Label">
+    <text
      xml:space="preserve"
      x="1111.546"
      y="1485.266"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Earl's Court Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Earl's Court Label_h"><tspan
+       x="1111.546"
+       y="1485.266"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan651_h">Earl's Court</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1111.546"
+     y="1485.266"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Earl's Court Label_c"><tspan
        x="1111.546"
        y="1485.266"
        style="stroke-width:0"
-       id="tspan651">Earl's Court</tspan></text>
-  <text
+       id="tspan651_c">Earl's Court</tspan></text>
+  </g>
+  <g
+     id="Gloucester Road Label">
+    <text
      xml:space="preserve"
      x="1186.906"
      y="1665.59"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Gloucester Road Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Gloucester Road Label_h"><tspan
+       x="1186.906"
+       y="1665.59"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan652_h">Gloucester Road</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1186.906"
+     y="1665.59"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Gloucester Road Label_c"><tspan
        x="1186.906"
        y="1665.59"
        style="stroke-width:0"
-       id="tspan652">Gloucester Road</tspan></text>
-  <text
+       id="tspan652_c">Gloucester Road</tspan></text>
+  </g>
+  <g
+     id="South Kensington Label">
+    <text
      xml:space="preserve"
      x="1349.158"
      y="1740.982"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="South Kensington Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="South Kensington Label_h"><tspan
+       x="1349.158"
+       y="1740.982"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan653_h">South Kensington</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1349.158"
+     y="1740.982"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="South Kensington Label_c"><tspan
        x="1349.158"
        y="1740.982"
        style="stroke-width:0"
-       id="tspan653">South Kensington</tspan></text>
-  <text
+       id="tspan653_c">South Kensington</tspan></text>
+  </g>
+  <g
+     id="Clapham Junction Label">
+    <text
      xml:space="preserve"
      x="1277.255"
      y="1997.721"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Clapham Junction Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Clapham Junction Label_h"><tspan
+       x="1277.255"
+       y="1997.721"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan654_h">Clapham Junction</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1277.255"
+     y="1997.721"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Clapham Junction Label_c"><tspan
        x="1277.255"
        y="1997.721"
        style="stroke-width:0"
-       id="tspan654">Clapham Junction</tspan></text>
-  <text
+       id="tspan654_c">Clapham Junction</tspan></text>
+  </g>
+  <g
+     id="Wimbledon Label">
+    <text
      xml:space="preserve"
      x="742.825"
      y="2135.046"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Wimbledon Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Wimbledon Label_h"><tspan
+       x="742.825"
+       y="2135.046"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan655_h">Wimbledon</tspan></text>
+    <text
+     xml:space="preserve"
+     x="742.825"
+     y="2135.046"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Wimbledon Label_c"><tspan
        x="742.825"
        y="2135.046"
        style="stroke-width:0"
-       id="tspan655">Wimbledon</tspan></text>
-  <text
+       id="tspan655_c">Wimbledon</tspan></text>
+  </g>
+  <g
+     id="South Wimbledon Label">
+    <text
      xml:space="preserve"
      x="1044.58"
      y="2407.054"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="South Wimbledon Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="South Wimbledon Label_h"><tspan
+       x="1044.58"
+       y="2407.054"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan656_h">South Wimbledon</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1044.58"
+     y="2407.054"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="South Wimbledon Label_c"><tspan
        x="1044.58"
        y="2407.054"
        style="stroke-width:0"
-       id="tspan656">South Wimbledon</tspan></text>
-  <text
+       id="tspan656_c">South Wimbledon</tspan></text>
+  </g>
+  <g
+     id="Mitcham Junction Label">
+    <text
      xml:space="preserve"
      x="1672.895"
      y="2465.283"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Mitcham Junction Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Mitcham Junction Label_h"><tspan
+       x="1672.895"
+       y="2465.283"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan657_h">Mitcham Junction</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1672.895"
+     y="2465.283"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Mitcham Junction Label_c"><tspan
        x="1672.895"
        y="2465.283"
        style="stroke-width:0"
-       id="tspan657">Mitcham Junction</tspan></text>
-  <text
+       id="tspan657_c">Mitcham Junction</tspan></text>
+  </g>
+  <g
+     id="Stockwell Label">
+    <text
      xml:space="preserve"
      x="1686.625"
      y="1925"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Stockwell Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Stockwell Label_h"><tspan
+       x="1686.625"
+       y="1925"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan658_h">Stockwell</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1686.625"
+     y="1925"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Stockwell Label_c"><tspan
        x="1686.625"
        y="1925"
        style="stroke-width:0"
-       id="tspan658">Stockwell</tspan></text>
-  <text
+       id="tspan658_c">Stockwell</tspan></text>
+  </g>
+  <g
+     id="Denmark Hill Label">
+    <text
      xml:space="preserve"
      x="2222.253"
      y="2054.302"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Denmark Hill Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Denmark Hill Label_h"><tspan
+       x="2222.253"
+       y="2054.302"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan659_h">Denmark Hill</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2222.253"
+     y="2054.302"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Denmark Hill Label_c"><tspan
        x="2222.253"
        y="2054.302"
        style="stroke-width:0"
-       id="tspan659">Denmark Hill</tspan></text>
-  <text
+       id="tspan659_c">Denmark Hill</tspan></text>
+  </g>
+  <g
+     id="Elephant and Castle Label">
+    <text
      xml:space="preserve"
      x="2145.862"
      y="1954.132"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Elephant and Castle Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Elephant and Castle Label_h"><tspan
+       x="2145.862"
+       y="1954.132"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan660_h">Elephant and</tspan><tspan
+       x="2145.862"
+       y="1981.632"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan661_h">Castle</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2145.862"
+     y="1954.132"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Elephant and Castle Label_c"><tspan
        x="2145.862"
        y="1954.132"
        style="stroke-width:0"
-       id="tspan660">Elephant and</tspan><tspan
+       id="tspan660_c">Elephant and</tspan><tspan
        x="2145.862"
        y="1981.632"
        style="stroke-width:0"
-       id="tspan661">Castle</tspan></text>
+       id="tspan661_c">Castle</tspan></text>
+  </g>
   <g
      id="Blackfriars Label">
     <text
@@ -2422,16 +3101,29 @@
          style="stroke-width:0"
          id="tspan667">Embankment</tspan></text>
   </g>
-  <text
+  <g
+     id="Westminster Label">
+    <text
      xml:space="preserve"
      x="1850.089"
      y="1695.122"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Westminster Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Westminster Label_h"><tspan
+       x="1850.089"
+       y="1695.122"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan668_h">Westminster</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1850.089"
+     y="1695.122"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Westminster Label_c"><tspan
        x="1850.089"
        y="1695.122"
        style="stroke-width:0"
-       id="tspan668">Westminster</tspan></text>
+       id="tspan668_c">Westminster</tspan></text>
+  </g>
   <g
      id="Green Park Label">
     <text
@@ -2457,20 +3149,37 @@
          style="stroke-width:0"
          id="tspan670">Green Park</tspan></text>
   </g>
-  <text
+  <g
+     id="Charing Cross Label">
+    <text
      xml:space="preserve"
      x="2128.053"
      y="1512.985"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Charing Cross Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Charing Cross Label_h"><tspan
+       x="2128.053"
+       y="1512.985"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan671_h">Charing</tspan><tspan
+       x="2128.053"
+       y="1540.485"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan672_h">Cross</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2128.053"
+     y="1512.985"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Charing Cross Label_c"><tspan
        x="2128.053"
        y="1512.985"
        style="stroke-width:0"
-       id="tspan671">Charing</tspan><tspan
+       id="tspan671_c">Charing</tspan><tspan
        x="2128.053"
        y="1540.485"
        style="stroke-width:0"
-       id="tspan672">Cross</tspan></text>
+       id="tspan672_c">Cross</tspan></text>
+  </g>
   <g
      id="Piccadilly Circus Label">
     <text
@@ -2577,147 +3286,310 @@
          style="stroke-width:0"
          id="tspan682">Court Road</tspan></text>
   </g>
-  <text
+  <g
+     id="Holborn Label">
+    <text
      xml:space="preserve"
      x="2052.09"
      y="1072.807"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Holborn Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Holborn Label_h"><tspan
+       x="2052.09"
+       y="1072.807"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan683_h">Holborn</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2052.09"
+     y="1072.807"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Holborn Label_c"><tspan
        x="2052.09"
        y="1072.807"
        style="stroke-width:0"
-       id="tspan683">Holborn</tspan></text>
-  <text
+       id="tspan683_c">Holborn</tspan></text>
+  </g>
+  <g
+     id="Warren Street Label">
+    <text
      xml:space="preserve"
      x="1832.001"
      y="821.874"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Warren Street Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Warren Street Label_h"><tspan
+       x="1832.001"
+       y="821.874"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan684_h">Warren</tspan><tspan
+       x="1832.001"
+       y="849.374"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan685_h">Street</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1832.001"
+     y="821.874"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Warren Street Label_c"><tspan
        x="1832.001"
        y="821.874"
        style="stroke-width:0"
-       id="tspan684">Warren</tspan><tspan
+       id="tspan684_c">Warren</tspan><tspan
        x="1832.001"
        y="849.374"
        style="stroke-width:0"
-       id="tspan685">Street</tspan></text>
-  <text
+       id="tspan685_c">Street</tspan></text>
+  </g>
+  <g
+     id="King's Cross Label">
+    <text
      xml:space="preserve"
      x="2015.385"
      y="788.994"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="King's Cross Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="King's Cross Label_h"><tspan
+       x="2015.385"
+       y="788.994"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan686_h">King's Cross</tspan><tspan
+       x="2015.385"
+       y="816.494"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan687_h">St Pancras</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2015.385"
+     y="788.994"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="King's Cross Label_c"><tspan
        x="2015.385"
        y="788.994"
        style="stroke-width:0"
-       id="tspan686">King's Cross</tspan><tspan
+       id="tspan686_c">King's Cross</tspan><tspan
        x="2015.385"
        y="816.494"
        style="stroke-width:0"
-       id="tspan687">St Pancras</tspan></text>
-  <text
+       id="tspan687_c">St Pancras</tspan></text>
+  </g>
+  <g
+     id="Finchley Road Label">
+    <text
      xml:space="preserve"
      x="1633.463"
      y="487.905"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Finchley Road Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Finchley Road Label_h"><tspan
+       x="1633.463"
+       y="487.905"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan688_h">Finchley</tspan><tspan
+       x="1633.463"
+       y="515.405"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan689_h">Road</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1633.463"
+     y="487.905"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Finchley Road Label_c"><tspan
        x="1633.463"
        y="487.905"
        style="stroke-width:0"
-       id="tspan688">Finchley</tspan><tspan
+       id="tspan688_c">Finchley</tspan><tspan
        x="1633.463"
        y="515.405"
        style="stroke-width:0"
-       id="tspan689">Road</tspan></text>
-  <text
+       id="tspan689_c">Road</tspan></text>
+  </g>
+  <g
+     id="West Hampstead Label">
+    <text
      xml:space="preserve"
      x="1626.714"
      y="347.615"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="West Hampstead Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="West Hampstead Label_h"><tspan
+       x="1626.714"
+       y="347.615"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan690_h">West</tspan><tspan
+       x="1626.714"
+       y="375.115"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan691_h">Hampstead</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1626.714"
+     y="347.615"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="West Hampstead Label_c"><tspan
        x="1626.714"
        y="347.615"
        style="stroke-width:0"
-       id="tspan690">West</tspan><tspan
+       id="tspan690_c">West</tspan><tspan
        x="1626.714"
        y="375.115"
        style="stroke-width:0"
-       id="tspan691">Hampstead</tspan></text>
-  <text
+       id="tspan691_c">Hampstead</tspan></text>
+  </g>
+  <g
+     id="Gospel Oak Label">
+    <text
      xml:space="preserve"
      x="1738.647"
      y="454.024"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Gospel Oak Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Gospel Oak Label_h"><tspan
+       x="1738.647"
+       y="454.024"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan692_h">Gospel Oak</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1738.647"
+     y="454.024"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Gospel Oak Label_c"><tspan
        x="1738.647"
        y="454.024"
        style="stroke-width:0"
-       id="tspan692">Gospel Oak</tspan></text>
-  <text
+       id="tspan692_c">Gospel Oak</tspan></text>
+  </g>
+  <g
+     id="Kentish Town Label">
+    <text
      xml:space="preserve"
      x="1963.621"
      y="270.245"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Kentish Town Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Kentish Town Label_h"><tspan
+       x="1963.621"
+       y="270.245"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan693_h">Kentish Town</tspan></text>
+    <text
+     xml:space="preserve"
+     x="1963.621"
+     y="270.245"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Kentish Town Label_c"><tspan
        x="1963.621"
        y="270.245"
        style="stroke-width:0"
-       id="tspan693">Kentish Town</tspan></text>
-  <text
+       id="tspan693_c">Kentish Town</tspan></text>
+  </g>
+  <g
+     id="Highbury and Islington Label">
+    <text
      xml:space="preserve"
      x="2299.029"
      y="479.261"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Highbury and Islington Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Highbury and Islington Label_h"><tspan
+       x="2299.029"
+       y="479.261"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan694_h">Highbury and</tspan><tspan
+       x="2299.029"
+       y="506.761"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan695_h">Islington</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2299.029"
+     y="479.261"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Highbury and Islington Label_c"><tspan
        x="2299.029"
        y="479.261"
        style="stroke-width:0"
-       id="tspan694">Highbury and</tspan><tspan
+       id="tspan694_c">Highbury and</tspan><tspan
        x="2299.029"
        y="506.761"
        style="stroke-width:0"
-       id="tspan695">Islington</tspan></text>
-  <text
+       id="tspan695_c">Islington</tspan></text>
+  </g>
+  <g
+     id="Canonbury Label">
+    <text
      xml:space="preserve"
      x="2388.073"
      y="397.182"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Canonbury Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Canonbury Label_h"><tspan
+       x="2388.073"
+       y="397.182"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan696_h">Canonbury</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2388.073"
+     y="397.182"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Canonbury Label_c"><tspan
        x="2388.073"
        y="397.182"
        style="stroke-width:0"
-       id="tspan696">Canonbury</tspan></text>
-  <text
+       id="tspan696_c">Canonbury</tspan></text>
+  </g>
+  <g
+     id="Finsbury Park Label">
+    <text
      xml:space="preserve"
      x="2307.407"
      y="204.546"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Finsbury Park Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Finsbury Park Label_h"><tspan
+       x="2307.407"
+       y="204.546"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan697_h">Finsbury Park</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2307.407"
+     y="204.546"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Finsbury Park Label_c"><tspan
        x="2307.407"
        y="204.546"
        style="stroke-width:0"
-       id="tspan697">Finsbury Park</tspan></text>
-  <text
+       id="tspan697_c">Finsbury Park</tspan></text>
+  </g>
+  <g
+     id="Blackhorse Road Label">
+    <text
      xml:space="preserve"
      x="2824.3777"
      y="92.99279"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.65"
-     id="Blackhorse Road Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Blackhorse Road Label_h"><tspan
+       x="2824.3777"
+       y="92.99279"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan698_h">Blackhorse Road</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2824.3777"
+     y="92.99279"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;stroke-linejoin:round;stroke-width:0"
+     id="Blackhorse Road Label_c"><tspan
        x="2824.3777"
        y="92.99279"
        style="stroke-width:0"
-       id="tspan698">Blackhorse Road</tspan></text>
+       id="tspan698_c">Blackhorse Road</tspan></text>
+  </g>
   <g
      id="Farringdon Label">
     <text
        xml:space="preserve"
        x="2254.363"
        y="967.593"
-       style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:3.75000001;stroke-linejoin:round;stroke-opacity:0.65;stroke-dasharray:none"
+       style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-opacity:0.65;stroke-dasharray:none"
        id="text754"><tspan
          x="2254.363"
          y="967.593"
-         style="stroke-width:3.75000001;stroke-dasharray:none"
+         style="stroke-width:5;stroke-dasharray:none"
          id="tspan754">Farringdon</tspan></text>
     <text
        xml:space="preserve"
@@ -2730,244 +3602,545 @@
          style="stroke-width:0"
          id="tspan699">Farringdon</tspan></text>
   </g>
-  <text
+  <g
+     id="Aldgate East Label">
+    <text
      xml:space="preserve"
      x="2705.9014"
      y="1086.974"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.65"
-     id="Aldgate East Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Aldgate East Label_h"><tspan
+       x="2705.9014"
+       y="1086.974"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan700_h">Aldgate East</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2705.9014"
+     y="1086.974"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;stroke-linejoin:round;stroke-width:0"
+     id="Aldgate East Label_c"><tspan
        x="2705.9014"
        y="1086.974"
        style="stroke-width:0"
-       id="tspan700">Aldgate East</tspan></text>
-  <text
+       id="tspan700_c">Aldgate East</tspan></text>
+  </g>
+  <g
+     id="Tower Hill Label">
+    <text
      xml:space="preserve"
      x="2621.662"
      y="1228.862"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Tower Hill Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Tower Hill Label_h"><tspan
+       x="2621.662"
+       y="1228.862"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan701_h">Tower</tspan><tspan
+       x="2621.662"
+       y="1256.362"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan702_h">Hill</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2621.662"
+     y="1228.862"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Tower Hill Label_c"><tspan
        x="2621.662"
        y="1228.862"
        style="stroke-width:0"
-       id="tspan701">Tower</tspan><tspan
+       id="tspan701_c">Tower</tspan><tspan
        x="2621.662"
        y="1256.362"
        style="stroke-width:0"
-       id="tspan702">Hill</tspan></text>
-  <text
+       id="tspan702_c">Hill</tspan></text>
+  </g>
+  <g
+     id="Whitechapel Label">
+    <text
      xml:space="preserve"
      x="2781.675"
      y="985.435"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Whitechapel Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Whitechapel Label_h"><tspan
+       x="2781.675"
+       y="985.435"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan703_h">Whitechapel</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2781.675"
+     y="985.435"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Whitechapel Label_c"><tspan
        x="2781.675"
        y="985.435"
        style="stroke-width:0"
-       id="tspan703">Whitechapel</tspan></text>
-  <text
+       id="tspan703_c">Whitechapel</tspan></text>
+  </g>
+  <g
+     id="Shadwell Label">
+    <text
      xml:space="preserve"
      x="2936.505"
      y="1177.678"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Shadwell Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Shadwell Label_h"><tspan
+       x="2936.505"
+       y="1177.678"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan704_h">Shadwell</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2936.505"
+     y="1177.678"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Shadwell Label_c"><tspan
        x="2936.505"
        y="1177.678"
        style="stroke-width:0"
-       id="tspan704">Shadwell</tspan></text>
-  <text
+       id="tspan704_c">Shadwell</tspan></text>
+  </g>
+  <g
+     id="Canada Water Label">
+    <text
      xml:space="preserve"
      x="2931.31"
      y="1429.271"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Canada Water Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Canada Water Label_h"><tspan
+       x="2931.31"
+       y="1429.271"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan705_h">Canada</tspan><tspan
+       x="2931.31"
+       y="1456.771"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan706_h">Water</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2931.31"
+     y="1429.271"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Canada Water Label_c"><tspan
        x="2931.31"
        y="1429.271"
        style="stroke-width:0"
-       id="tspan705">Canada</tspan><tspan
+       id="tspan705_c">Canada</tspan><tspan
        x="2931.31"
        y="1456.771"
        style="stroke-width:0"
-       id="tspan706">Water</tspan></text>
-  <text
+       id="tspan706_c">Water</tspan></text>
+  </g>
+  <g
+     id="London Bridge Label">
+    <text
      xml:space="preserve"
      x="2710.62"
      y="1578.504"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="London Bridge Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="London Bridge Label_h"><tspan
+       x="2710.62"
+       y="1578.504"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan707_h">London</tspan><tspan
+       x="2710.62"
+       y="1606.004"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan708_h">Bridge</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2710.62"
+     y="1578.504"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="London Bridge Label_c"><tspan
        x="2710.62"
        y="1578.504"
        style="stroke-width:0"
-       id="tspan707">London</tspan><tspan
+       id="tspan707_c">London</tspan><tspan
        x="2710.62"
        y="1606.004"
        style="stroke-width:0"
-       id="tspan708">Bridge</tspan></text>
-  <text
+       id="tspan708_c">Bridge</tspan></text>
+  </g>
+  <g
+     id="Greenwich Label">
+    <text
      xml:space="preserve"
      x="3179.718"
      y="2088.128"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Greenwich Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Greenwich Label_h"><tspan
+       x="3179.718"
+       y="2088.128"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan709_h">Greenwich</tspan></text>
+    <text
+     xml:space="preserve"
+     x="3179.718"
+     y="2088.128"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Greenwich Label_c"><tspan
        x="3179.718"
        y="2088.128"
        style="stroke-width:0"
-       id="tspan709">Greenwich</tspan></text>
-  <text
+       id="tspan709_c">Greenwich</tspan></text>
+  </g>
+  <g
+     id="Norwood Junction Label">
+    <text
      xml:space="preserve"
      x="2860.954"
      y="2312.294"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Norwood Junction Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Norwood Junction Label_h"><tspan
+       x="2860.954"
+       y="2312.294"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan710_h">Norwood Junction</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2860.954"
+     y="2312.294"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Norwood Junction Label_c"><tspan
        x="2860.954"
        y="2312.294"
        style="stroke-width:0"
-       id="tspan710">Norwood Junction</tspan></text>
-  <text
+       id="tspan710_c">Norwood Junction</tspan></text>
+  </g>
+  <g
+     id="West Croydon Label">
+    <text
      xml:space="preserve"
      x="2774.752"
      y="2464.697"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="West Croydon Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="West Croydon Label_h"><tspan
+       x="2774.752"
+       y="2464.697"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan711_h">West Croydon</tspan></text>
+    <text
+     xml:space="preserve"
+     x="2774.752"
+     y="2464.697"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="West Croydon Label_c"><tspan
        x="2774.752"
        y="2464.697"
        style="stroke-width:0"
-       id="tspan711">West Croydon</tspan></text>
-  <text
+       id="tspan711_c">West Croydon</tspan></text>
+  </g>
+  <g
+     id="East Croydon Label">
+    <text
      xml:space="preserve"
      x="3077.902"
      y="2463.751"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="East Croydon Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="East Croydon Label_h"><tspan
+       x="3077.902"
+       y="2463.751"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan712_h">East Croydon</tspan></text>
+    <text
+     xml:space="preserve"
+     x="3077.902"
+     y="2463.751"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="East Croydon Label_c"><tspan
        x="3077.902"
        y="2463.751"
        style="stroke-width:0"
-       id="tspan712">East Croydon</tspan></text>
-  <text
+       id="tspan712_c">East Croydon</tspan></text>
+  </g>
+  <g
+     id="Woolwich Arsenal Label">
+    <text
      xml:space="preserve"
      x="3753.092"
      y="2140.655"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Woolwich Arsenal Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Woolwich Arsenal Label_h"><tspan
+       x="3753.092"
+       y="2140.655"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan713_h">Woolwich</tspan><tspan
+       x="3753.092"
+       y="2168.155"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan714_h">Arsenal</tspan></text>
+    <text
+     xml:space="preserve"
+     x="3753.092"
+     y="2140.655"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Woolwich Arsenal Label_c"><tspan
        x="3753.092"
        y="2140.655"
        style="stroke-width:0"
-       id="tspan713">Woolwich</tspan><tspan
+       id="tspan713_c">Woolwich</tspan><tspan
        x="3753.092"
        y="2168.155"
        style="stroke-width:0"
-       id="tspan714">Arsenal</tspan></text>
-  <text
+       id="tspan714_c">Arsenal</tspan></text>
+  </g>
+  <g
+     id="Abbey Wood Label">
+    <text
      xml:space="preserve"
      x="3883.802"
      y="2142.225"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Abbey Wood Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Abbey Wood Label_h"><tspan
+       x="3883.802"
+       y="2142.225"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan715_h">Abbey</tspan><tspan
+       x="3883.802"
+       y="2169.725"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan716_h">Wood</tspan></text>
+    <text
+     xml:space="preserve"
+     x="3883.802"
+     y="2142.225"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Abbey Wood Label_c"><tspan
        x="3883.802"
        y="2142.225"
        style="stroke-width:0"
-       id="tspan715">Abbey</tspan><tspan
+       id="tspan715_c">Abbey</tspan><tspan
        x="3883.802"
        y="2169.725"
        style="stroke-width:0"
-       id="tspan716">Wood</tspan></text>
-  <text
+       id="tspan716_c">Wood</tspan></text>
+  </g>
+  <g
+     id="North Greenwich Label">
+    <text
      xml:space="preserve"
      x="3481.322"
      y="1548.678"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="North Greenwich Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="North Greenwich Label_h"><tspan
+       x="3481.322"
+       y="1548.678"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan717_h">North Greenwich</tspan></text>
+    <text
+     xml:space="preserve"
+     x="3481.322"
+     y="1548.678"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="North Greenwich Label_c"><tspan
        x="3481.322"
        y="1548.678"
        style="stroke-width:0"
-       id="tspan717">North Greenwich</tspan></text>
-  <text
+       id="tspan717_c">North Greenwich</tspan></text>
+  </g>
+  <g
+     id="Custom House Label">
+    <text
      xml:space="preserve"
      x="3958.077"
      y="1489.126"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Custom House Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Custom House Label_h"><tspan
+       x="3958.077"
+       y="1489.126"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan718_h">Custom</tspan><tspan
+       x="3958.077"
+       y="1516.626"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan719_h">House</tspan></text>
+    <text
+     xml:space="preserve"
+     x="3958.077"
+     y="1489.126"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Custom House Label_c"><tspan
        x="3958.077"
        y="1489.126"
        style="stroke-width:0"
-       id="tspan718">Custom</tspan><tspan
+       id="tspan718_c">Custom</tspan><tspan
        x="3958.077"
        y="1516.626"
        style="stroke-width:0"
-       id="tspan719">House</tspan></text>
-  <text
+       id="tspan719_c">House</tspan></text>
+  </g>
+  <g
+     id="Royal Victoria Label">
+    <text
      xml:space="preserve"
      x="3959.116"
      y="1256.115"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Royal Victoria Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Royal Victoria Label_h"><tspan
+       x="3959.116"
+       y="1256.115"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan720_h">Royal</tspan><tspan
+       x="3959.116"
+       y="1283.615"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan721_h">Victoria</tspan></text>
+    <text
+     xml:space="preserve"
+     x="3959.116"
+     y="1256.115"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Royal Victoria Label_c"><tspan
        x="3959.116"
        y="1256.115"
        style="stroke-width:0"
-       id="tspan720">Royal</tspan><tspan
+       id="tspan720_c">Royal</tspan><tspan
        x="3959.116"
        y="1283.615"
        style="stroke-width:0"
-       id="tspan721">Victoria</tspan></text>
-  <text
+       id="tspan721_c">Victoria</tspan></text>
+  </g>
+  <g
+     id="Canning Town Label">
+    <text
      xml:space="preserve"
      x="3688.366"
      y="1105.159"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Canning Town Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Canning Town Label_h"><tspan
+       x="3688.366"
+       y="1105.159"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan722_h">Canning Town</tspan></text>
+    <text
+     xml:space="preserve"
+     x="3688.366"
+     y="1105.159"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Canning Town Label_c"><tspan
        x="3688.366"
        y="1105.159"
        style="stroke-width:0"
-       id="tspan722">Canning Town</tspan></text>
-  <text
+       id="tspan722_c">Canning Town</tspan></text>
+  </g>
+  <g
+     id="Poplar Label">
+    <text
      xml:space="preserve"
      x="3311.646"
      y="1163.014"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Poplar Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Poplar Label_h"><tspan
+       x="3311.646"
+       y="1163.014"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan723_h">Poplar</tspan></text>
+    <text
+     xml:space="preserve"
+     x="3311.646"
+     y="1163.014"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Poplar Label_c"><tspan
        x="3311.646"
        y="1163.014"
        style="stroke-width:0"
-       id="tspan723">Poplar</tspan></text>
-  <text
+       id="tspan723_c">Poplar</tspan></text>
+  </g>
+  <g
+     id="Mile End Label">
+    <text
      xml:space="preserve"
      x="3171.65"
      y="954.256"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Mile End Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Mile End Label_h"><tspan
+       x="3171.65"
+       y="954.256"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan724_h">Mile end</tspan></text>
+    <text
+     xml:space="preserve"
+     x="3171.65"
+     y="954.256"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Mile End Label_c"><tspan
        x="3171.65"
        y="954.256"
        style="stroke-width:0"
-       id="tspan724">Mile end</tspan></text>
-  <text
+       id="tspan724_c">Mile end</tspan></text>
+  </g>
+  <g
+     id="West Ham Label">
+    <text
      xml:space="preserve"
      x="3587.255"
      y="827.544"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="West Ham Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="West Ham Label_h"><tspan
+       x="3587.255"
+       y="827.544"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan725_h">West Ham</tspan></text>
+    <text
+     xml:space="preserve"
+     x="3587.255"
+     y="827.544"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="West Ham Label_c"><tspan
        x="3587.255"
        y="827.544"
        style="stroke-width:0"
-       id="tspan725">West Ham</tspan></text>
-  <text
+       id="tspan725_c">West Ham</tspan></text>
+  </g>
+  <g
+     id="Barking Label">
+    <text
      xml:space="preserve"
      x="3889.971"
      y="890.173"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Barking Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Barking Label_h"><tspan
+       x="3889.971"
+       y="890.173"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan726_h">Barking</tspan></text>
+    <text
+     xml:space="preserve"
+     x="3889.971"
+     y="890.173"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Barking Label_c"><tspan
        x="3889.971"
        y="890.173"
        style="stroke-width:0"
-       id="tspan726">Barking</tspan></text>
-  <text
+       id="tspan726_c">Barking</tspan></text>
+  </g>
+  <g
+     id="Stratford Label">
+    <text
      xml:space="preserve"
      x="3594.538"
      y="426.553"
-     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:0;stroke-linejoin:round;stroke-opacity:.65"
-     id="Stratford Label"><tspan
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:.65"
+     id="Stratford Label_h"><tspan
+       x="3594.538"
+       y="426.553"
+       style="stroke-width:5;stroke-dasharray:none"
+       id="tspan727_h">Stratford</tspan></text>
+    <text
+     xml:space="preserve"
+     x="3594.538"
+     y="426.553"
+     style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke-linejoin:round;stroke-width:0"
+     id="Stratford Label_c"><tspan
        x="3594.538"
        y="426.553"
        style="stroke-width:0"
-       id="tspan727">Stratford</tspan></text>
+       id="tspan727_c">Stratford</tspan></text>
+  </g>
   <g
      id="Barons Court Label">
     <text
@@ -2997,15 +4170,15 @@
        xml:space="preserve"
        x="559.659"
        y="1258.13"
-       style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:3.75000001;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.75"
+       style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000;stroke:#fff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.75"
        id="text772"><tspan
          x="559.659"
          y="1258.13"
-         style="stroke-width:3.75000001;stroke-dasharray:none"
+         style="stroke-width:5;stroke-dasharray:none"
          id="tspan771">Wood Lane /</tspan><tspan
          x="559.659"
          y="1285.63"
-         style="stroke-width:3.75000001;stroke-dasharray:none"
+         style="stroke-width:5;stroke-dasharray:none"
          id="tspan772">White City</tspan></text>
     <text
        xml:space="preserve"
@@ -3110,13 +4283,13 @@
      transform="translate(-9.2807766,10.606602)">
     <text
        xml:space="preserve"
-       style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;fill-opacity:1;stroke:#ffffff;stroke-width:3.75;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.75"
+       style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;fill-opacity:1;stroke:#ffffff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.75"
        x="2129.5405"
        y="1786.682"
        id="text770"><tspan
          sodipodi:role="line"
          id="tspan770"
-         style="stroke-width:3.75;stroke-dasharray:none"
+         style="stroke-width:5;stroke-dasharray:none"
          x="2129.5405"
          y="1786.682">Waterloo</tspan></text>
     <text
@@ -3160,13 +4333,13 @@
      id="Leicester Square Label">
     <text
        xml:space="preserve"
-       style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;fill-opacity:1;stroke:#ffffff;stroke-width:3.75;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.75"
+       style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;fill-opacity:1;stroke:#ffffff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.75"
        x="2078.25"
        y="1240.5"
        id="text767"><tspan
          sodipodi:role="line"
          id="tspan767"
-         style="fill:#000000;stroke:#ffffff;stroke-width:3.75;stroke-opacity:0.75"
+         style="fill:#000000;stroke:#ffffff;stroke-width:5;stroke-opacity:0.75"
          x="2078.25"
          y="1240.5">Leicester Square</tspan></text>
     <text

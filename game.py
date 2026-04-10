@@ -14,6 +14,7 @@ class Snake:
     origin: str
     anchor: str
     front: str
+    color: str = "#888888"  # hex color for this team's claimed stations
     declared_line: str | None = None  # line declared after last challenge
     neck_active: bool = False  # True during challenge attempt, False otherwise
     crashed: bool = False
@@ -121,6 +122,9 @@ class GameState:
             raise ValueError(f"Front interchange {snake.front!r} is not on line {next_line!r}")
 
         segment = self.neck(team)
+        if not segment:
+            # Initial challenge: snake hasn't moved yet, claim the origin station
+            segment = [snake.front]
         for station_key in segment:
             self.map.claim(station_key, team)
         snake.anchor = snake.front
@@ -165,11 +169,13 @@ class GameState:
 
 def new_game(
     start_positions: dict[str, str],
+    team_colors: dict[str, str] | None = None,
     connections_path: str = "connections.json",
 ) -> GameState:
     """Load the map and create a new GameState.
 
     start_positions maps each team name to their starting station key.
+    team_colors optionally maps each team name to a hex color string.
     Teams must start at different interchanges.
     Teams begin with no declared line and must complete an initial challenge first.
     """
@@ -185,12 +191,14 @@ def new_game(
     if len(start_positions) != len(set(start_positions.values())):
         raise ValueError("Teams must not start at the same interchange")
 
+    colors = team_colors or {}
     snakes = {
         team: Snake(
             team=team,
             origin=station,
             anchor=station,
             front=station,
+            color=colors.get(team, "#888888"),
             declared_line=None,
         )
         for team, station in start_positions.items()

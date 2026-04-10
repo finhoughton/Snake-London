@@ -5,3 +5,14 @@ __pycache__/
 other resources/
 ruff.toml
 challenges.json
+
+.venv/
+
+*.png
+test_render.svg
+test.svg
+current_map.svg
+
+*.egg-info/
+dist/
+build/

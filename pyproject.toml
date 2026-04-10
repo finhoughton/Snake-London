@@ -1,0 +1,16 @@
+[project]
+name = "snake-london"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "cairosvg>=2.7",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.0",
+    "ruff>=0.4",
+]
+
+[tool.setuptools]
+py-modules = []

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import xml.etree.ElementTree as ET
 
 import pytest
@@ -118,13 +119,30 @@ def test_station_label_exists(station_key: str, svg_ids: dict[str, ET.Element]) 
 
 
 def test_station_label_is_correct_tag(station_key: str, svg_ids: dict[str, ET.Element]) -> None:
-    """Station label must be a <text> or <g>."""
+    """Station label must be a <g> containing two <text> children (halo + clean)."""
     label_id = f"{station_key} Label"
     el = svg_ids.get(label_id)
     if el is None:
         pytest.skip("label missing — covered by test_station_label_exists")
     tag = el.tag.split("}")[-1]
-    assert tag in LABEL_TAGS, f"{label_id!r} is a <{tag}>, expected one of {LABEL_TAGS}"
+    assert tag == "g", f"{label_id!r} is a <{tag}>, expected <g>"
+
+    texts = [child for child in el if child.tag.split("}")[-1] == "text"]
+    assert len(texts) == 2, f"{label_id!r} group has {len(texts)} <text> children, expected 2 (halo + clean)"
+
+    halo, clean = texts
+    halo_style = halo.get("style", "").lower()
+    clean_style = clean.get("style", "").lower()
+
+    assert "stroke:#fff" in halo_style or "stroke:white" in halo_style, (
+        f"{label_id!r} halo text missing white stroke. style={halo_style!r}"
+    )
+    assert re.search(r"stroke-width\s*:\s*5", halo_style), (
+        f"{label_id!r} halo text missing stroke-width:5. style={halo_style!r}"
+    )
+    assert re.search(r"stroke-width\s*:\s*0", clean_style), (
+        f"{label_id!r} clean text missing stroke-width:0. style={clean_style!r}"
+    )
 
 
 # Line tests
@@ -170,10 +188,12 @@ def test_no_duplicate_ids(svg_ids: dict[str, ET.Element]) -> None:
 def test_no_stale_station_markers(svg_ids: dict[str, ET.Element], tube_map: Map) -> None:
     """No circle/rect markers with ids that don't match '<known station> Marker'."""
     known_markers = {f"{k} Marker" for k in tube_map.station_keys()}
+    # Non-station rects/circles with reserved ids that are not station markers
+    reserved_ids = {"background"}
     stale = []
     for id_, el in svg_ids.items():
         tag = el.tag.split("}")[-1]
-        if tag in MARKER_TAGS and id_ not in known_markers:
+        if tag in MARKER_TAGS and id_ not in known_markers and id_ not in reserved_ids:
             if len(id_) > 2 and not id_.isdigit():
                 stale.append(id_)
     assert not stale, f"SVG has {len(stale)} marker elements with unknown ids: {stale[:10]}"
