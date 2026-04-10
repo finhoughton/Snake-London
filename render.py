@@ -4,7 +4,7 @@ import re
 import shutil
 from pathlib import Path
 
-import cairosvg
+import resvg_py
 
 from game import GameState
 
@@ -96,10 +96,10 @@ def _set_marker_style(svg: str, marker_id: str, color: str, mode: str) -> str:
     return pattern.sub(replace_tag, svg)
 
 
-def svg_to_png(svg_path: str | Path, png_path: str | Path, scale: int = 1) -> Path:
-    """Convert an SVG file to PNG using cairosvg.
-    scale: Output scale factor (e.g. 2.0 for double resolution).
-    Returns the output path."""
+def svg_to_png(svg_path: str | Path, png_path: str | Path) -> Path:
+    """Convert an SVG file to PNG using resvg_py. Returns the output path."""
+    svg_str = Path(svg_path).read_text(encoding="utf-8")
+    png_bytes = resvg_py.svg_to_bytes(svg_str)
     dest = Path(png_path)
-    cairosvg.svg2png(url=str(Path(svg_path).resolve()), write_to=str(dest), scale=int(scale))
+    dest.write_bytes(png_bytes)
     return dest
