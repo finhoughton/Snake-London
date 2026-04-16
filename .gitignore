@@ -4,6 +4,9 @@ __pycache__/
 .DS_STORE
 other resources/
 ruff.toml
+.ruff_cache/
+.github/
+CLAUDE.md
 challenges.json
 
 .venv/
@@ -12,6 +15,9 @@ challenges.json
 test_render.svg
 test.svg
 current_map.svg
+
+fork_examples/
+segment_debug/
 
 *.egg-info/
 dist/

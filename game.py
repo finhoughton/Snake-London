@@ -127,6 +127,13 @@ class GameState:
             segment = [snake.front]
         for station_key in segment:
             self.map.claim(station_key, team)
+
+        # Record which line segments were claimed
+        if snake.declared_line:
+            full_path = [snake.anchor] + segment
+            for i in range(len(full_path) - 1):
+                self.map.claim_segment(snake.declared_line, full_path[i], full_path[i + 1], team)
+
         snake.anchor = snake.front
         snake.neck_active = False
         snake.declared_line = next_line
@@ -167,15 +174,30 @@ class GameState:
         return None
 
 
+# Default team colours — ordered by priority (use first N for N teams).
+# Each colour has ΔE ≥ 20 from every TFL line colour and ΔE ≥ 30 from every
+# other colour in this list, so they remain legible on the map.
+DEFAULT_TEAM_COLORS = [
+    "#d4006b",  # deep pink
+    "#006080",  # ocean teal
+    "#9c3a10",  # burnt sienna
+    "#4a5200",  # dark olive
+    "#5a8c5a",  # sage green
+    "#5c3a1a",  # warm brown
+]
+
+
 def new_game(
     start_positions: dict[str, str],
     team_colors: dict[str, str] | None = None,
-    connections_path: str = "connections.json",
+    connections_path: str = "map/connections.json",
 ) -> GameState:
     """Load the map and create a new GameState.
 
     start_positions maps each team name to their starting station key.
     team_colors optionally maps each team name to a hex color string.
+    If a team has no entry in team_colors, it is assigned the next colour from
+    DEFAULT_TEAM_COLORS in the order teams appear in start_positions.
     Teams must start at different interchanges.
     Teams begin with no declared line and must complete an initial challenge first.
     """
@@ -192,13 +214,14 @@ def new_game(
         raise ValueError("Teams must not start at the same interchange")
 
     colors = team_colors or {}
+    default_color_iter = iter(DEFAULT_TEAM_COLORS)
     snakes = {
         team: Snake(
             team=team,
             origin=station,
             anchor=station,
             front=station,
-            color=colors.get(team, "#888888"),
+            color=colors.get(team) or next(default_color_iter, "#888888"),
             declared_line=None,
         )
         for team, station in start_positions.items()

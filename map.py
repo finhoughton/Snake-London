@@ -59,7 +59,7 @@ class Station:
 
 
 class Map:
-    def __init__(self, path: str = "connections.json"):
+    def __init__(self, path: str = "map/connections.json"):
         with open(path, "r") as f:
             data = json.load(f)
         self._lines: dict[str, Line] = {key: Line.from_dict(key, line_data) for key, line_data in data["lines"].items()}
@@ -67,6 +67,7 @@ class Map:
             key: Station.from_dict(key, station_data) for key, station_data in data["stations"].items()
         }
         self._claims: dict[str, str] = {}  # station_key -> team
+        self._claimed_segments: dict[tuple[str, str, str], str] = {}  # (line, a, b) -> team
 
     # claims:
 
@@ -131,6 +132,13 @@ class Map:
 
     def all_claims(self) -> dict[str, str]:
         return dict(self._claims)
+
+    def claim_segment(self, line_key: str, station_a: str, station_b: str, team: str) -> None:
+        key = (line_key, *sorted([station_a, station_b]))
+        self._claimed_segments[key] = team
+
+    def segments_claimed_by(self, team: str) -> list[tuple[str, str, str]]:
+        return [k for k, v in self._claimed_segments.items() if v == team]
 
     # data getters:
 

@@ -819,7 +819,7 @@
       "Thameslink": ["West Hampstead", "King's Cross"]
     },
     "Camden Town": {
-      "display_name": "Camden Town",
+      "display_name": "Camden Town / Camden Road",
       "CX Branch": ["Kentish Town", "Euston"],
       "Mildmay": ["Gospel Oak", "Caledonian Road"]
     },
@@ -829,7 +829,7 @@
       "Bank Branch": ["Elephant and Castle", "Stockwell"]
     },
     "Clapham North": {
-      "display_name": "Clapham North",
+      "display_name": "Clapham North / Clapham High Street",
       "Bank Branch": ["Stockwell", "Tooting Broadway"],
       "Windrush": ["Clapham Junction", "Denmark Hill"]
     },
@@ -909,12 +909,12 @@
       "Mildmay": ["Olympia", "Clapham Junction"]
     },
     "Olympia": {
-      "display_name": "Kensington (Olympia)",
+      "display_name": "Kensington Olympia",
       "District": ["Earl's Court"],
       "Mildmay": ["Shepard's Bush", "West Brompton"]
     },
     "Hackney Central": {
-      "display_name": "Hackney Central",
+      "display_name": "Hackney Central / Hackney Downs",
       "Mildmay": ["Canonbury", "Stratford"],
       "Weaver": [
         "Seven Sisters",

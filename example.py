@@ -1,43 +1,69 @@
 from game import new_game
 from render import render_map, svg_to_png
 
-# --- Set up a two-team game ---
+# Three-team game — colours assigned automatically from DEFAULT_TEAM_COLORS.
+#
+# Alpha (deep pink):   Jubilee line, Wembley Park → Green Park (NW arc)
+# Beta  (ocean teal):  Elizabeth line, Abbey Wood → Tottenham Court Road (east → centre)
+# Gamma (burnt sienna):Bank Branch + Thameslink, Tooting Broadway → Greenwich (south arc)
 
 game = new_game(
-    start_positions={"red": "Baker Street", "blue": "Canary Wharf"},
-    team_colors={"red": "#e63946", "blue": "#457b9d"},
+    start_positions={
+        "Alpha": "Wembley Park",
+        "Beta": "Abbey Wood",
+        "Gamma": "Tooting Broadway",
+    }
 )
 
-# --- Red team moves ---
+game.initial_request_challenge("Alpha")
+game.complete_challenge("Alpha", "Jubilee")
 
-# At game start each team requests an initial challenge (no travel yet)
-game.initial_request_challenge("red")
-# Once the challenge is completed, declare a line to travel on
-game.complete_challenge("red", "Jubilee")
+game.initial_request_challenge("Beta")
+game.complete_challenge("Beta", "Elizabeth")
 
-# Travel to a new station and request a challenge there
-game.request_challenge("red", "Westminster")
-game.complete_challenge("red", "District")
+game.initial_request_challenge("Gamma")
+game.complete_challenge("Gamma", "Bank Branch")
 
-# Travel further — neck is now active (challenge in progress)
-game.request_challenge("red", "Tower Hill")
+# team alpha
 
-# --- Blue team moves ---
+game.request_challenge("Alpha", "Bond Street")
+game.complete_challenge("Alpha", "Jubilee")
 
-game.initial_request_challenge("blue")
-game.complete_challenge("blue", "Elizabeth")
-game.request_challenge("blue", "Farringdon")
-game.complete_challenge("blue", "Thameslink")
-game.request_challenge("blue", "Finsbury Park")
+game.request_challenge("Alpha", "Westminster")
 
-# --- Inspect state ---
+# beta
 
-print("Red body stations: ", game.body_stations("red"))
-print("Red neck (in progress):", game.neck("red"))
-print("Blue body stations: ", game.body_stations("blue"))
-print("Winner so far:", game.winner())
+game.request_challenge("Beta", "Tottenham Court Road")
+game.complete_challenge("Beta", "CX Branch")
 
-# --- Render the current map ---
+game.request_challenge("Beta", "Charing Cross")
+
+# Gamma
+
+game.request_challenge("Gamma", "Elephant and Castle")
+game.complete_challenge("Gamma", "Thameslink")
+
+game.request_challenge("Gamma", "Blackfriars")
+game.complete_challenge("Gamma", "Thameslink")
+
+game.request_challenge("Gamma", "London Bridge")
+game.complete_challenge("Gamma", "Thameslink")
+
+game.request_challenge("Gamma", "Woolwich Arsenal")
+
+# state summary
+
+print("Alpha body:", game.body_stations("Alpha"))
+print("Alpha neck:", game.neck("Alpha"))
+print()
+print("Beta  body:", game.body_stations("Beta"))
+print("Beta  neck:", game.neck("Beta"))
+print()
+print("Gamma body:", game.body_stations("Gamma"))
+print("Gamma neck:", game.neck("Gamma"))
+print()
+
+# render
 
 render_map(game, "current_map.svg")
 svg_to_png("current_map.svg", "current_map.png")

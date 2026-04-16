@@ -9,7 +9,7 @@ from map import Map
 
 @pytest.fixture(scope="session")
 def tube_map() -> Map:
-    return Map("connections.json")
+    return Map("map/connections.json")
 
 
 # Test helpers
@@ -204,7 +204,7 @@ def test_no_unknown_lines(tube_map: Map):
 
 @pytest.mark.parametrize(
     "line_key",
-    [k for k, v in json.load(open("connections.json"))["lines"].items() if v["stations"]],
+    [k for k, v in json.load(open("map/connections.json"))["lines"].items() if v["stations"]],
 )
 def test_line_is_a_tree(line_key: str, tube_map: Map):
     """Each line's adjacency graph must be a tree: connected and cycle-free."""
@@ -227,7 +227,7 @@ def test_network_is_connected(tube_map: Map):
 
 
 def test_claim_line_claims_path_excluding_start():
-    tube_map = Map("connections.json")
+    tube_map = Map("map/connections.json")
 
     claimed = tube_map.claim_line("Kenton", "Oxford Circus", "red", "Bakerloo")
 
@@ -244,14 +244,14 @@ def test_claim_line_claims_path_excluding_start():
 
 
 def test_claim_line_requires_line_parameter():
-    tube_map = Map("connections.json")
+    tube_map = Map("map/connections.json")
 
     with pytest.raises(ValueError):
         tube_map.claim_line("Euston", "King's Cross", "blue", "Bakerloo")  # type: ignore[misc]
 
 
 def test_claim_line_accepts_explicit_line():
-    tube_map = Map("connections.json")
+    tube_map = Map("map/connections.json")
 
     claimed = tube_map.claim_line("Euston", "King's Cross", "blue", line="Met")
 

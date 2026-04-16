@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+import json
 import re
 import xml.etree.ElementTree as ET
 
 import pytest
 from map import Map
+from render import _extract_svg_fork_geometry
 
-SVG_PATH = "snake map.svg"
+SVG_PATH = "map/snake map.svg"
 MARKER_TAGS = {"circle", "rect"}
 LABEL_TAGS = {"text", "g"}
 LINE_TAGS = {"path", "g"}
@@ -16,7 +18,7 @@ LINE_TAGS = {"path", "g"}
 
 @pytest.fixture(scope="session")
 def tube_map() -> Map:
-    return Map("connections.json")
+    return Map("map/connections.json")
 
 
 @pytest.fixture(scope="session")
@@ -43,6 +45,13 @@ def station_keys(tube_map: Map) -> list[str]:
 
 
 @pytest.fixture(scope="session")
+def station_display_names() -> dict[str, str]:
+    with open("map/connections.json", encoding="utf-8") as f:
+        data = json.load(f)
+    return {key: info["display_name"] for key, info in data["stations"].items()}
+
+
+@pytest.fixture(scope="session")
 def line_keys(tube_map: Map) -> list[str]:
     return tube_map.line_keys()
 
@@ -53,11 +62,11 @@ def line_keys(tube_map: Map) -> list[str]:
 def pytest_generate_tests(metafunc: pytest.Metafunc) -> None:
     # Parametrize station-level tests
     if "station_key" in metafunc.fixturenames:
-        m = Map("connections.json")
+        m = Map("map/connections.json")
         metafunc.parametrize("station_key", m.station_keys())
     # Parametrize line-level tests
     if "line_key" in metafunc.fixturenames:
-        m = Map("connections.json")
+        m = Map("map/connections.json")
         metafunc.parametrize("line_key", m.line_keys())
 
 
@@ -145,6 +154,40 @@ def test_station_label_is_correct_tag(station_key: str, svg_ids: dict[str, ET.El
     )
 
 
+def _text_content(text_el: ET.Element) -> str:
+    """Join tspan text parts with a space and normalise whitespace.
+
+    Inkscape splits multi-line labels into separate <tspan> elements with no
+    separator, so naively concatenating gives e.g. 'Tooting Broadway /Tooting'.
+    Joining with a space and collapsing runs of whitespace gives the expected
+    'Tooting Broadway / Tooting'.
+    """
+    return re.sub(r"\s+", " ", " ".join(text_el.itertext())).strip()
+
+
+def test_station_label_text_matches_display_name(
+    station_key: str,
+    svg_ids: dict[str, ET.Element],
+    station_display_names: dict[str, str],
+) -> None:
+    """Both text elements in the label group must contain the station's display name."""
+    label_id = f"{station_key} Label"
+    el = svg_ids.get(label_id)
+    if el is None:
+        pytest.skip("label missing — covered by test_station_label_exists")
+
+    texts = [child for child in el if child.tag.split("}")[-1] == "text"]
+    if len(texts) != 2:
+        pytest.skip("wrong number of text children — covered by test_station_label_is_correct_tag")
+
+    expected = station_display_names.get(station_key, station_key)
+    for i, text_el in enumerate(texts):
+        actual = _text_content(text_el)
+        assert actual == expected, (
+            f"{label_id!r} text[{i}] is {actual!r}, expected {expected!r}"
+        )
+
+
 # Line tests
 
 
@@ -190,13 +233,76 @@ def test_no_stale_station_markers(svg_ids: dict[str, ET.Element], tube_map: Map)
     known_markers = {f"{k} Marker" for k in tube_map.station_keys()}
     # Non-station rects/circles with reserved ids that are not station markers
     reserved_ids = {"background"}
+    helper_marker_ids: set[str] = set()
+
+    tree = ET.parse(SVG_PATH)
+    root = tree.getroot()
+    label_attr = "{http://www.inkscape.org/namespaces/inkscape}label"
+    fork_geometry_layer = next(
+        (el for el in root.iter() if el.get(label_attr) == "Path Overrides" or el.get("id") == "Path Overrides"),
+        None,
+    )
+    if fork_geometry_layer is not None:
+        for helper in fork_geometry_layer.iter():
+            helper_id = helper.get("id")
+            helper_tag = helper.tag.split("}")[-1]
+            if helper_id and helper_tag in MARKER_TAGS:
+                helper_marker_ids.add(helper_id)
+
     stale = []
     for id_, el in svg_ids.items():
         tag = el.tag.split("}")[-1]
-        if tag in MARKER_TAGS and id_ not in known_markers and id_ not in reserved_ids:
+        if tag in MARKER_TAGS and id_ not in known_markers and id_ not in reserved_ids and id_ not in helper_marker_ids:
             if len(id_) > 2 and not id_.isdigit():
                 stale.append(id_)
     assert not stale, f"SVG has {len(stale)} marker elements with unknown ids: {stale[:10]}"
+
+
+def _has_display_none(el: ET.Element) -> bool:
+    style = el.get("style", "")
+    return any(
+        part.strip().startswith("display") and part.strip().split(":")[-1].strip() == "none"
+        for part in style.split(";")
+    )
+
+
+def test_path_overrides_layer_hidden() -> None:
+    """The Path Overrides layer or every segment group inside it must be hidden (display:none).
+
+    The layer must not render visibly — either the layer itself is hidden, or
+    every direct child <g> is individually hidden.
+    """
+    tree = ET.parse(SVG_PATH)
+    root = tree.getroot()
+    label_attr = "{http://www.inkscape.org/namespaces/inkscape}label"
+    layer = next(
+        (el for el in root.iter() if el.get(label_attr) == "Path Overrides" or el.get("id") == "Path Overrides"),
+        None,
+    )
+    if layer is None:
+        pytest.skip("Path Overrides layer not present")
+
+    if _has_display_none(layer):
+        return  # whole layer hidden — fine
+
+    visible_groups = [
+        child.get("id", "<no id>")
+        for child in layer
+        if child.tag.split("}")[-1] == "g" and not _has_display_none(child)
+    ]
+    assert not visible_groups, (
+        f"Path Overrides layer is visible and {len(visible_groups)} group(s) lack display:none: "
+        f"{visible_groups[:5]}"
+    )
+
+
+def test_path_overrides_all_groups_recognised() -> None:
+    """Every group in the Path Overrides layer must reference a known line and segment."""
+    svg_text = open(SVG_PATH, encoding="utf-8").read()
+    with open("map/geometry.json", encoding="utf-8") as f:
+        line_segments: dict[str, list[list[str]]] = json.load(f)["line_segments"]
+    # Raises ValueError if any group id references an unknown line or segment.
+    _extract_svg_fork_geometry(svg_text, line_segments)
 
 
 def test_no_stale_labels(svg_ids: dict[str, ET.Element], tube_map: Map) -> None:

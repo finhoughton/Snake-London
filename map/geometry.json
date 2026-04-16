@@ -1,0 +1,1440 @@
+{
+  "station_centres": {
+    "Abbey Wood": [
+      3912.41,
+      2103.39
+    ],
+    "Acton Town": [
+      229.52,
+      1519.9
+    ],
+    "Aldgate East": [
+      2766.92,
+      1045.2
+    ],
+    "Archway": [
+      1949.96,
+      114.1
+    ],
+    "Baker Street": [
+      1600.02,
+      716.38
+    ],
+    "Bank": [
+      2578.71,
+      1398.29
+    ],
+    "Barking": [
+      3927.97,
+      847.93
+    ],
+    "Barons Court": [
+      821.41,
+      1519.9
+    ],
+    "Bethnal Green": [
+      2980.16,
+      946.16
+    ],
+    "Blackfriars": [
+      2287.11,
+      1721.05
+    ],
+    "Blackhorse Road": [
+      2907.35,
+      126.12
+    ],
+    "Bond Street": [
+      1613.38,
+      1013.9
+    ],
+    "Bow Road": [
+      3297.26,
+      847.76
+    ],
+    "Caledonian Road": [
+      2152.23,
+      419.42
+    ],
+    "Camden Town": [
+      1949.77,
+      419.42
+    ],
+    "Canada Water": [
+      2919.95,
+      1399.42
+    ],
+    "Canary Wharf": [
+      3297.58,
+      1387.15
+    ],
+    "Canning Town": [
+      3674.16,
+      1128.17
+    ],
+    "Canonbury": [
+      2442.13,
+      432.0
+    ],
+    "Charing Cross": [
+      2096.18,
+      1521.1
+    ],
+    "Clapham Junction": [
+      1364.26,
+      2018.98
+    ],
+    "Clapham North": [
+      1603.27,
+      2019.01
+    ],
+    "Custom House": [
+      3925.35,
+      1499.65
+    ],
+    "Denmark Hill": [
+      2286.87,
+      2019.01
+    ],
+    "Ealing Broadway": [
+      148.95,
+      1206.62
+    ],
+    "Ealing Common": [
+      135.26,
+      1360.13
+    ],
+    "Earl's Court": [
+      1165.07,
+      1528.45
+    ],
+    "East Croydon": [
+      3143.46,
+      2426.26
+    ],
+    "Edgware Road": [
+      1417.69,
+      744.77
+    ],
+    "Elephant and Castle": [
+      2273.37,
+      1920.21
+    ],
+    "Embankment": [
+      2096.36,
+      1715.25
+    ],
+    "Euston": [
+      1936.98,
+      716.38
+    ],
+    "Farringdon": [
+      2305.87,
+      1026.63
+    ],
+    "Finchley Road": [
+      1600.08,
+      493.89
+    ],
+    "Finsbury Park": [
+      2262.01,
+      196.61
+    ],
+    "Gloucester Road": [
+      1344.88,
+      1609.29
+    ],
+    "Gospel Oak": [
+      1797.17,
+      419.42
+    ],
+    "Green Park": [
+      1744.33,
+      1414.77
+    ],
+    "Greenwich": [
+      3297.76,
+      2103.39
+    ],
+    "Gunnersbury": [
+      380.87,
+      1703.04
+    ],
+    "Hackney Central": [
+      3151.6,
+      419.42
+    ],
+    "Hammersmith": [
+      614.95,
+      1520.44
+    ],
+    "Highbury and Islington": [
+      2286.37,
+      432.0
+    ],
+    "Holborn": [
+      2127.87,
+      1051.41
+    ],
+    "Kennington": [
+      1967.62,
+      1909.32
+    ],
+    "Kentish Town": [
+      1949.77,
+      285.63
+    ],
+    "Kenton": [
+      720.02,
+      190.15
+    ],
+    "King's Cross": [
+      2139.19,
+      722.25
+    ],
+    "Leicester Square": [
+      2009.02,
+      1168.16
+    ],
+    "Leytonstone": [
+      3500.59,
+      114.08
+    ],
+    "Liverpool Street": [
+      2572.2,
+      1026.22
+    ],
+    "London Bridge": [
+      2661.56,
+      1598.44
+    ],
+    "Manor House": [
+      2261.36,
+      114.1
+    ],
+    "Mile End": [
+      3168.04,
+      902.54
+    ],
+    "Mitcham Junction": [
+      1752.76,
+      2426.26
+    ],
+    "North Greenwich": [
+      3564.92,
+      1507.67
+    ],
+    "Norwood Junction": [
+      2842.16,
+      2333.19
+    ],
+    "Notting Hill Gate": [
+      1285.08,
+      1218.71
+    ],
+    "Olympia": [
+      727.01,
+      1373.28
+    ],
+    "Oxford Circus": [
+      1747.14,
+      1025.78
+    ],
+    "Paddington": [
+      1302.58,
+      864.82
+    ],
+    "Park Royal": [
+      123.16,
+      1041.1
+    ],
+    "Piccadilly Circus": [
+      1934.31,
+      1236.81
+    ],
+    "Poplar": [
+      3297.26,
+      1128.17
+    ],
+    "Queen's Park": [
+      895.78,
+      885.43
+    ],
+    "Rayners Lane": [
+      123.16,
+      189.62
+    ],
+    "Royal Victoria": [
+      3938.16,
+      1261.25
+    ],
+    "Seven Sisters": [
+      2665.15,
+      126.12
+    ],
+    "Shadwell": [
+      2920.26,
+      1134.75
+    ],
+    "Shepard's Bush": [
+      727.01,
+      1218.13
+    ],
+    "South Kensington": [
+      1450.58,
+      1691.79
+    ],
+    "South Wimbledon": [
+      1196.0,
+      2426.12
+    ],
+    "St Paul's": [
+      2287.21,
+      1243.19
+    ],
+    "Stockwell": [
+      1745.74,
+      1920.76
+    ],
+    "Stratford": [
+      3524.44,
+      419.06
+    ],
+    "Swiss Cottage": [
+      1613.39,
+      568.47
+    ],
+    "Tooting Broadway": [
+      1364.62,
+      2256.37
+    ],
+    "Tottenham Court Road": [
+      1949.47,
+      1013.9
+    ],
+    "Tower Hill": [
+      2603.32,
+      1279.95
+    ],
+    "Turnham Green": [
+      393.93,
+      1519.9
+    ],
+    "Victoria": [
+      1745.6,
+      1715.11
+    ],
+    "Walthamstow Central": [
+      3151.7,
+      126.12
+    ],
+    "Wansted Park": [
+      3787.6,
+      197.82
+    ],
+    "Warren Street": [
+      1937.03,
+      827.74
+    ],
+    "Waterloo": [
+      2096.81,
+      1822.31
+    ],
+    "Wembley Park": [
+      953.27,
+      178.9
+    ],
+    "West Brompton": [
+      822.76,
+      1716.01
+    ],
+    "West Croydon": [
+      2842.16,
+      2426.26
+    ],
+    "West Ham": [
+      3561.04,
+      847.96
+    ],
+    "West Hampstead": [
+      1613.38,
+      406.68
+    ],
+    "Westferry": [
+      3177.2,
+      1134.75
+    ],
+    "Westminster": [
+      1992.43,
+      1715.11
+    ],
+    "Whitechapel": [
+      2919.94,
+      1026.94
+    ],
+    "Wilsden Junction": [
+      765.25,
+      842.27
+    ],
+    "Wimbledon": [
+      727.16,
+      2155.87
+    ],
+    "Wood Lane": [
+      614.28,
+      1218.71
+    ],
+    "Woolwich Arsenal": [
+      3799.98,
+      2103.39
+    ]
+  },
+  "line_segments": {
+    "Picc": [
+      [
+        "Rayners Lane",
+        "Park Royal"
+      ],
+      [
+        "Park Royal",
+        "Ealing Common"
+      ],
+      [
+        "Ealing Common",
+        "Acton Town"
+      ],
+      [
+        "Acton Town",
+        "Turnham Green"
+      ],
+      [
+        "Turnham Green",
+        "Hammersmith"
+      ],
+      [
+        "Hammersmith",
+        "Barons Court"
+      ],
+      [
+        "Barons Court",
+        "Earl's Court"
+      ],
+      [
+        "Earl's Court",
+        "Gloucester Road"
+      ],
+      [
+        "Gloucester Road",
+        "South Kensington"
+      ],
+      [
+        "South Kensington",
+        "Green Park"
+      ],
+      [
+        "Green Park",
+        "Piccadilly Circus"
+      ],
+      [
+        "Piccadilly Circus",
+        "Leicester Square"
+      ],
+      [
+        "Leicester Square",
+        "Holborn"
+      ],
+      [
+        "Holborn",
+        "King's Cross"
+      ],
+      [
+        "King's Cross",
+        "Caledonian Road"
+      ],
+      [
+        "Caledonian Road",
+        "Finsbury Park"
+      ],
+      [
+        "Finsbury Park",
+        "Manor House"
+      ]
+    ],
+    "Central": [
+      [
+        "Park Royal",
+        "Wood Lane"
+      ],
+      [
+        "Ealing Broadway",
+        "Wood Lane"
+      ],
+      [
+        "Wood Lane",
+        "Shepard's Bush"
+      ],
+      [
+        "Shepard's Bush",
+        "Notting Hill Gate"
+      ],
+      [
+        "Notting Hill Gate",
+        "Bond Street"
+      ],
+      [
+        "Bond Street",
+        "Oxford Circus"
+      ],
+      [
+        "Oxford Circus",
+        "Tottenham Court Road"
+      ],
+      [
+        "Tottenham Court Road",
+        "Holborn"
+      ],
+      [
+        "Holborn",
+        "St Paul's"
+      ],
+      [
+        "St Paul's",
+        "Bank"
+      ],
+      [
+        "Bank",
+        "Liverpool Street"
+      ],
+      [
+        "Liverpool Street",
+        "Bethnal Green"
+      ],
+      [
+        "Bethnal Green",
+        "Mile End"
+      ],
+      [
+        "Mile End",
+        "Stratford"
+      ],
+      [
+        "Stratford",
+        "Leytonstone"
+      ]
+    ],
+    "Bakerloo": [
+      [
+        "Kenton",
+        "Wilsden Junction"
+      ],
+      [
+        "Wilsden Junction",
+        "Queen's Park"
+      ],
+      [
+        "Queen's Park",
+        "Paddington"
+      ],
+      [
+        "Paddington",
+        "Edgware Road"
+      ],
+      [
+        "Edgware Road",
+        "Baker Street"
+      ],
+      [
+        "Baker Street",
+        "Oxford Circus"
+      ],
+      [
+        "Oxford Circus",
+        "Piccadilly Circus"
+      ],
+      [
+        "Piccadilly Circus",
+        "Charing Cross"
+      ],
+      [
+        "Charing Cross",
+        "Embankment"
+      ],
+      [
+        "Embankment",
+        "Waterloo"
+      ],
+      [
+        "Waterloo",
+        "Elephant and Castle"
+      ]
+    ],
+    "Jubilee": [
+      [
+        "Wembley Park",
+        "West Hampstead"
+      ],
+      [
+        "West Hampstead",
+        "Finchley Road"
+      ],
+      [
+        "Finchley Road",
+        "Swiss Cottage"
+      ],
+      [
+        "Swiss Cottage",
+        "Baker Street"
+      ],
+      [
+        "Baker Street",
+        "Bond Street"
+      ],
+      [
+        "Bond Street",
+        "Green Park"
+      ],
+      [
+        "Green Park",
+        "Westminster"
+      ],
+      [
+        "Westminster",
+        "Waterloo"
+      ],
+      [
+        "Waterloo",
+        "London Bridge"
+      ],
+      [
+        "London Bridge",
+        "Canada Water"
+      ],
+      [
+        "Canada Water",
+        "Canary Wharf"
+      ],
+      [
+        "Canary Wharf",
+        "North Greenwich"
+      ],
+      [
+        "North Greenwich",
+        "Canning Town"
+      ],
+      [
+        "Canning Town",
+        "West Ham"
+      ],
+      [
+        "West Ham",
+        "Stratford"
+      ]
+    ],
+    "Victoria": [
+      [
+        "Walthamstow Central",
+        "Blackhorse Road"
+      ],
+      [
+        "Blackhorse Road",
+        "Seven Sisters"
+      ],
+      [
+        "Seven Sisters",
+        "Finsbury Park"
+      ],
+      [
+        "Finsbury Park",
+        "Highbury and Islington"
+      ],
+      [
+        "Highbury and Islington",
+        "King's Cross"
+      ],
+      [
+        "King's Cross",
+        "Euston"
+      ],
+      [
+        "Euston",
+        "Warren Street"
+      ],
+      [
+        "Warren Street",
+        "Oxford Circus"
+      ],
+      [
+        "Oxford Circus",
+        "Green Park"
+      ],
+      [
+        "Green Park",
+        "Victoria"
+      ],
+      [
+        "Victoria",
+        "Stockwell"
+      ]
+    ],
+    "CX Branch": [
+      [
+        "Archway",
+        "Kentish Town"
+      ],
+      [
+        "Kentish Town",
+        "Camden Town"
+      ],
+      [
+        "Camden Town",
+        "Euston"
+      ],
+      [
+        "Euston",
+        "Warren Street"
+      ],
+      [
+        "Warren Street",
+        "Tottenham Court Road"
+      ],
+      [
+        "Tottenham Court Road",
+        "Leicester Square"
+      ],
+      [
+        "Leicester Square",
+        "Charing Cross"
+      ],
+      [
+        "Charing Cross",
+        "Embankment"
+      ],
+      [
+        "Embankment",
+        "Waterloo"
+      ],
+      [
+        "Waterloo",
+        "Kennington"
+      ]
+    ],
+    "Bank Branch": [
+      [
+        "Euston",
+        "King's Cross"
+      ],
+      [
+        "King's Cross",
+        "Liverpool Street"
+      ],
+      [
+        "Liverpool Street",
+        "Bank"
+      ],
+      [
+        "Bank",
+        "London Bridge"
+      ],
+      [
+        "London Bridge",
+        "Elephant and Castle"
+      ],
+      [
+        "Elephant and Castle",
+        "Kennington"
+      ],
+      [
+        "Kennington",
+        "Stockwell"
+      ],
+      [
+        "Stockwell",
+        "Clapham North"
+      ],
+      [
+        "Clapham North",
+        "Tooting Broadway"
+      ],
+      [
+        "Tooting Broadway",
+        "South Wimbledon"
+      ]
+    ],
+    "W&C": [
+      [
+        "Waterloo",
+        "Bank"
+      ]
+    ],
+    "Met": [
+      [
+        "Rayners Lane",
+        "Kenton"
+      ],
+      [
+        "Kenton",
+        "Wembley Park"
+      ],
+      [
+        "Wembley Park",
+        "Finchley Road"
+      ],
+      [
+        "Finchley Road",
+        "Baker Street"
+      ],
+      [
+        "Baker Street",
+        "Euston"
+      ],
+      [
+        "Euston",
+        "King's Cross"
+      ],
+      [
+        "King's Cross",
+        "Farringdon"
+      ],
+      [
+        "Farringdon",
+        "Liverpool Street"
+      ]
+    ],
+    "H&C": [
+      [
+        "Hammersmith",
+        "Wood Lane"
+      ],
+      [
+        "Wood Lane",
+        "Paddington"
+      ],
+      [
+        "Paddington",
+        "Edgware Road"
+      ],
+      [
+        "Edgware Road",
+        "Baker Street"
+      ],
+      [
+        "Baker Street",
+        "Euston"
+      ],
+      [
+        "Euston",
+        "King's Cross"
+      ],
+      [
+        "King's Cross",
+        "Farringdon"
+      ],
+      [
+        "Farringdon",
+        "Liverpool Street"
+      ],
+      [
+        "Liverpool Street",
+        "Aldgate East"
+      ],
+      [
+        "Aldgate East",
+        "Whitechapel"
+      ],
+      [
+        "Whitechapel",
+        "Mile End"
+      ],
+      [
+        "Mile End",
+        "Bow Road"
+      ],
+      [
+        "Bow Road",
+        "West Ham"
+      ],
+      [
+        "West Ham",
+        "Barking"
+      ]
+    ],
+    "N Circle": [
+      [
+        "Hammersmith",
+        "Wood Lane"
+      ],
+      [
+        "Wood Lane",
+        "Paddington"
+      ],
+      [
+        "Paddington",
+        "Edgware Road"
+      ],
+      [
+        "Edgware Road",
+        "Baker Street"
+      ],
+      [
+        "Baker Street",
+        "Euston"
+      ],
+      [
+        "Euston",
+        "King's Cross"
+      ],
+      [
+        "King's Cross",
+        "Farringdon"
+      ],
+      [
+        "Farringdon",
+        "Liverpool Street"
+      ]
+    ],
+    "S Circle": [
+      [
+        "Edgware Road",
+        "Paddington"
+      ],
+      [
+        "Paddington",
+        "Notting Hill Gate"
+      ],
+      [
+        "Notting Hill Gate",
+        "Gloucester Road"
+      ],
+      [
+        "Gloucester Road",
+        "South Kensington"
+      ],
+      [
+        "South Kensington",
+        "Victoria"
+      ],
+      [
+        "Victoria",
+        "Westminster"
+      ],
+      [
+        "Westminster",
+        "Embankment"
+      ],
+      [
+        "Embankment",
+        "Blackfriars"
+      ],
+      [
+        "Blackfriars",
+        "Bank"
+      ],
+      [
+        "Bank",
+        "Tower Hill"
+      ],
+      [
+        "Tower Hill",
+        "Liverpool Street"
+      ]
+    ],
+    "District": [
+      [
+        "Ealing Broadway",
+        "Ealing Common"
+      ],
+      [
+        "Ealing Common",
+        "Acton Town"
+      ],
+      [
+        "Acton Town",
+        "Turnham Green"
+      ],
+      [
+        "Turnham Green",
+        "Gunnersbury"
+      ],
+      [
+        "Turnham Green",
+        "Hammersmith"
+      ],
+      [
+        "Hammersmith",
+        "Barons Court"
+      ],
+      [
+        "Barons Court",
+        "Earl's Court"
+      ],
+      [
+        "Earl's Court",
+        "Olympia"
+      ],
+      [
+        "Earl's Court",
+        "West Brompton"
+      ],
+      [
+        "Earl's Court",
+        "Gloucester Road"
+      ],
+      [
+        "Earl's Court",
+        "Notting Hill Gate"
+      ],
+      [
+        "Wimbledon",
+        "West Brompton"
+      ],
+      [
+        "Notting Hill Gate",
+        "Paddington"
+      ],
+      [
+        "Paddington",
+        "Edgware Road"
+      ],
+      [
+        "Gloucester Road",
+        "South Kensington"
+      ],
+      [
+        "South Kensington",
+        "Victoria"
+      ],
+      [
+        "Victoria",
+        "Westminster"
+      ],
+      [
+        "Westminster",
+        "Embankment"
+      ],
+      [
+        "Embankment",
+        "Blackfriars"
+      ],
+      [
+        "Blackfriars",
+        "Bank"
+      ],
+      [
+        "Bank",
+        "Tower Hill"
+      ],
+      [
+        "Tower Hill",
+        "Aldgate East"
+      ],
+      [
+        "Aldgate East",
+        "Whitechapel"
+      ],
+      [
+        "Whitechapel",
+        "Mile End"
+      ],
+      [
+        "Mile End",
+        "Bow Road"
+      ],
+      [
+        "Bow Road",
+        "West Ham"
+      ],
+      [
+        "West Ham",
+        "Barking"
+      ]
+    ],
+    "Lioness": [
+      [
+        "Kenton",
+        "Wilsden Junction"
+      ],
+      [
+        "Wilsden Junction",
+        "Queen's Park"
+      ],
+      [
+        "Queen's Park",
+        "Swiss Cottage"
+      ],
+      [
+        "Swiss Cottage",
+        "Euston"
+      ]
+    ],
+    "Mildmay": [
+      [
+        "Stratford",
+        "Hackney Central"
+      ],
+      [
+        "Hackney Central",
+        "Canonbury"
+      ],
+      [
+        "Canonbury",
+        "Highbury and Islington"
+      ],
+      [
+        "Highbury and Islington",
+        "Caledonian Road"
+      ],
+      [
+        "Caledonian Road",
+        "Camden Town"
+      ],
+      [
+        "Camden Town",
+        "Gospel Oak"
+      ],
+      [
+        "Gospel Oak",
+        "West Hampstead"
+      ],
+      [
+        "West Hampstead",
+        "Wilsden Junction"
+      ],
+      [
+        "Wilsden Junction",
+        "Gunnersbury"
+      ],
+      [
+        "Wilsden Junction",
+        "Shepard's Bush"
+      ],
+      [
+        "Shepard's Bush",
+        "Olympia"
+      ],
+      [
+        "Olympia",
+        "West Brompton"
+      ],
+      [
+        "West Brompton",
+        "Clapham Junction"
+      ]
+    ],
+    "Weaver": [
+      [
+        "Seven Sisters",
+        "Hackney Central"
+      ],
+      [
+        "Walthamstow Central",
+        "Hackney Central"
+      ],
+      [
+        "Hackney Central",
+        "Bethnal Green"
+      ],
+      [
+        "Bethnal Green",
+        "Liverpool Street"
+      ]
+    ],
+    "Suffragette": [
+      [
+        "Gospel Oak",
+        "Archway"
+      ],
+      [
+        "Archway",
+        "Manor House"
+      ],
+      [
+        "Manor House",
+        "Seven Sisters"
+      ],
+      [
+        "Seven Sisters",
+        "Blackhorse Road"
+      ],
+      [
+        "Blackhorse Road",
+        "Walthamstow Central"
+      ],
+      [
+        "Walthamstow Central",
+        "Leytonstone"
+      ],
+      [
+        "Leytonstone",
+        "Wansted Park"
+      ],
+      [
+        "Wansted Park",
+        "Barking"
+      ]
+    ],
+    "Windrush": [
+      [
+        "Highbury and Islington",
+        "Canonbury"
+      ],
+      [
+        "Canonbury",
+        "Whitechapel"
+      ],
+      [
+        "Whitechapel",
+        "Shadwell"
+      ],
+      [
+        "Shadwell",
+        "Canada Water"
+      ],
+      [
+        "Canada Water",
+        "Denmark Hill"
+      ],
+      [
+        "Canada Water",
+        "Norwood Junction"
+      ],
+      [
+        "Denmark Hill",
+        "Clapham North"
+      ],
+      [
+        "Clapham North",
+        "Clapham Junction"
+      ],
+      [
+        "Norwood Junction",
+        "West Croydon"
+      ]
+    ],
+    "Elizabeth": [
+      [
+        "Ealing Broadway",
+        "Paddington"
+      ],
+      [
+        "Paddington",
+        "Bond Street"
+      ],
+      [
+        "Bond Street",
+        "Tottenham Court Road"
+      ],
+      [
+        "Tottenham Court Road",
+        "Farringdon"
+      ],
+      [
+        "Farringdon",
+        "Liverpool Street"
+      ],
+      [
+        "Liverpool Street",
+        "Whitechapel"
+      ],
+      [
+        "Whitechapel",
+        "Stratford"
+      ],
+      [
+        "Whitechapel",
+        "Canary Wharf"
+      ],
+      [
+        "Stratford",
+        "Wansted Park"
+      ],
+      [
+        "Canary Wharf",
+        "Custom House"
+      ],
+      [
+        "Custom House",
+        "Abbey Wood"
+      ]
+    ],
+    "L DLR": [
+      [
+        "Bank",
+        "Shadwell"
+      ],
+      [
+        "Shadwell",
+        "Westferry"
+      ],
+      [
+        "Westferry",
+        "Canary Wharf"
+      ],
+      [
+        "Canary Wharf",
+        "Poplar"
+      ],
+      [
+        "Canary Wharf",
+        "Greenwich"
+      ],
+      [
+        "Poplar",
+        "Bow Road"
+      ],
+      [
+        "Bow Road",
+        "Stratford"
+      ]
+    ],
+    "W DLR": [
+      [
+        "Bank",
+        "Shadwell"
+      ],
+      [
+        "Shadwell",
+        "Westferry"
+      ],
+      [
+        "Westferry",
+        "Poplar"
+      ],
+      [
+        "Poplar",
+        "Canning Town"
+      ],
+      [
+        "Canning Town",
+        "Woolwich Arsenal"
+      ],
+      [
+        "Canning Town",
+        "West Ham"
+      ],
+      [
+        "West Ham",
+        "Stratford"
+      ]
+    ],
+    "B DLR": [
+      [
+        "Tower Hill",
+        "Shadwell"
+      ],
+      [
+        "Shadwell",
+        "Westferry"
+      ],
+      [
+        "Westferry",
+        "Poplar"
+      ],
+      [
+        "Poplar",
+        "Canning Town"
+      ],
+      [
+        "Canning Town",
+        "Royal Victoria"
+      ],
+      [
+        "Royal Victoria",
+        "Custom House"
+      ]
+    ],
+    "Thameslink": [
+      [
+        "West Hampstead",
+        "Kentish Town"
+      ],
+      [
+        "Kentish Town",
+        "King's Cross"
+      ],
+      [
+        "Finsbury Park",
+        "King's Cross"
+      ],
+      [
+        "King's Cross",
+        "Farringdon"
+      ],
+      [
+        "Farringdon",
+        "St Paul's"
+      ],
+      [
+        "St Paul's",
+        "Blackfriars"
+      ],
+      [
+        "Blackfriars",
+        "Elephant and Castle"
+      ],
+      [
+        "Blackfriars",
+        "London Bridge"
+      ],
+      [
+        "London Bridge",
+        "Greenwich"
+      ],
+      [
+        "London Bridge",
+        "Norwood Junction"
+      ],
+      [
+        "Greenwich",
+        "Woolwich Arsenal"
+      ],
+      [
+        "Woolwich Arsenal",
+        "Abbey Wood"
+      ],
+      [
+        "Norwood Junction",
+        "East Croydon"
+      ],
+      [
+        "Elephant and Castle",
+        "Denmark Hill"
+      ],
+      [
+        "Elephant and Castle",
+        "Tooting Broadway"
+      ],
+      [
+        "Elephant and Castle",
+        "Mitcham Junction"
+      ],
+      [
+        "Tooting Broadway",
+        "Wimbledon"
+      ]
+    ],
+    "Trams": [
+      [
+        "Wimbledon",
+        "South Wimbledon"
+      ],
+      [
+        "South Wimbledon",
+        "Mitcham Junction"
+      ],
+      [
+        "Mitcham Junction",
+        "West Croydon"
+      ],
+      [
+        "West Croydon",
+        "East Croydon"
+      ]
+    ],
+    "Cable Car": [
+      [
+        "North Greenwich",
+        "Royal Victoria"
+      ]
+    ]
+  }
+}
