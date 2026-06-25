@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 import math
+import re
 
 import pytest
 
-from render import _clip_shapes_for_segment, _extract_svg_fork_geometry
+import render
+from game import new_game
+from render import _clip_shapes_for_segment, _extract_svg_fork_geometry, render_map
 
 
 @pytest.fixture
@@ -310,3 +313,66 @@ def test_extract_svg_fork_geometry_rejects_duplicate_waypoint_index(
 
     with pytest.raises(ValueError, match="Duplicate waypoint index"):
         _extract_svg_fork_geometry(svg_text, line_segments)
+
+
+# --- render_map overlay injection ------------------------------------------------
+
+
+def _game_with_active_neck():
+    """A game whose snake has an active neck, so render_map produces overlays."""
+    game = new_game(start_positions={"A": "Wembley Park"})
+    game.initial_request_challenge("A")
+    game.complete_challenge("A", "Jubilee")
+    game.request_challenge("A", "Bond Street")
+    return game
+
+
+@pytest.fixture(scope="module")
+def rendered_overlay(tmp_path_factory):
+    """Render a game with an active neck once; shared across the overlay assertions."""
+    out = tmp_path_factory.mktemp("render") / "map.svg"
+    result = render_map(_game_with_active_neck(), out)
+    return out, result, out.read_text(encoding="utf-8")
+
+
+def test_render_map_writes_file_and_returns_path(rendered_overlay) -> None:
+    out, result, svg = rendered_overlay
+
+    assert result == out
+    assert svg.lstrip().startswith("<")
+
+
+def test_render_map_injects_overlays_before_first_label_group(rendered_overlay) -> None:
+    _, _, svg = rendered_overlay
+
+    # Overlay clip groups are only emitted by the segment-overlay injection.
+    overlay_idx = svg.find("seg-clip-")
+    assert overlay_idx != -1, "expected segment overlays to be injected"
+
+    label_idx = render._LABEL_GROUP_RE.search(svg).start()
+    assert overlay_idx < label_idx, "overlays must paint before (under) the station labels"
+
+
+def test_render_map_includes_team_legend(rendered_overlay) -> None:
+    _, _, svg = rendered_overlay
+
+    legend_idx = svg.find('<g id="Legend">')
+    assert legend_idx != -1, "expected a legend group"
+    # Legend is the HUD: it must paint last, after the labels, before </svg>.
+    assert legend_idx > render._LABEL_GROUP_RE.search(svg).start()
+    assert legend_idx < svg.rfind("</svg>")
+
+    # Header (placeholder clock) and per-team stats for the fixture's snake.
+    # The fixture's snake has an active neck, so the row shows its Front station
+    # ("@ Bond Street") rather than its declared line.
+    for needle in ("Time elapsed", "00:00:00", "Body 1", "@ Bond Street", "Coins 0", "Cards 0"):
+        assert needle in svg, f"legend missing {needle!r}"
+
+
+def test_render_map_raises_when_no_label_anchor(tmp_path, monkeypatch) -> None:
+    # Simulate the anchor disappearing (e.g. labels renamed/removed): the renderer
+    # must fail loudly rather than silently dropping the overlays.
+    monkeypatch.setattr(render, "_LABEL_GROUP_RE", re.compile(r'id="__missing__ Label"'))
+
+    with pytest.raises(ValueError, match="label group"):
+        render_map(_game_with_active_neck(), tmp_path / "map.svg")

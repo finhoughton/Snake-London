@@ -174,16 +174,18 @@ class GameState:
         return None
 
 
-# Default team colours — ordered by priority (use first N for N teams).
-# Each colour has ΔE ≥ 20 from every TFL line colour and ΔE ≥ 30 from every
-# other colour in this list, so they remain legible on the map.
+# Default team colours — ordered by priority (use first N for N teams), boldest
+# first. Chosen by maximising the minimum CIEDE2000 distance between teams: every
+# pair is ΔE ≥ 22 apart and each is ≥ 15 from every colour drawn on the map. The
+# TfL palette saturates the hue wheel, so a few teams sit near a line colour — the
+# priority is that teams are unmistakable from *each other*.
 DEFAULT_TEAM_COLORS = [
-    "#d4006b",  # deep pink
-    "#006080",  # ocean teal
-    "#9c3a10",  # burnt sienna
-    "#4a5200",  # dark olive
-    "#5a8c5a",  # sage green
-    "#5c3a1a",  # warm brown
+    "#0000ff",  # blue
+    "#bb00aa",  # magenta
+    "#aa9900",  # gold
+    "#ff66bb",  # pink
+    "#8877ff",  # periwinkle
+    "#991100",  # dark red
 ]
 
 

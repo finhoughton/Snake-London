@@ -12,6 +12,7 @@ game = new_game(
         "Alpha": "Wembley Park",
         "Beta": "Abbey Wood",
         "Gamma": "Tooting Broadway",
+        "Delta": "Rayners Lane",
     }
 )
 
@@ -24,12 +25,16 @@ game.complete_challenge("Beta", "Elizabeth")
 game.initial_request_challenge("Gamma")
 game.complete_challenge("Gamma", "Bank Branch")
 
+game.initial_request_challenge("Delta")
+game.complete_challenge("Delta", "Met")
+
 # team alpha
 
 game.request_challenge("Alpha", "Bond Street")
 game.complete_challenge("Alpha", "Jubilee")
 
 game.request_challenge("Alpha", "Westminster")
+game.complete_challenge("Alpha", "S Circle")
 
 # beta
 
@@ -51,6 +56,13 @@ game.complete_challenge("Gamma", "Thameslink")
 
 game.request_challenge("Gamma", "Woolwich Arsenal")
 
+# Delta
+
+game.request_challenge("Delta", "Kenton")
+game.complete_challenge("Delta", "Bakerloo")
+
+game.request_challenge("Delta", "Paddington")
+
 # state summary
 
 print("Alpha body:", game.body_stations("Alpha"))
@@ -62,6 +74,8 @@ print()
 print("Gamma body:", game.body_stations("Gamma"))
 print("Gamma neck:", game.neck("Gamma"))
 print()
+print("Delta body:", game.body_stations("Delta"))
+print("Delta neck:", game.neck("Delta"))
 
 # render
 

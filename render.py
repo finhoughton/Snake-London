@@ -26,8 +26,24 @@ _SEGMENT_PAD = 8.0
 # Half-width of the oriented clip rectangle perpendicular to the segment
 _SEGMENT_HALF_W = 80.0
 
-# Marker to find where line elements end and labels begin
-_OVERLAY_INSERTION_MARKER = 'id="Wanstead Park Label"'
+# Legend (bottom-left HUD panel). All values are in SVG units.
+_LEGEND_MARGIN = 48  # gap between the panel and the canvas edges
+_LEGEND_PAD = 30  # inner padding (legend width is now driven by its text content)
+_LEGEND_TIMER_FONT = 44
+_LEGEND_NAME_FONT = 36
+_LEGEND_STAT_FONT = 28
+_LEGEND_SWATCH = 34  # team colour square size
+_LEGEND_NAME_LH = 46  # line height of the team-name row
+_LEGEND_STAT_LH = 38  # line height of the stat row
+_LEGEND_TEAM_GAP = 18  # vertical gap between teams
+_LEGEND_SEP_GAP = 24  # gap below the timer separator
+_LEGEND_FONT = "Arial"
+_CANVAS_H_FALLBACK = 2697.0  # used if the SVG viewBox can't be read
+
+# Overlays are injected immediately before the first station label group so they
+# paint above the line segments but below the labels. Label groups are the <g>
+# elements whose id ends in " Label" (inner text uses " Label_h"/" Label_c").
+_LABEL_GROUP_RE = re.compile(r'<g\b[^>]*\bid="[^"]* Label"')
 
 
 def render_map(game: GameState, output_path: str | Path, *, debug: bool = False) -> Path:
@@ -53,19 +69,26 @@ def render_map(game: GameState, output_path: str | Path, *, debug: bool = False)
         marker_id = f"{station} Marker"
         svg = _set_marker_style(svg, marker_id, color, mode)
 
-    # Inject segment highlight overlays between line elements and labels
+    # Inject segment highlight overlays just before the first label group.
     overlay_svg = _build_segment_overlays(game, debug=debug)
     if overlay_svg:
-        insertion_marker = _OVERLAY_INSERTION_MARKER
-        idx = svg.find(insertion_marker)
-        if idx != -1:
-            # Walk back to the start of the <g tag
-            tag_start = svg.rfind("<g", 0, idx)
-            # Walk further back past any preceding whitespace
-            insert_at = tag_start
-            while insert_at > 0 and svg[insert_at - 1] in " \t\n":
-                insert_at -= 1
-            svg = svg[:insert_at] + "\n  " + overlay_svg + "\n  " + svg[insert_at:]
+        match = _LABEL_GROUP_RE.search(svg)
+        if match is None:
+            raise ValueError(
+                f'No station label group (id="... Label") found in {SVG_SOURCE}; cannot anchor segment overlays.'
+            )
+        # Walk back past any whitespace preceding the <g so indentation stays clean.
+        insert_at = match.start()
+        while insert_at > 0 and svg[insert_at - 1] in " \t\n":
+            insert_at -= 1
+        svg = svg[:insert_at] + "\n  " + overlay_svg + "\n  " + svg[insert_at:]
+
+    # Inject the legend last, just before </svg>, so it paints on top of the map.
+    legend_svg = _build_legend(game, _canvas_height(svg))
+    if legend_svg:
+        close = svg.rfind("</svg>")
+        if close != -1:
+            svg = svg[:close] + "  " + legend_svg + "\n" + svg[close:]
 
     dest = Path(output_path)
     with open(dest, "w", encoding="utf-8") as f:
@@ -406,6 +429,122 @@ def _sorted_station_pair(a: str, b: str) -> tuple[str, str]:
 
 def _escape_attr(value: str) -> str:
     return value.replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;")
+
+
+def _escape_text(value: str) -> str:
+    return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def _canvas_height(svg: str) -> float:
+    """Read the canvas height from the SVG viewBox, falling back to the known size."""
+    match = re.search(r'viewBox="\s*[-\d.]+\s+[-\d.]+\s+[-\d.]+\s+([-\d.]+)', svg)
+    return float(match.group(1)) if match else _CANVAS_H_FALLBACK
+
+
+def _legend_text(
+    x: float, y: float, text: str, size: int, *, bold: bool = False, fill: str = "#111111", anchor: str = "start"
+) -> str:
+    # Two passes: a white outline behind a solid fill, so text stays legible over
+    # map lines without a background panel. (Avoids relying on paint-order support.)
+    weight = ' font-weight="bold"' if bold else ""
+    halo = max(4.0, size * 0.18)
+    common = f'x="{x:.1f}" y="{y:.1f}" font-family="{_LEGEND_FONT}" font-size="{size}" text-anchor="{anchor}"{weight}'
+    esc = _escape_text(text)
+    return (
+        f'<text {common} fill="none" stroke="#ffffff" stroke-width="{halo:.1f}" stroke-linejoin="round">{esc}</text>'
+        f'<text {common} fill="{fill}">{esc}</text>'
+    )
+
+
+def _legend_pair(x: float, y: float, primary: str, secondary: str, size: int) -> str:
+    """Bold *primary* text with lighter *secondary* text beside it, white-haloed.
+
+    Uses two tspans in one text element so the secondary sits right after the
+    primary without needing to measure the rendered primary width.
+    """
+    p = _escape_text(primary)
+    s = _escape_text(secondary)
+    halo = max(4.0, size * 0.18)
+    common = f'x="{x:.1f}" y="{y:.1f}" font-family="{_LEGEND_FONT}" font-size="{size}"'
+    spans_halo = f'<tspan font-weight="bold">{p}</tspan><tspan font-weight="normal">{s}</tspan>'
+    spans_fill = (
+        f'<tspan font-weight="bold" fill="#111111">{p}</tspan><tspan font-weight="normal" fill="#555555">{s}</tspan>'
+    )
+    return (
+        f'<text {common} fill="none" stroke="#ffffff" stroke-width="{halo:.1f}" stroke-linejoin="round">{spans_halo}</text>'
+        f"<text {common}>{spans_fill}</text>"
+    )
+
+
+def _build_legend(game: GameState, canvas_h: float) -> str:
+    """Build the bottom-left HUD: a time-elapsed header above a per-team legend.
+
+    Each team row shows its colour, name + (current line, or the Front station
+    while a challenge is active), then body score, neck length, coin balance, and
+    card count (hand not yet implemented — always 0).
+    """
+    teams = list(game.snakes.items())
+    if not teams:
+        return ""
+    n = len(teams)
+
+    header_h = _LEGEND_TIMER_FONT + 10
+    team_block_h = _LEGEND_NAME_LH + _LEGEND_STAT_LH
+    content_h = header_h + _LEGEND_SEP_GAP + n * team_block_h + (n - 1) * _LEGEND_TEAM_GAP
+    panel_h = content_h + 2 * _LEGEND_PAD
+
+    panel_left = _LEGEND_MARGIN
+    panel_top = canvas_h - _LEGEND_MARGIN - panel_h
+    content_left = panel_left + _LEGEND_PAD
+
+    parts: list[str] = []
+
+    y = panel_top + _LEGEND_PAD
+
+    # Time-elapsed header (placeholder — clock not yet implemented). The clock sits
+    # right after the label rather than spanning to the panel edge.
+    timer_baseline = y + _LEGEND_TIMER_FONT * 0.8
+    parts.append(_legend_pair(content_left, timer_baseline, "Time elapsed", "   00:00:00", _LEGEND_TIMER_FONT))
+    y += header_h + _LEGEND_SEP_GAP
+
+    for i, (team, snake) in enumerate(teams):
+        block_top = y
+        body = len(game.body_stations(team))
+        neck = len(game.neck(team))
+        line = snake.declared_line
+        line_name = game.map.get_line(line).display_name if line and game.map.has_line(line) else None
+
+        # While attempting a challenge (neck active) show where the team currently
+        # is (the Front station); otherwise show the line they declared.
+        if snake.neck_active:
+            beside_name = f"   ·   {game.map.get_station(snake.front).display_name}"
+        elif line_name:
+            beside_name = f"   ·   {line_name}"
+        else:
+            beside_name = "   ·   No line"
+
+        stats = [f"Score: {body}", f"Neck: {neck}", f"Coins: {snake.coins}", "Cards: 0"]
+        stat_text = "   ·   ".join(stats)
+        name = f"{team} (crashed)" if snake.crashed else team
+
+        parts.append('<g opacity="0.45">' if snake.crashed else "<g>")
+        swatch_y = block_top + (_LEGEND_NAME_LH - _LEGEND_SWATCH) / 2
+        parts.append(
+            f'<rect x="{content_left:.1f}" y="{swatch_y:.1f}" width="{_LEGEND_SWATCH}" height="{_LEGEND_SWATCH}"'
+            f' fill="{snake.color}" stroke="#333333" stroke-width="1.5"/>'
+        )
+        text_x = content_left + _LEGEND_SWATCH + 16
+        name_baseline = block_top + _LEGEND_NAME_LH * 0.5 + _LEGEND_NAME_FONT * 0.36
+        parts.append(_legend_pair(text_x, name_baseline, name, beside_name, _LEGEND_NAME_FONT))
+        stat_baseline = block_top + _LEGEND_NAME_LH + _LEGEND_STAT_FONT * 0.8
+        parts.append(_legend_text(text_x, stat_baseline, stat_text, _LEGEND_STAT_FONT, fill="#333333"))
+        parts.append("</g>")
+
+        y += team_block_h
+        if i < n - 1:
+            y += _LEGEND_TEAM_GAP
+
+    return '<g id="Legend">' + "".join(parts) + "</g>"
 
 
 def _format_shape_element(el: ET.Element) -> str | None:
