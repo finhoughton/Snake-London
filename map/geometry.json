@@ -276,7 +276,7 @@
       2920.26,
       1134.75
     ],
-    "Shepard's Bush": [
+    "Shepherd's Bush": [
       727.01,
       1218.13
     ],
@@ -328,7 +328,7 @@
       3151.7,
       126.12
     ],
-    "Wansted Park": [
+    "Wanstead Park": [
       3787.6,
       197.82
     ],
@@ -372,7 +372,7 @@
       2919.94,
       1026.94
     ],
-    "Wilsden Junction": [
+    "Willesden Junction": [
       765.25,
       842.27
     ],
@@ -471,10 +471,10 @@
       ],
       [
         "Wood Lane",
-        "Shepard's Bush"
+        "Shepherd's Bush"
       ],
       [
-        "Shepard's Bush",
+        "Shepherd's Bush",
         "Notting Hill Gate"
       ],
       [
@@ -525,10 +525,10 @@
     "Bakerloo": [
       [
         "Kenton",
-        "Wilsden Junction"
+        "Willesden Junction"
       ],
       [
-        "Wilsden Junction",
+        "Willesden Junction",
         "Queen's Park"
       ],
       [
@@ -1051,10 +1051,10 @@
     "Lioness": [
       [
         "Kenton",
-        "Wilsden Junction"
+        "Willesden Junction"
       ],
       [
-        "Wilsden Junction",
+        "Willesden Junction",
         "Queen's Park"
       ],
       [
@@ -1097,18 +1097,18 @@
       ],
       [
         "West Hampstead",
-        "Wilsden Junction"
+        "Willesden Junction"
       ],
       [
-        "Wilsden Junction",
+        "Willesden Junction",
         "Gunnersbury"
       ],
       [
-        "Wilsden Junction",
-        "Shepard's Bush"
+        "Willesden Junction",
+        "Shepherd's Bush"
       ],
       [
-        "Shepard's Bush",
+        "Shepherd's Bush",
         "Olympia"
       ],
       [
@@ -1165,10 +1165,10 @@
       ],
       [
         "Leytonstone",
-        "Wansted Park"
+        "Wanstead Park"
       ],
       [
-        "Wansted Park",
+        "Wanstead Park",
         "Barking"
       ]
     ],
@@ -1245,7 +1245,7 @@
       ],
       [
         "Stratford",
-        "Wansted Park"
+        "Wanstead Park"
       ],
       [
         "Canary Wharf",

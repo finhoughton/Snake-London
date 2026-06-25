@@ -232,7 +232,7 @@ def test_claim_line_claims_path_excluding_start():
     claimed = tube_map.claim_line("Kenton", "Oxford Circus", "red", "Bakerloo")
 
     assert claimed == [
-        "Wilsden Junction",
+        "Willesden Junction",
         "Queen's Park",
         "Paddington",
         "Edgware Road",

@@ -27,7 +27,7 @@ _SEGMENT_PAD = 8.0
 _SEGMENT_HALF_W = 80.0
 
 # Marker to find where line elements end and labels begin
-_OVERLAY_INSERTION_MARKER = 'id="Wansted Park Label"'
+_OVERLAY_INSERTION_MARKER = 'id="Wanstead Park Label"'
 
 
 def render_map(game: GameState, output_path: str | Path, *, debug: bool = False) -> Path:

@@ -31,7 +31,7 @@
         "Park Royal",
         "Ealing Broadway",
         "Wood Lane",
-        "Shepard's Bush",
+        "Shepherd's Bush",
         "Notting Hill Gate",
         "Bond Street",
         "Oxford Circus",
@@ -51,7 +51,7 @@
       "has_branches": false,
       "stations": [
         "Kenton",
-        "Wilsden Junction",
+        "Willesden Junction",
         "Queen's Park",
         "Paddington",
         "Edgware Road",
@@ -251,7 +251,7 @@
       "has_branches": false,
       "stations": [
         "Kenton",
-        "Wilsden Junction",
+        "Willesden Junction",
         "Queen's Park",
         "Swiss Cottage",
         "Euston"
@@ -269,9 +269,9 @@
         "Camden Town",
         "Gospel Oak",
         "West Hampstead",
-        "Wilsden Junction",
+        "Willesden Junction",
         "Gunnersbury",
-        "Shepard's Bush",
+        "Shepherd's Bush",
         "Olympia",
         "West Brompton",
         "Clapham Junction"
@@ -299,7 +299,7 @@
         "Blackhorse Road",
         "Walthamstow Central",
         "Leytonstone",
-        "Wansted Park",
+        "Wanstead Park",
         "Barking"
       ]
     },
@@ -331,7 +331,7 @@
         "Liverpool Street",
         "Whitechapel",
         "Stratford",
-        "Wansted Park",
+        "Wanstead Park",
         "Canary Wharf",
         "Custom House",
         "Abbey Wood"
@@ -427,7 +427,7 @@
       "Met": ["Kenton"]
     },
     "Park Royal": {
-      "display_name": "Park Royal / Hangar Lane",
+      "display_name": "Park Royal / Hanger Lane",
       "Picc": ["Rayners Lane", "Ealing Common"],
       "Central": ["Wood Lane"]
     },
@@ -537,18 +537,18 @@
     },
     "Wood Lane": {
       "display_name": "Wood Lane / White City",
-      "Central": ["Ealing Broadway", "Park Royal", "Shepard's Bush"],
+      "Central": ["Ealing Broadway", "Park Royal", "Shepherd's Bush"],
       "H&C": ["Hammersmith", "Paddington"],
       "N Circle": ["Hammersmith", "Paddington"]
     },
-    "Shepard's Bush": {
-      "display_name": "Shepard's Bush",
+    "Shepherd's Bush": {
+      "display_name": "Shepherd's Bush",
       "Central": ["Wood Lane", "Notting Hill Gate"],
-      "Mildmay": ["Olympia", "Wilsden Junction"]
+      "Mildmay": ["Olympia", "Willesden Junction"]
     },
     "Notting Hill Gate": {
       "display_name": "Notting Hill Gate",
-      "Central": ["Shepard's Bush", "Bond Street"],
+      "Central": ["Shepherd's Bush", "Bond Street"],
       "S Circle": ["Paddington", "Gloucester Road"],
       "District": ["Paddington", "Earl's Court"]
     },
@@ -614,31 +614,31 @@
       "Central": ["Mile End", "Leytonstone"],
       "Jubilee": ["West Ham"],
       "Mildmay": ["Hackney Central"],
-      "Elizabeth": ["Whitechapel", "Wansted Park"],
+      "Elizabeth": ["Whitechapel", "Wanstead Park"],
       "L DLR": ["Bow Road"],
       "W DLR": ["West Ham"]
     },
     "Leytonstone": {
       "display_name": "Leytonstone / Leytonstone High Road",
       "Central": ["Stratford"],
-      "Suffragette": ["Walthamstow Central", "Wansted Park"]
+      "Suffragette": ["Walthamstow Central", "Wanstead Park"]
     },
     "Kenton": {
       "display_name": "Kenton / Northwick Park",
-      "Bakerloo": ["Wilsden Junction"],
+      "Bakerloo": ["Willesden Junction"],
       "Met": ["Rayners Lane", "Wembley Park"],
-      "Lioness": ["Wilsden Junction"]
+      "Lioness": ["Willesden Junction"]
     },
-    "Wilsden Junction": {
-      "display_name": "Wilsden Junction",
+    "Willesden Junction": {
+      "display_name": "Willesden Junction",
       "Bakerloo": ["Kenton", "Queen's Park"],
       "Lioness": ["Kenton", "Queen's Park"],
-      "Mildmay": ["Gunnersbury", "West Hampstead", "Shepard's Bush"]
+      "Mildmay": ["Gunnersbury", "West Hampstead", "Shepherd's Bush"]
     },
     "Queen's Park": {
       "display_name": "Queen's Park",
-      "Lioness": ["Wilsden Junction", "Swiss Cottage"],
-      "Bakerloo": ["Wilsden Junction", "Paddington"]
+      "Lioness": ["Willesden Junction", "Swiss Cottage"],
+      "Bakerloo": ["Willesden Junction", "Paddington"]
     },
     "Paddington": {
       "display_name": "Paddington",
@@ -704,7 +704,7 @@
     "West Hampstead": {
       "display_name": "West Hampstead",
       "Jubilee": ["Wembley Park", "Finchley Road"],
-      "Mildmay": ["Wilsden Junction", "Gospel Oak"],
+      "Mildmay": ["Willesden Junction", "Gospel Oak"],
       "Thameslink": ["Kentish Town"]
     },
     "Finchley Road": {
@@ -874,7 +874,7 @@
       "display_name": "Barking",
       "H&C": ["West Ham"],
       "District": ["West Ham"],
-      "Suffragette": ["Wansted Park"]
+      "Suffragette": ["Wanstead Park"]
     },
     "Blackfriars": {
       "display_name": "Blackfriars",
@@ -895,7 +895,7 @@
     "Gunnersbury": {
       "display_name": "Gunnersbury",
       "District": ["Turnham Green"],
-      "Mildmay": ["Wilsden Junction"]
+      "Mildmay": ["Willesden Junction"]
     },
     "Wimbledon": {
       "display_name": "Wimbledon",
@@ -911,7 +911,7 @@
     "Olympia": {
       "display_name": "Kensington Olympia",
       "District": ["Earl's Court"],
-      "Mildmay": ["Shepard's Bush", "West Brompton"]
+      "Mildmay": ["Shepherd's Bush", "West Brompton"]
     },
     "Hackney Central": {
       "display_name": "Hackney Central / Hackney Downs",
@@ -937,8 +937,8 @@
       "Mildmay": ["West Brompton"],
       "Windrush": ["Clapham North"]
     },
-    "Wansted Park": {
-      "display_name": "Wansted Park / Forest Gate",
+    "Wanstead Park": {
+      "display_name": "Wanstead Park / Forest Gate",
       "Suffragette": ["Leytonstone", "Barking"],
       "Elizabeth": ["Stratford"]
     },

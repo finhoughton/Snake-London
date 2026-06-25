@@ -1836,27 +1836,27 @@
        id="path289" />
   </g>
   <g
-     id="Wansted Park Label">
+     id="Wanstead Park Label">
     <text
        xml:space="preserve"
        x="3815.3181"
        y="211.29401"
        style="font-size:21.3654px;writing-mode:lr-tb;direction:ltr;fill:#000000;stroke:#ffffff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.65"
-       id="Wansted Park Label_h"><tspan
+       id="Wanstead Park Label_h"><tspan
          x="3815.3181"
          y="211.29401"
          style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;stroke-width:5;stroke-dasharray:none"
-         id="tspan432_h">Wansted Park / Forest Gate</tspan></text>
+         id="tspan432_h">Wanstead Park / Forest Gate</tspan></text>
     <text
        xml:space="preserve"
        x="3815.3181"
        y="211.29401"
        style="font-size:21.3654px;writing-mode:lr-tb;direction:ltr;fill:#000000;stroke-width:0;stroke-dasharray:none"
-       id="Wansted Park Label_c"><tspan
+       id="Wanstead Park Label_c"><tspan
          x="3815.3181"
          y="211.29401"
          style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:21.3654px;font-family:Arial;-inkscape-font-specification:Arial;stroke-width:0;stroke-dasharray:none"
-         id="tspan432_c">Wansted Park / Forest Gate</tspan></text>
+         id="tspan432_c">Wanstead Park / Forest Gate</tspan></text>
   </g>
   <g
      id="Kenton Label">
@@ -1921,7 +1921,7 @@
          x="142.269"
          y="1036.458"
          style="fill:#000000;fill-opacity:1;stroke-width:5;stroke-dasharray:none"
-         id="tspan444_h">Hangar Lane</tspan></text>
+         id="tspan444_h">Hanger Lane</tspan></text>
     <text
        xml:space="preserve"
        x="142.269"
@@ -1935,7 +1935,7 @@
          x="142.269"
          y="1036.458"
          style="fill:#000000;fill-opacity:1;stroke-width:0;stroke-dasharray:none"
-         id="tspan444_c">Hangar Lane</tspan></text>
+         id="tspan444_c">Hanger Lane</tspan></text>
   </g>
   <g
      id="West Brompton Label">
@@ -2652,40 +2652,40 @@
          id="tspan641_c">Olympia</tspan></text>
   </g>
   <g
-     id="Shepard's Bush Label">
+     id="Shepherd's Bush Label">
     <text
        xml:space="preserve"
        x="745.13202"
        y="1250.73"
        style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;stroke:#ffffff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.65"
-       id="Shepard's Bush Label_h"><tspan
+       id="Shepherd's Bush Label_h"><tspan
          x="745.13202"
          y="1250.73"
          style="stroke-width:5;stroke-dasharray:none"
-         id="tspan642_h">Shepard's Bush</tspan></text>
+         id="tspan642_h">Shepherd's Bush</tspan></text>
     <text
        xml:space="preserve"
        x="745.13202"
        y="1250.73"
        style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;stroke-width:0;stroke-linejoin:round"
-       id="Shepard's Bush Label_c"><tspan
+       id="Shepherd's Bush Label_c"><tspan
          x="745.13202"
          y="1250.73"
          style="stroke-width:0"
-         id="tspan642_c">Shepard's Bush</tspan></text>
+         id="tspan642_c">Shepherd's Bush</tspan></text>
   </g>
   <g
-     id="Wilsden Junction Label">
+     id="Willesden Junction Label">
     <text
        xml:space="preserve"
        x="654.84698"
        y="868.56097"
        style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;stroke:#ffffff;stroke-width:5;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.65"
-       id="Wilsden Junction Label_h"><tspan
+       id="Willesden Junction Label_h"><tspan
          x="654.84698"
          y="868.56097"
          style="stroke-width:5;stroke-dasharray:none"
-         id="tspan643_h">Wilsden</tspan><tspan
+         id="tspan643_h">Willesden</tspan><tspan
          x="654.84698"
          y="896.06097"
          style="stroke-width:5;stroke-dasharray:none"
@@ -2695,11 +2695,11 @@
        x="654.84698"
        y="868.56097"
        style="font-size:22px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;fill:#000000;stroke-width:0;stroke-linejoin:round"
-       id="Wilsden Junction Label_c"><tspan
+       id="Willesden Junction Label_c"><tspan
          x="654.84698"
          y="868.56097"
          style="stroke-width:0"
-         id="tspan643_c">Wilsden</tspan><tspan
+         id="tspan643_c">Willesden</tspan><tspan
          x="654.84698"
          y="896.06097"
          style="stroke-width:0"
@@ -4446,7 +4446,7 @@
      rx="15.011938" />
   <rect
      style="fill:#ffffff;stroke:#000000;stroke-width:3.75;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
-     id="Wilsden Junction Marker"
+     id="Willesden Junction Marker"
      width="54.042976"
      height="29.292978"
      x="-584.88745"
@@ -4533,7 +4533,7 @@
      r="14.638891" />
   <circle
      style="fill:#ffffff;stroke:#000000;stroke-width:3.75;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
-     id="Shepard's Bush Marker"
+     id="Shepherd's Bush Marker"
      cx="727.00922"
      cy="1218.1259"
      r="14.638891" />
@@ -5137,7 +5137,7 @@
      transform="rotate(90)" />
   <circle
      style="fill:#ffffff;stroke:#000000;stroke-width:3.75;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
-     id="Wansted Park Marker"
+     id="Wanstead Park Marker"
      cx="3787.6011"
      cy="197.81503"
      r="14.638891" />
@@ -5306,7 +5306,7 @@
          id="path258" />
     </g>
     <g
-       id="Mildmay:Gunnersbury:Wilsden Junction"
+       id="Mildmay:Gunnersbury:Willesden Junction"
        style="display:none">
       <path
          style="display:inline;fill:#000000;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.75"
@@ -5314,13 +5314,13 @@
          id="path262" />
       <circle
          style="display:inline;fill:#000000;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.75"
-         id="Mildmay:Gunnersbury:Wilsden Junction:tail:Gunnersbury"
+         id="Mildmay:Gunnersbury:Willesden Junction:tail:Gunnersbury"
          cx="368.13324"
          cy="1495.6934"
          r="0.13032685" />
     </g>
     <g
-       id="Mildmay:Shepard's Bush:Wilsden Junction"
+       id="Mildmay:Shepherd's Bush:Willesden Junction"
        style="display:none">
       <path
          style="display:inline;fill:#000000;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.75"
@@ -5390,35 +5390,35 @@
          r="0.12521204" />
     </g>
     <g
-       id="Mildmay:Wilsden Junction:West Hampstead"
+       id="Mildmay:Willesden Junction:West Hampstead"
        style="display:none">
       <circle
          style="fill:#000000;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.75"
-         id="Mildmay:Wilsden Junction:West Hampstead:waypoint:0"
+         id="Mildmay:Willesden Junction:West Hampstead:waypoint:0"
          cx="817.84595"
          cy="732.4386"
          r="0.60716105" />
       <circle
          style="fill:#000000;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.75"
-         id="Mildmay:Wilsden Junction:West Hampstead:waypoint:1"
+         id="Mildmay:Willesden Junction:West Hampstead:waypoint:1"
          cx="888.34491"
          cy="635.3916"
          r="0.30271158" />
       <circle
          style="fill:#000000;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.75"
-         id="Mildmay:Wilsden Junction:West Hampstead:waypoint:2"
+         id="Mildmay:Willesden Junction:West Hampstead:waypoint:2"
          cx="978.03442"
          cy="551.39709"
          r="0.36443961" />
       <circle
          style="fill:#000000;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.75"
-         id="Mildmay:Wilsden Junction:West Hampstead:waypoint:3"
+         id="Mildmay:Willesden Junction:West Hampstead:waypoint:3"
          cx="1172.7135"
          cy="449.24121"
          r="0.72575319" />
       <circle
          style="fill:#000000;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.75"
-         id="Mildmay:Wilsden Junction:West Hampstead:waypoint:4"
+         id="Mildmay:Willesden Junction:West Hampstead:waypoint:4"
          cx="1340.2218"
          cy="419.84918"
          r="0.52192223" />
@@ -5570,11 +5570,11 @@
          r="1.4261811" />
     </g>
     <g
-       id="Suffragette:Barking:Wansted Park"
+       id="Suffragette:Barking:Wanstead Park"
        style="display:none">
       <circle
          style="fill:#000000;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.75"
-         id="Suffragette:Barking:Wansted Park:waypoint:0"
+         id="Suffragette:Barking:Wanstead Park:waypoint:0"
          cx="3923.5649"
          cy="435.44739"
          r="0.61097044" />
@@ -5704,11 +5704,11 @@
          r="1.656037" />
     </g>
     <g
-       id="Lioness:Wilsden Junction:Kenton"
+       id="Lioness:Willesden Junction:Kenton"
        style="display:none">
       <circle
          style="fill:#000000;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.75"
-         id="Lioness:Wilsden Junction:Kenton:waypoint:0"
+         id="Lioness:Willesden Junction:Kenton:waypoint:0"
          cx="733.53717"
          cy="814.30951"
          r="0.65138972" />
@@ -5798,11 +5798,11 @@
          inkscape:label="H&amp;C:King's Cross:Farringdon:waypoint:0" />
     </g>
     <g
-       id="Elizabeth:Stratford:Wansted Park"
+       id="Elizabeth:Stratford:Wanstead Park"
        style="display:none">
       <circle
          style="fill:#000000;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.75"
-         id="Elizabeth:Stratford:Wansted Park:waypoint:0"
+         id="Elizabeth:Stratford:Wanstead Park:waypoint:0"
          cx="3524.0818"
          cy="321.0322"
          r="1.4907911" />
@@ -6015,11 +6015,11 @@
          r="1.2819335" />
     </g>
     <g
-       id="Bakerloo:Wilsden Junction:Kenton"
+       id="Bakerloo:Willesden Junction:Kenton"
        style="display:none">
       <circle
          style="display:none;fill:#000000;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.75"
-         id="Bakerloo:Wilsden Junction:Kenton:waypoint:0"
+         id="Bakerloo:Willesden Junction:Kenton:waypoint:0"
          cx="711.17596"
          cy="831.44836"
          r="1.6089954" />
