@@ -9,6 +9,7 @@ from typing import Literal, TypedDict
 
 import resvg_py
 
+from config import BONUS_AT_FRONT
 from game import GameState
 
 SVG_SOURCE = Path("map/snake map.svg")
@@ -39,6 +40,16 @@ _LEGEND_TEAM_GAP = 18  # vertical gap between teams
 _LEGEND_SEP_GAP = 24  # gap below the timer separator
 _LEGEND_FONT = "Arial"
 _CANVAS_H_FALLBACK = 2697.0  # used if the SVG viewBox can't be read
+
+# Bonus-coin badge (a small gold coin tucked against a bonus interchange's marker,
+# on the side away from its label). All values in SVG units.
+_BONUS_BADGE_R = 15
+_BONUS_BADGE_FONT = 18
+_BONUS_BADGE_OVERLAP = 6  # px the badge overlaps the marker so it visibly connects
+_BONUS_BADGE_FILL = "#f3c000"
+_BONUS_BADGE_STROKE = "#6b4f00"
+_BONUS_BADGE_TEXT = "#4a3600"
+_BONUS_BADGE_LABEL = f"+{BONUS_AT_FRONT}"  # the headline (complete-here) bonus from config
 
 # Overlays are injected immediately before the first station label group so they
 # paint above the line segments but below the labels. Label groups are the <g>
@@ -82,6 +93,13 @@ def render_map(game: GameState, output_path: str | Path, *, debug: bool = False)
         while insert_at > 0 and svg[insert_at - 1] in " \t\n":
             insert_at -= 1
         svg = svg[:insert_at] + "\n  " + overlay_svg + "\n  " + svg[insert_at:]
+
+    # Bonus-coin badges on unclaimed bonus interchanges (painted above the map).
+    badges_svg = _build_bonus_badges(game)
+    if badges_svg:
+        close = svg.rfind("</svg>")
+        if close != -1:
+            svg = svg[:close] + "  " + badges_svg + "\n" + svg[close:]
 
     # Inject the legend last, just before </svg>, so it paints on top of the map.
     legend_svg = _build_legend(game, _canvas_height(svg))
@@ -145,6 +163,7 @@ _geometry_cache: dict | None = None
 _line_paths_cache: dict[str, tuple[list[str], list[str]]] | None = None
 _svg_fork_geometry_cache: dict[tuple[str, str, str], "ForkGroup"] | None = None
 _station_markers_cache: dict[str, "StationMarker"] | None = None
+_label_anchors_cache: dict[str, tuple[float, float]] | None = None
 AffineTransform = tuple[float, float, float, float, float, float]
 ClipPolygon = list[tuple[float, float]]
 ClipShape = str | ClipPolygon
@@ -476,12 +495,71 @@ def _legend_pair(x: float, y: float, primary: str, secondary: str, size: int) ->
     )
 
 
+def _get_label_anchors() -> dict[str, tuple[float, float]]:
+    """Map each station to its label's anchor point (used to place badges away from it)."""
+    global _label_anchors_cache
+    if _label_anchors_cache is not None:
+        return _label_anchors_cache
+    root = ET.fromstring(SVG_SOURCE.read_text(encoding="utf-8"))
+    anchors: dict[str, tuple[float, float]] = {}
+    for el in root.iter():
+        eid = el.get("id", "")
+        if eid.endswith(" Label"):
+            station = eid[: -len(" Label")]
+            group_transform = _parse_transform(el.get("transform", ""))
+            for text_el in el.iter():
+                tx, ty = text_el.get("x"), text_el.get("y")
+                if text_el.tag.split("}")[-1] == "text" and tx and ty:
+                    # Apply the label group's (and any text-level) transform so the
+                    # anchor is in canvas space, not the label's local coords.
+                    transform = _affine_multiply(group_transform, _parse_transform(text_el.get("transform", "")))
+                    anchors[station] = _apply_affine(transform, float(tx), float(ty))
+                    break
+    _label_anchors_cache = anchors
+    return anchors
+
+
+def _bonus_badge(station: str, centre: list[float], markers: dict, labels: dict) -> str:
+    """A coin badge tucked against the station marker, on the side opposite its label."""
+    cx, cy = centre
+    lx, ly = labels.get(station, (cx + 1.0, cy))
+    dx, dy = cx - lx, cy - ly  # direction pointing away from the label
+    length = math.hypot(dx, dy)
+    ux, uy = (dx / length, dy / length) if length > 1e-3 else (0.71, -0.71)
+    # Anchor to the marker's actual silhouette edge so the badge hugs any size/shape.
+    ex, ey = _marker_exit_point(station, cx, cy, cx + ux * 1000, cy + uy * 1000, markers)
+    bx = ex + ux * (_BONUS_BADGE_R - _BONUS_BADGE_OVERLAP)
+    by = ey + uy * (_BONUS_BADGE_R - _BONUS_BADGE_OVERLAP)
+    return (
+        f'<circle cx="{bx:.1f}" cy="{by:.1f}" r="{_BONUS_BADGE_R}"'
+        f' fill="{_BONUS_BADGE_FILL}" stroke="{_BONUS_BADGE_STROKE}" stroke-width="2.5"/>'
+        f'<text x="{bx:.1f}" y="{by + _BONUS_BADGE_FONT * 0.34:.1f}" font-family="{_LEGEND_FONT}"'
+        f' font-size="{_BONUS_BADGE_FONT}" font-weight="bold" fill="{_BONUS_BADGE_TEXT}"'
+        f' text-anchor="middle">{_BONUS_BADGE_LABEL}</text>'
+    )
+
+
+def _build_bonus_badges(game: GameState) -> str:
+    """Badges for every *unclaimed* bonus interchange (a claimed one's bonus is spent)."""
+    if not game.bonus_interchanges:
+        return ""
+    centres = _load_geometry()["station_centres"]
+    markers = _get_station_markers()
+    labels = _get_label_anchors()
+    parts = [
+        _bonus_badge(station, centres[station], markers, labels)
+        for station in sorted(game.bonus_interchanges)
+        if station in centres and not game.map.is_claimed(station)
+    ]
+    return '<g id="Bonus Coins">' + "".join(parts) + "</g>" if parts else ""
+
+
 def _build_legend(game: GameState, canvas_h: float) -> str:
     """Build the bottom-left HUD: a time-elapsed header above a per-team legend.
 
     Each team row shows its colour, name + (current line, or the Front station
-    while a challenge is active), then body score, neck length, coin balance, and
-    card count (hand not yet implemented — always 0).
+    while a challenge is active), then body score and neck length. Coins and cards
+    in hand are private information and deliberately not shown.
     """
     teams = list(game.snakes.items())
     if not teams:
@@ -523,7 +601,7 @@ def _build_legend(game: GameState, canvas_h: float) -> str:
         else:
             beside_name = "   ·   No line"
 
-        stats = [f"Score: {body}", f"Neck: {neck}", f"Coins: {snake.coins}", "Cards: 0"]
+        stats = [f"Score: {body}", f"Neck: {neck}"]
         stat_text = "   ·   ".join(stats)
         name = f"{team} (crashed)" if snake.crashed else team
 

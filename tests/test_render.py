@@ -320,7 +320,7 @@ def test_extract_svg_fork_geometry_rejects_duplicate_waypoint_index(
 
 def _game_with_active_neck():
     """A game whose snake has an active neck, so render_map produces overlays."""
-    game = new_game(start_positions={"A": "Wembley Park"})
+    game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
     game.initial_request_challenge("A")
     game.complete_challenge("A", "Jubilee")
     game.request_challenge("A", "Bond Street")
@@ -362,11 +362,13 @@ def test_render_map_includes_team_legend(rendered_overlay) -> None:
     assert legend_idx > render._LABEL_GROUP_RE.search(svg).start()
     assert legend_idx < svg.rfind("</svg>")
 
-    # Header (placeholder clock) and per-team stats for the fixture's snake.
-    # The fixture's snake has an active neck, so the row shows its Front station
-    # ("@ Bond Street") rather than its declared line.
-    for needle in ("Time elapsed", "00:00:00", "Body 1", "@ Bond Street", "Coins 0", "Cards 0"):
+    # Header (placeholder clock) and per-team stats for the fixture's snake. The
+    # snake has an active neck, so the row shows its Front station rather than its
+    # declared line. Coins/cards are private and must not appear.
+    for needle in ("Time elapsed", "00:00:00", "Score: 1", "Bond Street"):
         assert needle in svg, f"legend missing {needle!r}"
+    for hidden in ("Coins", "Cards"):
+        assert hidden not in svg, f"legend should not expose {hidden!r}"
 
 
 def test_render_map_raises_when_no_label_anchor(tmp_path, monkeypatch) -> None:
@@ -376,3 +378,25 @@ def test_render_map_raises_when_no_label_anchor(tmp_path, monkeypatch) -> None:
 
     with pytest.raises(ValueError, match="label group"):
         render_map(_game_with_active_neck(), tmp_path / "map.svg")
+
+
+def test_render_map_draws_bonus_badges(tmp_path) -> None:
+    game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges={"Stratford"})
+    svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
+
+    assert '<g id="Bonus Coins">' in svg
+    from config import BONUS_AT_FRONT
+
+    assert f"+{BONUS_AT_FRONT}" in svg
+
+
+def test_render_map_skips_badge_on_claimed_bonus(tmp_path) -> None:
+    # The only bonus interchange gets claimed, so its bonus is spent — no badge.
+    game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges={"Bond Street"})
+    game.initial_request_challenge("A")
+    game.complete_challenge("A", "Jubilee")
+    game.request_challenge("A", "Bond Street")
+    game.complete_challenge("A", "Jubilee")  # claims Bond Street (the bonus)
+    svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
+
+    assert '<g id="Bonus Coins">' not in svg

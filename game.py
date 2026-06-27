@@ -1,11 +1,19 @@
 from __future__ import annotations
 
+import random
 from dataclasses import dataclass
 
+from config import (
+    BONUS_AT_FRONT,
+    BONUS_CLAIMED,
+    DEFAULT_BONUS_CHANCE,
+    DEFAULT_TEAM_COLORS,
+    EASIER_REWARD,
+    HARDER_REWARD,
+    STARTING_COINS,
+    WINNING_THRESHOLD,
+)
 from map import Map
-
-# threashold for win via the alternative win condition. (greater than)
-WINNING_THRESHOLD = 10
 
 
 @dataclass
@@ -25,6 +33,7 @@ class Snake:
 class GameState:
     map: Map
     snakes: dict[str, Snake]  # team -> Snake
+    bonus_interchanges: set[str] = set()  # interchanges that pay bonus coins
 
     # Snake access
 
@@ -108,8 +117,13 @@ class GameState:
         snake.front = station
         snake.neck_active = True
 
-    def complete_challenge(self, team: str, next_line: str) -> list[str]:
-        """Complete a challenge: claim the Neck, advance the Anchor, and declare the next line.
+    def complete_challenge(self, team: str, next_line: str, *, hard: bool = False) -> list[str]:
+        """Complete a challenge: claim the Neck, award coins, advance the Anchor, declare next line.
+
+        ``hard`` selects which of the two offered challenges was completed — the
+        easier one (default) pays EASIER_REWARD coins, the harder pays HARDER_REWARD.
+        Each newly-claimed bonus interchange also pays out: BONUS_AT_FRONT if it is
+        the Front (where the challenge was completed), else BONUS_CLAIMED.
 
         Returns the list of newly claimed interchanges.
         """
@@ -133,6 +147,12 @@ class GameState:
             full_path = [snake.anchor] + segment
             for i in range(len(full_path) - 1):
                 self.map.claim_segment(snake.declared_line, full_path[i], full_path[i + 1], team)
+
+        # Award coins: the challenge reward plus any bonus interchanges just claimed.
+        snake.coins += HARDER_REWARD if hard else EASIER_REWARD
+        for station_key in segment:
+            if station_key in self.bonus_interchanges:
+                snake.coins += BONUS_AT_FRONT if station_key == snake.front else BONUS_CLAIMED
 
         snake.anchor = snake.front
         snake.neck_active = False
@@ -174,25 +194,14 @@ class GameState:
         return None
 
 
-# Default team colours — ordered by priority (use first N for N teams), boldest
-# first. Chosen by maximising the minimum CIEDE2000 distance between teams: every
-# pair is ΔE ≥ 22 apart and each is ≥ 15 from every colour drawn on the map. The
-# TfL palette saturates the hue wheel, so a few teams sit near a line colour — the
-# priority is that teams are unmistakable from *each other*.
-DEFAULT_TEAM_COLORS = [
-    "#0000ff",  # blue
-    "#bb00aa",  # magenta
-    "#aa9900",  # gold
-    "#ff66bb",  # pink
-    "#8877ff",  # periwinkle
-    "#991100",  # dark red
-]
-
-
 def new_game(
     start_positions: dict[str, str],
     team_colors: dict[str, str] | None = None,
     connections_path: str = "map/connections.json",
+    *,
+    bonus_chance: float = DEFAULT_BONUS_CHANCE,
+    bonus_interchanges: set[str] | frozenset[str] | None = None,
+    rng: random.Random | None = None,
 ) -> GameState:
     """Load the map and create a new GameState.
 
@@ -200,8 +209,13 @@ def new_game(
     team_colors optionally maps each team name to a hex color string.
     If a team has no entry in team_colors, it is assigned the next colour from
     DEFAULT_TEAM_COLORS in the order teams appear in start_positions.
-    Teams must start at different interchanges.
-    Teams begin with no declared line and must complete an initial challenge first.
+    Teams must start at different interchanges, and each begins with STARTING_COINS
+    coins, no declared line, and must complete an initial challenge first.
+
+    Bonus interchanges (which pay out bonus coins) are chosen at random — each
+    interchange has ``bonus_chance`` probability. Pass an explicit
+    ``bonus_interchanges`` to override, or a seeded ``rng`` for reproducibility.
+    Origins are never bonus interchanges (excluded from both paths).
     """
     if not start_positions:
         raise ValueError("At least one team is required")
@@ -225,8 +239,17 @@ def new_game(
             front=station,
             color=colors.get(team) or next(default_color_iter, "#888888"),
             declared_line=None,
+            coins=STARTING_COINS,
         )
         for team, station in start_positions.items()
     }
 
-    return GameState(map=game_map, snakes=snakes)
+    # Origins are never bonus interchanges, whether chosen randomly or passed in.
+    origins = set(start_positions.values())
+    if bonus_interchanges is None:
+        picker = rng or random.Random()
+        bonus_interchanges = {s for s in game_map.station_keys() if s not in origins and picker.random() < bonus_chance}
+    else:
+        bonus_interchanges = set(bonus_interchanges) - origins
+
+    return GameState(map=game_map, snakes=snakes, bonus_interchanges=set(bonus_interchanges))
