@@ -15,12 +15,14 @@ from game import GameState
 SVG_SOURCE = Path("map/snake map.svg")
 GEOMETRY_PATH = Path("map/geometry.json")
 UNCLAIMED_COLOR = "#ffffff"
-NECK_STROKE_DASHARRAY = "4 2"
+NECK_STROKE_DASHARRAY = "4 2"  # marker neck border dash (sized for the small markers)
+_NECK_DASH = "14 8"  # segment neck casing dash — longer so it reads as dashed, not dotted
 _BORDER_W = 4.5  # visible border width in SVG units — controls body outline and neck dashed stroke
 NECK_TINT_FACTOR = 0.55  # 0 = team color, 1 = white
 
 _DOT_PERIOD = 8.0  # SVG units — nearest-neighbour distance in hex dot grid
-_DOT_RADIUS = 2.5  # radius of each dot in SVG units
+_DOT_RADIUS = 2.5  # radius of each neck dot in SVG units
+_DOT_RADIUS_BODY = 3.25  # body dots are slightly larger than neck dots
 
 # SVG-unit padding beyond station centres along the segment direction
 _SEGMENT_PAD = 8.0
@@ -969,6 +971,7 @@ def _build_segment_overlays(game: GameState, *, debug: bool = False) -> str:
         pat_id = f"stripe-{len(pattern_ids)}"
         pattern_ids[key] = pat_id
         dot_color = color if mode == "body" else _tint_color(color, NECK_TINT_FACTOR)
+        dot_r = _DOT_RADIUS_BODY if mode == "body" else _DOT_RADIUS
         # Hex close-packing tile: width=d, height=d·√3, corner dots + offset centre dot.
         w = _DOT_PERIOD
         h = _DOT_PERIOD * math.sqrt(3)
@@ -977,11 +980,11 @@ def _build_segment_overlays(game: GameState, *, debug: bool = False) -> str:
             f'<pattern id="{pat_id}" x="0" y="0" width="{w:.3f}" height="{h:.3f}"'
             f' patternUnits="userSpaceOnUse">'
             f'<rect x="0" y="0" width="{w:.3f}" height="{h:.3f}" fill="#ffffff"/>'
-            f'<circle cx="0"       cy="0"       r="{_DOT_RADIUS:.2f}" fill="{dot_color}"/>'
-            f'<circle cx="{w:.3f}" cy="0"       r="{_DOT_RADIUS:.2f}" fill="{dot_color}"/>'
-            f'<circle cx="0"       cy="{h:.3f}" r="{_DOT_RADIUS:.2f}" fill="{dot_color}"/>'
-            f'<circle cx="{w:.3f}" cy="{h:.3f}" r="{_DOT_RADIUS:.2f}" fill="{dot_color}"/>'
-            f'<circle cx="{cx:.3f}" cy="{cy:.3f}" r="{_DOT_RADIUS:.2f}" fill="{dot_color}"/>'
+            f'<circle cx="0"       cy="0"       r="{dot_r:.2f}" fill="{dot_color}"/>'
+            f'<circle cx="{w:.3f}" cy="0"       r="{dot_r:.2f}" fill="{dot_color}"/>'
+            f'<circle cx="0"       cy="{h:.3f}" r="{dot_r:.2f}" fill="{dot_color}"/>'
+            f'<circle cx="{w:.3f}" cy="{h:.3f}" r="{dot_r:.2f}" fill="{dot_color}"/>'
+            f'<circle cx="{cx:.3f}" cy="{cy:.3f}" r="{dot_r:.2f}" fill="{dot_color}"/>'
             f"</pattern>"
         )
         return pat_id
@@ -1002,10 +1005,10 @@ def _build_segment_overlays(game: GameState, *, debug: bool = False) -> str:
         if not colored_paths:
             continue
 
-        pat_id = _ensure_pattern(color, mode)
         all_paths = colored_paths + white_paths
 
         if mode == "body":
+            pat_id = _ensure_pattern(color, mode)
             border_w = _BORDER_W * 2
             # Pass 1 — white outer ring
             for shape in shapes:
@@ -1059,24 +1062,26 @@ def _build_segment_overlays(game: GameState, *, debug: bool = False) -> str:
                     stroked = re.sub(
                         r"/>$",
                         f' fill="none" stroke="{color}" stroke-width="{double_w:.2f}"'
-                        f' stroke-dasharray="{NECK_STROKE_DASHARRAY}"/>',
+                        f' stroke-dasharray="{_NECK_DASH}"/>',
                         shape,
                     )
                     overlay_parts.append(stroked)
             for d_attr in colored_paths:
                 overlay_parts.append(
                     f'<path d="{d_attr}" style="fill:none;stroke:{color}'
-                    f';stroke-width:{double_w:.2f};stroke-dasharray:{NECK_STROKE_DASHARRAY}"'
+                    f';stroke-width:{double_w:.2f};stroke-dasharray:{_NECK_DASH}"'
                     f' clip-path="url(#{clip_id})"/>'
                 )
-            # Pass 2 — dot fills cover inner stroke halves
+            # Pass 2 — solid tinted fill covers inner stroke halves (no dots; the
+            # dashed casing from Pass 1 reads through, matching the marker neck style)
+            neck_fill = _tint_color(color, NECK_TINT_FACTOR)
             for shape in shapes:
                 if isinstance(shape, str):
-                    filled = re.sub(r"/>$", f' fill="url(#{pat_id})" stroke="none"/>', shape)
+                    filled = re.sub(r"/>$", f' fill="{neck_fill}" stroke="none"/>', shape)
                     overlay_parts.append(filled)
             for d_attr in all_paths:
                 overlay_parts.append(
-                    f'<path d="{d_attr}" style="fill:url(#{pat_id});stroke:none" clip-path="url(#{clip_id})"/>'
+                    f'<path d="{d_attr}" style="fill:{neck_fill};stroke:none" clip-path="url(#{clip_id})"/>'
                 )
 
         if debug:

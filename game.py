@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from config import (
     BONUS_AT_FRONT,
@@ -33,7 +33,7 @@ class Snake:
 class GameState:
     map: Map
     snakes: dict[str, Snake]  # team -> Snake
-    bonus_interchanges: set[str] = set()  # interchanges that pay bonus coins
+    bonus_interchanges: set[str] = field(default_factory=set)  # interchanges that pay bonus coins
 
     # Snake access
 
