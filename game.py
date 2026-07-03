@@ -77,6 +77,8 @@ class GameState:
         complete_challenge() can be called to declare the first line.
         """
         snake = self.snakes[team]
+        if snake.crashed:
+            raise ValueError(f"{team!r} has crashed and can no longer act")
         if snake.declared_line is not None:
             raise ValueError(f"{team!r} has already completed their initial challenge")
         if snake.neck_active:
@@ -89,12 +91,15 @@ class GameState:
         checks:
           - The team has a declared line.
           - The target station is reachable from the Anchor on that line.
-          - The path does not pass through any claimed interchanges.
 
-        Activates the Neck, making it visible and vulnerable to other teams.
+        Activates the Neck. If the path runs through any claimed interchange
+        (your own or an opponent's), the move is legal but the neck is claimed,
+        so the snake crashes immediately.
         """
         snake = self.snakes[team]
 
+        if snake.crashed:
+            raise ValueError(f"{team!r} has crashed and can no longer act")
         if snake.declared_line is None:
             raise ValueError(f"{team!r} has no declared line — use initial_request_challenge() first")
         if not self.map.has_station(station):
@@ -106,16 +111,16 @@ class GameState:
         if snake.neck_active:
             raise ValueError(f"{team!r} already has an active challenge request")
 
+        # A neck that runs through any claimed interchange — your own or an
+        # opponent's — crashes the snake. Requesting is still a legal move; the
+        # crash is the consequence of the neck being claimed.
         path = self.map._path_between_on_line(snake.declared_line, snake.anchor, station)
-        for interchange in path[1:]:
-            if self.map.is_claimed(interchange):
-                claimant = self.map.get_claim(interchange)
-                raise ValueError(
-                    f"Path to {station!r} passes through claimed interchange {interchange!r} (owned by {claimant!r})"
-                )
+        neck_is_claimed = any(self.map.is_claimed(interchange) for interchange in path[1:])
 
         snake.front = station
         snake.neck_active = True
+        if neck_is_claimed:
+            self.crash(team)
 
     def complete_challenge(self, team: str, next_line: str, *, hard: bool = False) -> list[str]:
         """Complete a challenge: claim the Neck, award coins, advance the Anchor, declare next line.
@@ -128,6 +133,8 @@ class GameState:
         Returns the list of newly claimed interchanges.
         """
         snake = self.snakes[team]
+        if snake.crashed:
+            raise ValueError(f"{team!r} has crashed and can no longer act")
         if not snake.neck_active:
             raise ValueError(f"{team!r} has no active challenge request")
         if not self.map.has_line(next_line):
@@ -147,6 +154,10 @@ class GameState:
             full_path = [snake.anchor] + segment
             for i in range(len(full_path) - 1):
                 self.map.claim_segment(snake.declared_line, full_path[i], full_path[i + 1], team)
+
+        # Claiming these interchanges may have invaded another team's active neck,
+        # which crashes that snake.
+        self._apply_neck_crashes(exclude=team)
 
         # Award coins: the challenge reward plus any bonus interchanges just claimed.
         snake.coins += HARDER_REWARD if hard else EASIER_REWARD
@@ -175,6 +186,21 @@ class GameState:
             if claim is not None and claim != team:
                 return False
         return True
+
+    def _apply_neck_crashes(self, exclude: str) -> None:
+        """Crash any other active-neck team whose neck now contains a claimed station.
+
+        Called right after a team claims interchanges: a neck interchange that has
+        *become* claimed by another team crashes that snake (the primary lose
+        condition). Completions are resolved one at a time — i.e. in call /
+        completion-timestamp order — so the first team to claim a contested
+        interchange survives and the other crashes.
+        """
+        for other_team, other_snake in self.snakes.items():
+            if other_team == exclude or other_snake.crashed:
+                continue
+            if not self.is_neck_safe(other_team):
+                self.crash(other_team)
 
     def winner(self) -> str | None:
         """Return the winning team if a win condition is met, otherwise None.
