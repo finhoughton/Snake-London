@@ -30,12 +30,15 @@ class ChallengePool:
                 return c
         raise KeyError(f"Unknown challenge: {challenge_id!r}")
 
-    def pair_for(self, target_difficulty: float) -> tuple[Challenge, Challenge]:
+    def pair_for(self, target_difficulty: float, rng: random.Random | None = None) -> tuple[Challenge, Challenge]:
         """Return an (easier, harder) pair of challenges near the given difficulty.
 
-        The easier challenge is picked randomly from challenges with difficulty in [target - 1.5, target]. Similarly for harder
+        The easier challenge is picked randomly from challenges with difficulty in
+        [target - 1.5, target]; the harder from (target, target + 1.5]. Pass ``rng``
+        (a ``random.Random``) for reproducible draws.
         """
         BAND = 1.5
+        picker = rng if rng is not None else random
 
         below = [c for c in self._challenges if target_difficulty - BAND <= c.difficulty <= target_difficulty]
         above = [c for c in self._challenges if target_difficulty < c.difficulty <= target_difficulty + BAND]
@@ -47,8 +50,8 @@ class ChallengePool:
             if above[0].difficulty <= target_difficulty:
                 above = [self._challenges[-1]]
 
-        easier = random.choice(below)
-        harder = random.choice(above)
+        easier = picker.choice(below)
+        harder = picker.choice(above)
         return easier, harder
 
 

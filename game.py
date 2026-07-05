@@ -13,6 +13,7 @@ from config import (
     STARTING_COINS,
     WINNING_THRESHOLD,
 )
+from challenges import Challenge, ChallengePool, get_difficulty, neck_weights
 from map import Map
 
 
@@ -27,6 +28,7 @@ class Snake:
     neck_active: bool = False  # True during challenge attempt, False otherwise
     crashed: bool = False
     coins: int = 0
+    offer: tuple[Challenge, Challenge] | None = None  # the two live challenges (easier, harder)
 
 
 @dataclass
@@ -34,6 +36,8 @@ class GameState:
     map: Map
     snakes: dict[str, Snake]  # team -> Snake
     bonus_interchanges: set[str] = field(default_factory=set)  # interchanges that pay bonus coins
+    challenges: ChallengePool | None = None  # pool the offers are drawn from (None = no challenges)
+    rng: random.Random = field(default_factory=random.Random)  # drives challenge draws
 
     # Snake access
 
@@ -84,6 +88,7 @@ class GameState:
         if snake.neck_active:
             raise ValueError(f"{team!r} already has an active challenge request")
         snake.neck_active = True
+        self._draw_offer(team)
 
     def request_challenge(self, team: str, station: str) -> None:
         """Travel to an interchange and request a challenge there.
@@ -121,6 +126,8 @@ class GameState:
         snake.neck_active = True
         if neck_is_claimed:
             self.crash(team)
+        else:
+            self._draw_offer(team)
 
     def complete_challenge(self, team: str, next_line: str, *, hard: bool = False) -> list[str]:
         """Complete a challenge: claim the Neck, award coins, advance the Anchor, declare next line.
@@ -168,7 +175,45 @@ class GameState:
         snake.anchor = snake.front
         snake.neck_active = False
         snake.declared_line = next_line
+        snake.offer = None
         return segment
+
+    # Challenge offers
+
+    def current_challenges(self, team: str) -> tuple[Challenge, Challenge] | None:
+        """The two challenges currently offered to a team (easier, harder), or None.
+
+        Both are live at once — the team completes whichever it likes (pass the
+        matching ``hard`` to ``complete_challenge``).
+        """
+        return self.snakes[team].offer
+
+    def veto_challenges(self, team: str) -> None:
+        """Veto the current challenges and draw a fresh pair.
+
+        Also used after a *failed* challenge, which the rules treat like a veto.
+        The 15-minute veto period itself is enforced by the caller (the Discord
+        bot); the engine only refreshes the offer.
+        """
+        snake = self.snakes[team]
+        if snake.crashed:
+            raise ValueError(f"{team!r} has crashed and can no longer act")
+        if not snake.neck_active:
+            raise ValueError(f"{team!r} has no active challenge to veto")
+        self._draw_offer(team)
+
+    def _draw_offer(self, team: str) -> None:
+        """Draw the (easier, harder) pair for a team's current neck, sized by its difficulty.
+
+        Difficulty is a function of the neck's length and the weights (appox. number of lines)
+        of its interchanges (`get_difficulty` ∘ `neck_weights`). No-op if the game has
+        no challenge pool.
+        """
+        if self.challenges is None:
+            return
+        snake = self.snakes[team]
+        weights = neck_weights(self.map, snake.declared_line or "", self.neck(team))
+        snake.offer = self.challenges.pair_for(get_difficulty(weights), rng=self.rng)
 
     def crash(self, team: str) -> None:
         """Mark a snake as crashed."""
@@ -227,6 +272,8 @@ def new_game(
     *,
     bonus_chance: float = DEFAULT_BONUS_CHANCE,
     bonus_interchanges: set[str] | frozenset[str] | None = None,
+    challenge_pool: ChallengePool | None = None,
+    challenges_path: str = "challenges.json",
     rng: random.Random | None = None,
 ) -> GameState:
     """Load the map and create a new GameState.
@@ -242,6 +289,10 @@ def new_game(
     interchange has ``bonus_chance`` probability. Pass an explicit
     ``bonus_interchanges`` to override, or a seeded ``rng`` for reproducibility.
     Origins are never bonus interchanges (excluded from both paths).
+
+    Challenges are drawn from ``challenge_pool`` (or loaded from ``challenges_path``,
+    default ``challenges.json``); a missing file just means no offers. ``rng`` seeds
+    both bonus selection and challenge draws.
     """
     if not start_positions:
         raise ValueError("At least one team is required")
@@ -271,11 +322,26 @@ def new_game(
     }
 
     # Origins are never bonus interchanges, whether chosen randomly or passed in.
+    # One RNG drives both bonus selection and challenge drawing (seed via `rng`).
+    picker = rng or random.Random()
+
     origins = set(start_positions.values())
     if bonus_interchanges is None:
-        picker = rng or random.Random()
         bonus_interchanges = {s for s in game_map.station_keys() if s not in origins and picker.random() < bonus_chance}
     else:
         bonus_interchanges = set(bonus_interchanges) - origins
 
-    return GameState(map=game_map, snakes=snakes, bonus_interchanges=set(bonus_interchanges))
+    if challenge_pool is None:
+        # challenges.json is gitignored, so a missing file just means no offers.
+        try:
+            challenge_pool = ChallengePool(challenges_path)
+        except FileNotFoundError:
+            challenge_pool = None
+
+    return GameState(
+        map=game_map,
+        snakes=snakes,
+        bonus_interchanges=set(bonus_interchanges),
+        challenges=challenge_pool,
+        rng=picker,
+    )

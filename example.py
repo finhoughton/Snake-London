@@ -1,3 +1,5 @@
+from challenges import get_difficulty, neck_weights
+from config import EASIER_REWARD, HARDER_REWARD
 from game import new_game
 from render import render_map, svg_to_png
 
@@ -76,6 +78,21 @@ print("Gamma neck:", game.neck("Gamma"))
 print()
 print("Delta body:", game.body_stations("Delta"))
 print("Delta neck:", game.neck("Delta"))
+
+# challenges currently on offer (teams mid-challenge)
+
+print()
+print("Challenges offered:")
+for team in game.snakes:
+    offer = game.current_challenges(team)
+    if offer is None:
+        continue
+    easier, harder = offer
+    snake = game.get_snake(team)
+    target = get_difficulty(neck_weights(game.map, snake.declared_line or "", game.neck(team)))
+    print(f"  {team} @ {snake.front}  (target difficulty {target:.2f}):")
+    print(f"    easier ({EASIER_REWARD} coin,  diff {easier.difficulty}): {easier.name} — {easier.description}")
+    print(f"    harder ({HARDER_REWARD} coins, diff {harder.difficulty}): {harder.name} — {harder.description}")
 
 # render
 
