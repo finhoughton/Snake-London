@@ -7,7 +7,8 @@ game logic (game.py) or the renderer (render.py).
 from __future__ import annotations
 
 # --- Win condition ---------------------------------------------------------
-# A team wins early if it leads every opponent's controlled count by MORE than this.
+# A team wins early if its claimed stations (Body) lead every opponent's Body +
+# Neck by MORE than this.
 WINNING_THRESHOLD = 10
 
 # --- Coins -----------------------------------------------------------------
@@ -19,6 +20,14 @@ HARDER_REWARD = 3  # coins for completing the harder one
 BONUS_AT_FRONT = 3  # extra coins for completing a challenge AT a bonus interchange
 BONUS_CLAIMED = 1  # extra coins for claiming a bonus interchange from elsewhere (in the neck)
 DEFAULT_BONUS_CHANCE = 0.15  # per-interchange chance of being a bonus (origins are always excluded)
+
+# --- Initial challenge -------------------------------------------------------
+# There's no neck yet at the start of the game, so the initial challenge can't be
+# sized via get_difficulty(neck_weights(...)) like a normal one. Instead every team
+# gets the same challenge, drawn once with a difficulty picked uniformly from this
+# band (see GameState.initial_challenge).
+INITIAL_DIFFICULTY_MIN = 2.5
+INITIAL_DIFFICULTY_MAX = 5.5
 
 # --- Team colours ----------------------------------------------------------
 # Ordered by priority (first N used for N teams), boldest first. Chosen by

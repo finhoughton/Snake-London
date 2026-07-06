@@ -54,6 +54,21 @@ class ChallengePool:
         harder = picker.choice(above)
         return easier, harder
 
+    def pick_in_range(self, low: float, high: float, rng: random.Random | None = None) -> Challenge:
+        """Return a single challenge chosen uniformly at random from difficulty [low, high].
+
+        Falls back to the challenge closest to the range's midpoint if none qualify.
+        Used for the initial challenge, which has no neck to size a target difficulty
+        from (see ``get_difficulty``) — every team gets this same single challenge
+        instead of an (easier, harder) pair.
+        """
+        picker = rng if rng is not None else random
+        candidates = [c for c in self._challenges if low <= c.difficulty <= high]
+        if not candidates:
+            mid = (low + high) / 2
+            candidates = [min(self._challenges, key=lambda c: abs(c.difficulty - mid))]
+        return picker.choice(candidates)
+
 
 def get_difficulty(weights: list[int]) -> float:
     # made up, but is increasing in n, m, s, a and is in [0, 10), and gives reasonable values

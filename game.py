@@ -10,6 +10,8 @@ from config import (
     DEFAULT_TEAM_COLORS,
     EASIER_REWARD,
     HARDER_REWARD,
+    INITIAL_DIFFICULTY_MAX,
+    INITIAL_DIFFICULTY_MIN,
     STARTING_COINS,
     WINNING_THRESHOLD,
 )
@@ -27,8 +29,14 @@ class Snake:
     declared_line: str | None = None  # line declared after last challenge
     neck_active: bool = False  # True during challenge attempt, False otherwise
     crashed: bool = False
+    conceded: bool = False
     coins: int = 0
-    offer: tuple[Challenge, Challenge] | None = None  # the two live challenges (easier, harder)
+    offer: tuple[Challenge, Challenge] | None = None  # (easier, harder); identical entries during the initial phase
+
+    @property
+    def eliminated(self) -> bool:
+        """Out of the game — either crashed or conceded."""
+        return self.crashed or self.conceded
 
 
 @dataclass
@@ -38,6 +46,7 @@ class GameState:
     bonus_interchanges: set[str] = field(default_factory=set)  # interchanges that pay bonus coins
     challenges: ChallengePool | None = None  # pool the offers are drawn from (None = no challenges)
     rng: random.Random = field(default_factory=random.Random)  # drives challenge draws
+    initial_challenge: Challenge | None = None  # shared initial challenge (default for every team, unless vetoed)
 
     # Snake access
 
@@ -45,8 +54,8 @@ class GameState:
         return self.snakes[team]
 
     def active_teams(self) -> list[str]:
-        """Teams whose snakes have not crashed."""
-        return [t for t, s in self.snakes.items() if not s.crashed]
+        """Teams still in the game (not crashed or conceded)."""
+        return [t for t, s in self.snakes.items() if not s.eliminated]
 
     # Neck / body queries
 
@@ -68,7 +77,7 @@ class GameState:
         return self.map.stations_claimed_by(team)
 
     def total_controlled(self, team: str) -> int:
-        """Body + active Neck — used for win-condition comparison."""
+        """Body + active Neck — the opponent-side total in the win-lead comparison (see `winner`)."""
         return len(self.body_stations(team)) + len(self.neck(team))
 
     # Game events
@@ -76,19 +85,23 @@ class GameState:
     def initial_request_challenge(self, team: str) -> None:
         """Request the initial challenge at the Origin.
 
-        Used at the start of the game before the team has a declared line or
-        has travelled anywhere.  Simply activates the neck so that
-        complete_challenge() can be called to declare the first line.
+        Used at the start of the game before the team has a declared line or has
+        travelled anywhere. Activates the neck so that complete_challenge() can be
+        called to declare the first line, and offers the game's shared
+        `initial_challenge` — since there's no neck yet to size a difficulty from,
+        every team gets the same challenge (drawn once, in `new_game`).
         """
         snake = self.snakes[team]
         if snake.crashed:
             raise ValueError(f"{team!r} has crashed and can no longer act")
+        if snake.conceded:
+            raise ValueError(f"{team!r} has conceded and can no longer act")
         if snake.declared_line is not None:
             raise ValueError(f"{team!r} has already completed their initial challenge")
         if snake.neck_active:
             raise ValueError(f"{team!r} already has an active challenge request")
         snake.neck_active = True
-        self._draw_offer(team)
+        self._sync_initial_offer(snake)
 
     def request_challenge(self, team: str, station: str) -> None:
         """Travel to an interchange and request a challenge there.
@@ -105,6 +118,8 @@ class GameState:
 
         if snake.crashed:
             raise ValueError(f"{team!r} has crashed and can no longer act")
+        if snake.conceded:
+            raise ValueError(f"{team!r} has conceded and can no longer act")
         if snake.declared_line is None:
             raise ValueError(f"{team!r} has no declared line — use initial_request_challenge() first")
         if not self.map.has_station(station):
@@ -142,6 +157,8 @@ class GameState:
         snake = self.snakes[team]
         if snake.crashed:
             raise ValueError(f"{team!r} has crashed and can no longer act")
+        if snake.conceded:
+            raise ValueError(f"{team!r} has conceded and can no longer act")
         if not snake.neck_active:
             raise ValueError(f"{team!r} has no active challenge request")
         if not self.map.has_line(next_line):
@@ -184,30 +201,62 @@ class GameState:
         """The two challenges currently offered to a team (easier, harder), or None.
 
         Both are live at once — the team completes whichever it likes (pass the
-        matching ``hard`` to ``complete_challenge``).
+        matching ``hard`` to ``complete_challenge``). During the initial phase
+        (before a line is declared) both entries are the same single challenge —
+        there's no real easier/harder choice yet. That challenge is the game's
+        shared `initial_challenge` by default, unless this team has vetoed it, in
+        which case both entries are its own freshly-drawn replacement instead.
         """
         return self.snakes[team].offer
 
     def veto_challenges(self, team: str) -> None:
-        """Veto the current challenges and draw a fresh pair.
+        """Veto the current challenge(s) and draw fresh one(s) for this team only.
 
         Also used after a *failed* challenge, which the rules treat like a veto.
         The 15-minute veto period itself is enforced by the caller (the Discord
-        bot); the engine only refreshes the offer.
+        bot); the engine only refreshes the offer. Before a line is declared (the
+        initial challenge), this draws a new challenge for the vetoing team alone
+        — every other team keeps the game's shared `initial_challenge` unchanged.
+        Afterwards (a normal challenge) it draws a fresh (easier, harder) pair
+        sized to the requester's own neck, as always.
         """
         snake = self.snakes[team]
         if snake.crashed:
             raise ValueError(f"{team!r} has crashed and can no longer act")
+        if snake.conceded:
+            raise ValueError(f"{team!r} has conceded and can no longer act")
         if not snake.neck_active:
             raise ValueError(f"{team!r} has no active challenge to veto")
-        self._draw_offer(team)
+        if snake.declared_line is None:
+            self._draw_new_initial_offer(snake)
+        else:
+            self._draw_offer(team)
+
+    def _sync_initial_offer(self, snake: Snake) -> None:
+        """Set a snake's offer to the game's shared initial challenge (both slots identical)."""
+        snake.offer = (self.initial_challenge, self.initial_challenge) if self.initial_challenge else None
+
+    def _draw_new_initial_offer(self, snake: Snake) -> None:
+        """Draw a fresh initial challenge for one team after a veto.
+
+        Only this team's offer changes — `GameState.initial_challenge` (the
+        default every other, not-yet-vetoed team still shares) is left untouched.
+        No-op (sets None) if the game has no challenge pool.
+        """
+        if self.challenges is None:
+            snake.offer = None
+            return
+        challenge = self.challenges.pick_in_range(INITIAL_DIFFICULTY_MIN, INITIAL_DIFFICULTY_MAX, rng=self.rng)
+        snake.offer = (challenge, challenge)
 
     def _draw_offer(self, team: str) -> None:
         """Draw the (easier, harder) pair for a team's current neck, sized by its difficulty.
 
-        Difficulty is a function of the neck's length and the weights (appox. number of lines)
-        of its interchanges (`get_difficulty` ∘ `neck_weights`). No-op if the game has
-        no challenge pool.
+        Only used once a line has been declared (i.e. after the initial
+        challenge) — there's a real neck to measure by then. Difficulty is a
+        function of the neck's length and the weights (approx. number of lines)
+        of its interchanges (`get_difficulty` ∘ `neck_weights`). No-op if the game
+        has no challenge pool.
         """
         if self.challenges is None:
             return
@@ -218,6 +267,13 @@ class GameState:
     def crash(self, team: str) -> None:
         """Mark a snake as crashed."""
         self.snakes[team].crashed = True
+
+    def concede(self, team: str) -> None:
+        """Concede the game — a voluntary loss (a loss path alongside crashing)."""
+        snake = self.snakes[team]
+        if snake.eliminated:
+            raise ValueError(f"{team!r} is already out of the game")
+        snake.conceded = True
 
     # Crash detection
 
@@ -242,7 +298,7 @@ class GameState:
         interchange survives and the other crashes.
         """
         for other_team, other_snake in self.snakes.items():
-            if other_team == exclude or other_snake.crashed:
+            if other_team == exclude or other_snake.eliminated:
                 continue
             if not self.is_neck_safe(other_team):
                 self.crash(other_team)
@@ -251,18 +307,34 @@ class GameState:
         """Return the winning team if a win condition is met, otherwise None.
 
         Win conditions:
-          1. All opponents have crashed.
-          2. A team has >= WIN_LEAD_THRESHOLD more controlled interchanges than every opponent.
+          1. All opponents are out (crashed or conceded).
+          2. A team's claimed stations (Body) lead every opponent's Body + Neck by
+             more than WINNING_THRESHOLD.
         """
         active = self.active_teams()
         if len(active) == 1:
             return active[0]
         for team in active:
             others = [t for t in active if t != team]
-            ours = self.total_controlled(team)
+            ours = len(self.body_stations(team))
             if all(ours > self.total_controlled(o) + WINNING_THRESHOLD for o in others):
                 return team
         return None
+
+    def tiebreak_winner(self) -> str | None:
+        """End-of-game tiebreaker: the active team with the most claimed stations (Body).
+
+        For use when the time limit is reached (the clock itself is the bot's job).
+        Only claimed stations count — necks don't. Returns None on an exact tie for
+        the lead, or if no teams remain.
+        """
+        active = self.active_teams()
+        if not active:
+            return None
+        counts = {t: len(self.body_stations(t)) for t in active}
+        best = max(counts.values())
+        leaders = [t for t, count in counts.items() if count == best]
+        return leaders[0] if len(leaders) == 1 else None
 
 
 def new_game(
@@ -292,7 +364,12 @@ def new_game(
 
     Challenges are drawn from ``challenge_pool`` (or loaded from ``challenges_path``,
     default ``challenges.json``); a missing file just means no offers. ``rng`` seeds
-    both bonus selection and challenge draws.
+    bonus selection and all challenge draws.
+
+    All teams share one **initial challenge** (`GameState.initial_challenge`), drawn
+    once here — since there's no neck yet to size a difficulty from — with a
+    difficulty picked uniformly from `INITIAL_DIFFICULTY_MIN`..`INITIAL_DIFFICULTY_MAX`
+    (in `config.py`) rather than via `get_difficulty`.
     """
     if not start_positions:
         raise ValueError("At least one team is required")
@@ -321,10 +398,10 @@ def new_game(
         for team, station in start_positions.items()
     }
 
-    # Origins are never bonus interchanges, whether chosen randomly or passed in.
     # One RNG drives both bonus selection and challenge drawing (seed via `rng`).
     picker = rng or random.Random()
 
+    # Origins are never bonus interchanges, whether chosen randomly or passed in.
     origins = set(start_positions.values())
     if bonus_interchanges is None:
         bonus_interchanges = {s for s in game_map.station_keys() if s not in origins and picker.random() < bonus_chance}
@@ -338,10 +415,17 @@ def new_game(
         except FileNotFoundError:
             challenge_pool = None
 
+    initial_challenge = (
+        challenge_pool.pick_in_range(INITIAL_DIFFICULTY_MIN, INITIAL_DIFFICULTY_MAX, rng=picker)
+        if challenge_pool is not None
+        else None
+    )
+
     return GameState(
         map=game_map,
         snakes=snakes,
         bonus_interchanges=set(bonus_interchanges),
         challenges=challenge_pool,
         rng=picker,
+        initial_challenge=initial_challenge,
     )

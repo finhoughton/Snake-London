@@ -400,3 +400,42 @@ def test_render_map_skips_badge_on_claimed_bonus(tmp_path) -> None:
     svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
 
     assert '<g id="Bonus Coins">' not in svg
+
+
+def test_render_greys_out_eliminated_snakes(tmp_path) -> None:
+    # A requests through B's claimed Bond Street and crashes; its body is greyed.
+    game = new_game({"A": "Baker Street", "B": "Bond Street"}, bonus_interchanges=set())
+    game.initial_request_challenge("A")
+    game.complete_challenge("A", "Jubilee")
+    game.initial_request_challenge("B")
+    game.complete_challenge("B", "Jubilee")
+    game.request_challenge("A", "Green Park")
+    assert game.get_snake("A").crashed
+
+    svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
+    assert render._CRASHED_COLOR in svg  # A's crashed body/segments rendered grey
+    assert "(crashed)" in svg  # and marked in the legend
+
+
+def test_eliminated_ghost_neck_yields_to_a_live_claim(tmp_path) -> None:
+    # A crashes with a neck running through B's claimed Bond Street. A's grey ghost
+    # neck must NOT recolour Bond Street — B owns it, so it stays B's colour.
+    game = new_game({"A": "Baker Street", "B": "Bond Street"}, bonus_interchanges=set())
+    game.initial_request_challenge("A")
+    game.complete_challenge("A", "Jubilee")
+    game.initial_request_challenge("B")
+    game.complete_challenge("B", "Jubilee")
+    game.request_challenge("A", "Green Park")  # A's neck = [Bond Street (B's), Green Park]
+    assert game.get_snake("A").crashed
+
+    svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
+
+    def marker_tag(station: str) -> str:
+        return re.search(rf'<(?:circle|rect)\b[^>]*\bid="{station} Marker"[^>]*>', svg).group(0)
+
+    # Bond Street (B's claim, under A's ghost neck) renders in B's colour, not grey.
+    bond = marker_tag("Bond Street")
+    assert game.get_snake("B").color in bond
+    assert render._CRASHED_COLOR not in bond
+    # Green Park (A's unclaimed neck tip) is the grey ghost neck.
+    assert render._CRASHED_COLOR in marker_tag("Green Park")

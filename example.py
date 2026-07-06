@@ -3,11 +3,13 @@ from config import EASIER_REWARD, HARDER_REWARD
 from game import new_game
 from render import render_map, svg_to_png
 
-# Three-team game — colours assigned automatically from DEFAULT_TEAM_COLORS.
+# Five-team game — colours assigned automatically from DEFAULT_TEAM_COLORS.
 #
-# Alpha (deep pink):   Jubilee line, Wembley Park → Green Park (NW arc)
-# Beta  (ocean teal):  Elizabeth line, Abbey Wood → Tottenham Court Road (east → centre)
-# Gamma (burnt sienna):Bank Branch + Thameslink, Tooting Broadway → Greenwich (south arc)
+# Alpha:   Jubilee line, Wembley Park → Green Park (NW arc)
+# Beta:    Elizabeth line, Abbey Wood → Tottenham Court Road (east → centre)
+# Gamma:   Bank Branch + Thameslink, Tooting Broadway → Greenwich (south arc)
+# Delta:   Met + Bakerloo, Rayners Lane → Paddington (NW)
+# Epsilon: Central line, Ealing Broadway east — crashes into Alpha's Bond Street (greyed out)
 
 game = new_game(
     start_positions={
@@ -15,6 +17,7 @@ game = new_game(
         "Beta": "Abbey Wood",
         "Gamma": "Tooting Broadway",
         "Delta": "Rayners Lane",
+        "Epsilon": "Ealing Broadway",
     }
 )
 
@@ -29,6 +32,9 @@ game.complete_challenge("Gamma", "Bank Branch")
 
 game.initial_request_challenge("Delta")
 game.complete_challenge("Delta", "Met")
+
+game.initial_request_challenge("Epsilon")
+game.complete_challenge("Epsilon", "Central")
 
 # team alpha
 
@@ -65,6 +71,14 @@ game.complete_challenge("Delta", "Bakerloo")
 
 game.request_challenge("Delta", "Paddington")
 
+# Epsilon — builds a body east along the Central line, then requests a challenge
+# whose neck runs through Alpha's claimed Bond Street: a legal move that crashes it.
+
+game.request_challenge("Epsilon", "Notting Hill Gate")
+game.complete_challenge("Epsilon", "Central")
+
+game.request_challenge("Epsilon", "Oxford Circus")  # path via Alpha's Bond Street → crash
+
 # state summary
 
 print("Alpha body:", game.body_stations("Alpha"))
@@ -78,6 +92,9 @@ print("Gamma neck:", game.neck("Gamma"))
 print()
 print("Delta body:", game.body_stations("Delta"))
 print("Delta neck:", game.neck("Delta"))
+print()
+print("Epsilon body:", game.body_stations("Epsilon"))
+print("Epsilon crashed:", game.get_snake("Epsilon").crashed)
 
 # challenges currently on offer (teams mid-challenge)
 

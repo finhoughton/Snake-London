@@ -15,6 +15,7 @@ from game import GameState
 SVG_SOURCE = Path("map/snake map.svg")
 GEOMETRY_PATH = Path("map/geometry.json")
 UNCLAIMED_COLOR = "#ffffff"
+_CRASHED_COLOR = "#808080"  # eliminated (crashed/conceded) snakes are greyed out
 NECK_STROKE_DASHARRAY = "4 2"  # marker neck border dash (sized for the small markers)
 _NECK_DASH = "14 8"  # segment neck casing dash — longer so it reads as dashed, not dotted
 _BORDER_W = 4.5  # visible border width in SVG units — controls body outline and neck dashed stroke
@@ -63,20 +64,23 @@ def render_map(game: GameState, output_path: str | Path, *, debug: bool = False)
     with open(SVG_SOURCE, "r", encoding="utf-8") as f:
         svg = f.read()
 
-    # Build a map of station -> (color, mode) where mode is "body" or "neck"
+    # station -> (color, mode). Draw necks first (eliminated grey "ghost" necks,
+    # then live necks over them), and bodies last, so a claimed station always wins
+    # over any neck — e.g. a claim lying under an eliminated snake's ghost neck
+    # renders in the claimant's colour, not grey.
     overrides: dict[str, tuple[str, str]] = {}
-
     for team, snake in game.snakes.items():
-        if snake.crashed:
-            continue
-        color = snake.color
+        if snake.eliminated and snake.neck_active:
+            for station in game.neck(team):
+                overrides[station] = (_CRASHED_COLOR, "neck")
+    for team, snake in game.snakes.items():
+        if snake.neck_active and not snake.eliminated:
+            for station in game.neck(team):
+                overrides[station] = (snake.color, "neck")
+    for team, snake in game.snakes.items():
+        color = _CRASHED_COLOR if snake.eliminated else snake.color
         for station in game.body_stations(team):
             overrides[station] = (color, "body")
-        if snake.neck_active:
-            for station in game.neck(team):
-                # Don't overwrite a body claim with a neck highlight
-                if station not in overrides:
-                    overrides[station] = (color, "neck")
 
     for station, (color, mode) in overrides.items():
         marker_id = f"{station} Marker"
@@ -605,9 +609,14 @@ def _build_legend(game: GameState, canvas_h: float) -> str:
 
         stats = [f"Score: {body}", f"Neck: {neck}"]
         stat_text = "   ·   ".join(stats)
-        name = f"{team} (crashed)" if snake.crashed else team
+        if snake.crashed:
+            name = f"{team} (crashed)"
+        elif snake.conceded:
+            name = f"{team} (conceded)"
+        else:
+            name = team
 
-        parts.append('<g opacity="0.45">' if snake.crashed else "<g>")
+        parts.append('<g opacity="0.45">' if snake.eliminated else "<g>")
         swatch_y = block_top + (_LEGEND_NAME_LH - _LEGEND_SWATCH) / 2
         parts.append(
             f'<rect x="{content_left:.1f}" y="{swatch_y:.1f}" width="{_LEGEND_SWATCH}" height="{_LEGEND_SWATCH}"'
@@ -927,19 +936,25 @@ def _build_segment_overlays(game: GameState, *, debug: bool = False) -> str:
 
     highlights: dict[tuple[str, str, str], tuple[str, str]] = {}
 
+    # Same precedence as the markers: eliminated necks (grey), then live necks over
+    # them, then claimed body segments last — a claimed segment always wins over any
+    # neck (including an eliminated snake's ghost neck).
     for team, snake in game.snakes.items():
-        if snake.crashed:
-            continue
-        color = snake.color
-        for seg in game.map.segments_claimed_by(team):
-            highlights[seg] = (color, "body")
-        if snake.neck_active and snake.declared_line:
+        if snake.eliminated and snake.neck_active and snake.declared_line:
             neck_path = [snake.anchor] + game.neck(team)
             for i in range(len(neck_path) - 1):
                 station_a, station_b = sorted((neck_path[i], neck_path[i + 1]))
-                key = (snake.declared_line, station_a, station_b)
-                if key not in highlights:
-                    highlights[key] = (color, "neck")
+                highlights[(snake.declared_line, station_a, station_b)] = (_CRASHED_COLOR, "neck")
+    for team, snake in game.snakes.items():
+        if snake.neck_active and not snake.eliminated and snake.declared_line:
+            neck_path = [snake.anchor] + game.neck(team)
+            for i in range(len(neck_path) - 1):
+                station_a, station_b = sorted((neck_path[i], neck_path[i + 1]))
+                highlights[(snake.declared_line, station_a, station_b)] = (snake.color, "neck")
+    for team, snake in game.snakes.items():
+        color = _CRASHED_COLOR if snake.eliminated else snake.color
+        for seg in game.map.segments_claimed_by(team):
+            highlights[seg] = (color, "body")
 
     if not highlights:
         return ""
