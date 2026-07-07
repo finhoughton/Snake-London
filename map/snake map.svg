@@ -21,11 +21,11 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="1.1869318"
-     inkscape:cx="844.61463"
-     inkscape:cy="2073.8343"
-     inkscape:window-width="1680"
-     inkscape:window-height="1050"
+     inkscape:zoom="0.70710678"
+     inkscape:cx="-719.12759"
+     inkscape:cy="354.2605"
+     inkscape:window-width="2560"
+     inkscape:window-height="1440"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
@@ -1613,9 +1613,10 @@
      inkscape:label="Thames River" />
   <path
      fill="#9b0056"
-     d="m 1614.975,747.269 h 32.677 V 734.7 h -32.677 z m -20.737,-33.305 V 493.398 h -12.568 v 220.566 z m 956.023,331.164 h -240.999 l -0.358,12.568 h 241.358 z m -902.61,-297.86 H 2188.7 v -12.567 h -541.05 z m 657.93,295.822 V 851.582 h -12.569 V 1043.09 Z M 1594.238,493.398 v -86.719 h -12.568 v 86.719 z m 0,-86.719 V 291.055 H 1581.67 V 406.679 Z M 1487.41,184.228 H 967.729 v 12.567 h 519.682 z m -519.682,0 H 688.093 v 12.567 H 967.73 Z m -279.636,0 -562.408,-1 v 12.568 l 562.408,1 z m 0,0 H 565.718 v 12.567 h 122.375 z m -122.375,0 c -14.943,0 -18.262,12.567 0,12.567 z m 1028.52,106.827 c 0,-59 -47.827,-106.827 -106.827,-106.827 v 12.567 c 52.059,0 94.259,42.201 94.259,94.26 z m 594.46,456.214 c 57.612,0 104.314,46.702 104.314,104.313 h 12.568 c 0,-64.552 -52.328,-116.881 -116.881,-116.881 z M 1614.976,734.7 c -11.454,0 -20.737,-9.284 -20.737,-20.737 h -12.568 c 0,18.395 14.91,33.305 33.305,33.305 z"
+     d="m 1614.975,747.269 h 32.677 V 734.7 h -32.677 z m -20.737,-33.305 V 493.398 h -12.568 v 220.566 z m 956.023,331.164 h -240.999 l -0.358,12.568 h 241.358 z m -902.61,-297.86 H 2188.7 v -12.567 h -541.05 z m 657.93,295.822 V 851.582 h -12.569 V 1043.09 Z M 1594.238,493.398 v -86.719 h -12.568 v 86.719 z m 0,-86.719 V 291.055 H 1581.67 V 406.679 Z M 1487.41,184.228 H 970.48196 l -846.33135,0 v 12.567 l 846.41974,0 H 1487.411 Z m -1363.26039,0 0.002,12.567 z M 1594.237,291.055 c 0,-59 -47.827,-106.827 -106.827,-106.827 v 12.567 c 52.059,0 94.259,42.201 94.259,94.26 z m 594.46,456.214 c 57.612,0 104.314,46.702 104.314,104.313 h 12.568 c 0,-64.552 -52.328,-116.881 -116.881,-116.881 z M 1614.976,734.7 c -11.454,0 -20.737,-9.284 -20.737,-20.737 h -12.568 c 0,18.395 14.91,33.305 33.305,33.305 z"
      style="stroke-width:0.0628395;stroke-dasharray:none"
-     id="Met" />
+     id="Met"
+     sodipodi:nodetypes="cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc" />
   <path
      id="H&amp;C"
      style="fill:#f3a9bb;fill-opacity:1;stroke-width:0.0628395;stroke-dasharray:none"
@@ -1868,10 +1869,10 @@
        id="Kenton Label_h"><tspan
          x="1553.127"
          y="1317.9913"
-         id="tspan1">Kenton / </tspan><tspan
+         id="tspan5">Kenton / </tspan><tspan
          x="1553.127"
          y="1346.3247"
-         id="tspan2">Northwick Park</tspan></text>
+         id="tspan6">Northwick Park</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:22.6667px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#fz);display:inline;fill:#000000;fill-opacity:1;stroke-width:0;stroke-dasharray:none"
@@ -1879,10 +1880,10 @@
        id="Kenton Label_c"><tspan
          x="1553.127"
          y="1317.9913"
-         id="tspan3">Kenton / </tspan><tspan
+         id="tspan7">Kenton / </tspan><tspan
          x="1553.127"
          y="1346.3247"
-         id="tspan4">Northwick Park</tspan></text>
+         id="tspan8">Northwick Park</tspan></text>
   </g>
   <g
      id="Ealing Broadway Label">

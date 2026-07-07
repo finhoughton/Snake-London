@@ -18,6 +18,13 @@ UNCLAIMED_COLOR = "#ffffff"
 _CRASHED_COLOR = "#808080"  # eliminated (crashed/conceded) snakes are greyed out
 NECK_STROKE_DASHARRAY = "4 2"  # marker neck border dash (sized for the small markers)
 _NECK_DASH = "14 8"  # segment neck casing dash — longer so it reads as dashed, not dotted
+# Both the neck's tint fill and the body's dot-pattern fill re-trace the *exact*
+# path geometry of the line they're covering. Two identically-shaped anti-aliased
+# fills stacked on top of each other can leave a hairline sliver of the underlying
+# colour visible at the edge (an AA-coverage artefact, not a resolution issue — it
+# doesn't go away when rendered bigger). A thin stroke on top of each fill pads it
+# slightly past the original ribbon's true edge so it fully overdraws that sliver.
+_FILL_OVERDRAW = 2.0
 _BORDER_W = 4.5  # visible border width in SVG units — controls body outline and neck dashed stroke
 NECK_TINT_FACTOR = 0.55  # 0 = team color, 1 = white
 
@@ -991,10 +998,17 @@ def _build_segment_overlays(game: GameState, *, debug: bool = False) -> str:
         w = _DOT_PERIOD
         h = _DOT_PERIOD * math.sqrt(3)
         cx, cy = w / 2, h / 2
+        # The background rect is drawn slightly larger than the tile (bleeding past
+        # its edges) so adjacent repeated tiles overlap a hair instead of exactly
+        # abutting. Butting tiles exactly at the boundary leaves a rasterizer-
+        # dependent hairline seam (visible as a periodic 1px sliver of whatever is
+        # underneath, recurring every _DOT_PERIOD) since each tile's edge is
+        # anti-aliased independently — the overlap hides it regardless.
+        bleed = 0.5
         defs_parts.append(
             f'<pattern id="{pat_id}" x="0" y="0" width="{w:.3f}" height="{h:.3f}"'
             f' patternUnits="userSpaceOnUse">'
-            f'<rect x="0" y="0" width="{w:.3f}" height="{h:.3f}" fill="#ffffff"/>'
+            f'<rect x="{-bleed:.2f}" y="{-bleed:.2f}" width="{w + 2 * bleed:.3f}" height="{h + 2 * bleed:.3f}" fill="#ffffff"/>'
             f'<circle cx="0"       cy="0"       r="{dot_r:.2f}" fill="{dot_color}"/>'
             f'<circle cx="{w:.3f}" cy="0"       r="{dot_r:.2f}" fill="{dot_color}"/>'
             f'<circle cx="0"       cy="{h:.3f}" r="{dot_r:.2f}" fill="{dot_color}"/>'
@@ -1055,19 +1069,24 @@ def _build_segment_overlays(game: GameState, *, debug: bool = False) -> str:
                     f'<path d="{d_attr}" style="fill:none;stroke:{color};stroke-width:{_BORDER_W:.2f}"'
                     f' clip-path="url(#{clip_id})"/>'
                 )
-            # Pass 3 — dot fill covers interior and inner stroke halves
+            # Pass 3 — dot fill covers interior and inner stroke halves. A thin
+            # solid-colour stroke (matching Pass 2's border) overdraws slightly past
+            # the underlying line's true edge — see _FILL_OVERDRAW. (Stroking with
+            # the dot pattern itself would tile oddly at this width; the solid
+            # colour blends seamlessly into Pass 2's border sitting right there.)
             for shape in shapes:
                 if isinstance(shape, str):
                     overlay_parts.append(
                         re.sub(
                             r"/>$",
-                            f' fill="url(#{pat_id})" stroke="none"/>',
+                            f' fill="url(#{pat_id})" stroke="{color}" stroke-width="{_FILL_OVERDRAW:.2f}"/>',
                             shape,
                         )
                     )
             for d_attr in all_paths:
                 overlay_parts.append(
-                    f'<path d="{d_attr}" style="fill:url(#{pat_id});stroke:none" clip-path="url(#{clip_id})"/>'
+                    f'<path d="{d_attr}" style="fill:url(#{pat_id});stroke:{color}'
+                    f';stroke-width:{_FILL_OVERDRAW:.2f}" clip-path="url(#{clip_id})"/>'
                 )
         else:
             double_w = _BORDER_W * 2
@@ -1088,15 +1107,22 @@ def _build_segment_overlays(game: GameState, *, debug: bool = False) -> str:
                     f' clip-path="url(#{clip_id})"/>'
                 )
             # Pass 2 — solid tinted fill covers inner stroke halves (no dots; the
-            # dashed casing from Pass 1 reads through, matching the marker neck style)
+            # dashed casing from Pass 1 reads through, matching the marker neck style).
+            # A thin same-colour stroke overdraws slightly past the underlying line's
+            # true edge — see _FILL_OVERDRAW.
             neck_fill = _tint_color(color, NECK_TINT_FACTOR)
             for shape in shapes:
                 if isinstance(shape, str):
-                    filled = re.sub(r"/>$", f' fill="{neck_fill}" stroke="none"/>', shape)
+                    filled = re.sub(
+                        r"/>$",
+                        f' fill="{neck_fill}" stroke="{neck_fill}" stroke-width="{_FILL_OVERDRAW:.2f}"/>',
+                        shape,
+                    )
                     overlay_parts.append(filled)
             for d_attr in all_paths:
                 overlay_parts.append(
-                    f'<path d="{d_attr}" style="fill:{neck_fill};stroke:none" clip-path="url(#{clip_id})"/>'
+                    f'<path d="{d_attr}" style="fill:{neck_fill};stroke:{neck_fill}'
+                    f';stroke-width:{_FILL_OVERDRAW:.2f}" clip-path="url(#{clip_id})"/>'
                 )
 
         if debug:

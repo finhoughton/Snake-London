@@ -75,9 +75,12 @@ game.request_challenge("Delta", "Paddington")
 # whose neck runs through Alpha's claimed Bond Street: a legal move that crashes it.
 
 game.request_challenge("Epsilon", "Notting Hill Gate")
-game.complete_challenge("Epsilon", "Central")
+game.complete_challenge("Epsilon", "S Circle")
 
-game.request_challenge("Epsilon", "Oxford Circus")  # path via Alpha's Bond Street → crash
+game.request_challenge("Epsilon", "South Kensington")
+game.complete_challenge("Epsilon", "Picc")
+
+game.request_challenge("Epsilon", "Piccadilly Circus")  # Path via Alpha's Green Park, crashes``
 
 # state summary
 
