@@ -183,9 +183,7 @@ def test_station_label_text_matches_display_name(
     expected = station_display_names.get(station_key, station_key)
     for i, text_el in enumerate(texts):
         actual = _text_content(text_el)
-        assert actual == expected, (
-            f"{label_id!r} text[{i}] is {actual!r}, expected {expected!r}"
-        )
+        assert actual == expected, f"{label_id!r} text[{i}] is {actual!r}, expected {expected!r}"
 
 
 # Line tests
@@ -291,8 +289,7 @@ def test_path_overrides_layer_hidden() -> None:
         if child.tag.split("}")[-1] == "g" and not _has_display_none(child)
     ]
     assert not visible_groups, (
-        f"Path Overrides layer is visible and {len(visible_groups)} group(s) lack display:none: "
-        f"{visible_groups[:5]}"
+        f"Path Overrides layer is visible and {len(visible_groups)} group(s) lack display:none: {visible_groups[:5]}"
     )
 
 

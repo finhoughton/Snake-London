@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 import json
-import random
 import math
+import random
 from dataclasses import dataclass
 
 

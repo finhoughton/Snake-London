@@ -3,6 +3,7 @@ from __future__ import annotations
 import random
 from dataclasses import dataclass, field
 
+from challenges import Challenge, ChallengePool, get_difficulty, neck_weights
 from config import (
     BONUS_AT_FRONT,
     BONUS_CLAIMED,
@@ -15,7 +16,6 @@ from config import (
     STARTING_COINS,
     WINNING_THRESHOLD,
 )
-from challenges import Challenge, ChallengePool, get_difficulty, neck_weights
 from map import Map
 
 
@@ -82,6 +82,15 @@ class GameState:
 
     # Game events
 
+    def _acting_snake(self, team: str) -> Snake:
+        """Look up a snake for an action, rejecting teams that are out of the game."""
+        snake = self.snakes[team]
+        if snake.crashed:
+            raise ValueError(f"{team!r} has crashed and can no longer act")
+        if snake.conceded:
+            raise ValueError(f"{team!r} has conceded and can no longer act")
+        return snake
+
     def initial_request_challenge(self, team: str) -> None:
         """Request the initial challenge at the Origin.
 
@@ -91,11 +100,7 @@ class GameState:
         `initial_challenge` — since there's no neck yet to size a difficulty from,
         every team gets the same challenge (drawn once, in `new_game`).
         """
-        snake = self.snakes[team]
-        if snake.crashed:
-            raise ValueError(f"{team!r} has crashed and can no longer act")
-        if snake.conceded:
-            raise ValueError(f"{team!r} has conceded and can no longer act")
+        snake = self._acting_snake(team)
         if snake.declared_line is not None:
             raise ValueError(f"{team!r} has already completed their initial challenge")
         if snake.neck_active:
@@ -114,12 +119,7 @@ class GameState:
         (your own or an opponent's), the move is legal but the neck is claimed,
         so the snake crashes immediately.
         """
-        snake = self.snakes[team]
-
-        if snake.crashed:
-            raise ValueError(f"{team!r} has crashed and can no longer act")
-        if snake.conceded:
-            raise ValueError(f"{team!r} has conceded and can no longer act")
+        snake = self._acting_snake(team)
         if snake.declared_line is None:
             raise ValueError(f"{team!r} has no declared line — use initial_request_challenge() first")
         if not self.map.has_station(station):
@@ -154,11 +154,7 @@ class GameState:
 
         Returns the list of newly claimed interchanges.
         """
-        snake = self.snakes[team]
-        if snake.crashed:
-            raise ValueError(f"{team!r} has crashed and can no longer act")
-        if snake.conceded:
-            raise ValueError(f"{team!r} has conceded and can no longer act")
+        snake = self._acting_snake(team)
         if not snake.neck_active:
             raise ValueError(f"{team!r} has no active challenge request")
         if not self.map.has_line(next_line):
@@ -220,11 +216,7 @@ class GameState:
         Afterwards (a normal challenge) it draws a fresh (easier, harder) pair
         sized to the requester's own neck, as always.
         """
-        snake = self.snakes[team]
-        if snake.crashed:
-            raise ValueError(f"{team!r} has crashed and can no longer act")
-        if snake.conceded:
-            raise ValueError(f"{team!r} has conceded and can no longer act")
+        snake = self._acting_snake(team)
         if not snake.neck_active:
             raise ValueError(f"{team!r} has no active challenge to veto")
         if snake.declared_line is None:

@@ -5,11 +5,11 @@ from render import render_map, svg_to_png
 
 # Five-team game — colours assigned automatically from DEFAULT_TEAM_COLORS.
 #
-# Alpha:   Jubilee line, Wembley Park → Green Park (NW arc)
+# Alpha:   Jubilee line, Wembley Park → Westminster via Green Park (NW arc)
 # Beta:    Elizabeth line, Abbey Wood → Tottenham Court Road (east → centre)
 # Gamma:   Bank Branch + Thameslink, Tooting Broadway → Greenwich (south arc)
 # Delta:   Met + Bakerloo, Rayners Lane → Paddington (NW)
-# Epsilon: Central line, Ealing Broadway east — crashes into Alpha's Bond Street (greyed out)
+# Epsilon: Central then S Circle + Picc, Ealing Broadway east — crashes into Alpha's Green Park (greyed out)
 
 game = new_game(
     start_positions={
@@ -71,8 +71,8 @@ game.complete_challenge("Delta", "Bakerloo")
 
 game.request_challenge("Delta", "Paddington")
 
-# Epsilon — builds a body east along the Central line, then requests a challenge
-# whose neck runs through Alpha's claimed Bond Street: a legal move that crashes it.
+# Epsilon — builds a body east then south, then requests a challenge whose neck
+# runs through Alpha's claimed Green Park: a legal move that crashes it.
 
 game.request_challenge("Epsilon", "Notting Hill Gate")
 game.complete_challenge("Epsilon", "S Circle")
@@ -80,7 +80,7 @@ game.complete_challenge("Epsilon", "S Circle")
 game.request_challenge("Epsilon", "South Kensington")
 game.complete_challenge("Epsilon", "Picc")
 
-game.request_challenge("Epsilon", "Piccadilly Circus")  # Path via Alpha's Green Park, crashes``
+game.request_challenge("Epsilon", "Piccadilly Circus")  # path via Alpha's Green Park → crash
 
 # state summary
 

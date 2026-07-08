@@ -6,6 +6,7 @@ import re
 import pytest
 
 import render
+from config import BONUS_AT_FRONT
 from game import new_game
 from render import _clip_shapes_for_segment, _extract_svg_fork_geometry, render_map
 
@@ -385,8 +386,6 @@ def test_render_map_draws_bonus_badges(tmp_path) -> None:
     svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
 
     assert '<g id="Bonus Coins">' in svg
-    from config import BONUS_AT_FRONT
-
     assert f"+{BONUS_AT_FRONT}" in svg
 
 

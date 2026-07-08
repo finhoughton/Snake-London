@@ -14,7 +14,6 @@ from game import GameState
 
 SVG_SOURCE = Path("map/snake map.svg")
 GEOMETRY_PATH = Path("map/geometry.json")
-UNCLAIMED_COLOR = "#ffffff"
 _CRASHED_COLOR = "#808080"  # eliminated (crashed/conceded) snakes are greyed out
 NECK_STROKE_DASHARRAY = "4 2"  # marker neck border dash (sized for the small markers)
 _NECK_DASH = "14 8"  # segment neck casing dash — longer so it reads as dashed, not dotted
@@ -107,25 +106,26 @@ def render_map(game: GameState, output_path: str | Path, *, debug: bool = False)
             insert_at -= 1
         svg = svg[:insert_at] + "\n  " + overlay_svg + "\n  " + svg[insert_at:]
 
-    # Bonus-coin badges on unclaimed bonus interchanges (painted above the map).
-    badges_svg = _build_bonus_badges(game)
-    if badges_svg:
-        close = svg.rfind("</svg>")
-        if close != -1:
-            svg = svg[:close] + "  " + badges_svg + "\n" + svg[close:]
-
-    # Inject the legend last, just before </svg>, so it paints on top of the map.
-    legend_svg = _build_legend(game, _canvas_height(svg))
-    if legend_svg:
-        close = svg.rfind("</svg>")
-        if close != -1:
-            svg = svg[:close] + "  " + legend_svg + "\n" + svg[close:]
+    # Bonus-coin badges on unclaimed bonus interchanges (painted above the map),
+    # then the legend last so it paints on top of everything.
+    svg = _insert_before_close(svg, _build_bonus_badges(game))
+    svg = _insert_before_close(svg, _build_legend(game, _canvas_height(svg)))
 
     dest = Path(output_path)
     with open(dest, "w", encoding="utf-8") as f:
         f.write(svg)
 
     return dest
+
+
+def _insert_before_close(svg: str, fragment: str) -> str:
+    """Insert an SVG fragment just before the closing </svg> tag (no-op if empty)."""
+    if not fragment:
+        return svg
+    close = svg.rfind("</svg>")
+    if close == -1:
+        return svg
+    return svg[:close] + "  " + fragment + "\n" + svg[close:]
 
 
 def _tint_color(hex_color: str, factor: float) -> str:
@@ -473,14 +473,11 @@ def _canvas_height(svg: str) -> float:
     return float(match.group(1)) if match else _CANVAS_H_FALLBACK
 
 
-def _legend_text(
-    x: float, y: float, text: str, size: int, *, bold: bool = False, fill: str = "#111111", anchor: str = "start"
-) -> str:
+def _legend_text(x: float, y: float, text: str, size: int, *, fill: str = "#111111") -> str:
     # Two passes: a white outline behind a solid fill, so text stays legible over
     # map lines without a background panel. (Avoids relying on paint-order support.)
-    weight = ' font-weight="bold"' if bold else ""
     halo = max(4.0, size * 0.18)
-    common = f'x="{x:.1f}" y="{y:.1f}" font-family="{_LEGEND_FONT}" font-size="{size}" text-anchor="{anchor}"{weight}'
+    common = f'x="{x:.1f}" y="{y:.1f}" font-family="{_LEGEND_FONT}" font-size="{size}" text-anchor="start"'
     esc = _escape_text(text)
     return (
         f'<text {common} fill="none" stroke="#ffffff" stroke-width="{halo:.1f}" stroke-linejoin="round">{esc}</text>'
@@ -532,7 +529,12 @@ def _get_label_anchors() -> dict[str, tuple[float, float]]:
     return anchors
 
 
-def _bonus_badge(station: str, centre: list[float], markers: dict, labels: dict) -> str:
+def _bonus_badge(
+    station: str,
+    centre: list[float],
+    markers: dict[str, StationMarker],
+    labels: dict[str, tuple[float, float]],
+) -> str:
     """A coin badge tucked against the station marker, on the side opposite its label."""
     cx, cy = centre
     lx, ly = labels.get(station, (cx + 1.0, cy))
@@ -614,8 +616,7 @@ def _build_legend(game: GameState, canvas_h: float) -> str:
         else:
             beside_name = "   ·   No line"
 
-        stats = [f"Score: {body}", f"Neck: {neck}"]
-        stat_text = "   ·   ".join(stats)
+        stat_text = f"Score: {body}   ·   Neck: {neck}"
         if snake.crashed:
             name = f"{team} (crashed)"
         elif snake.conceded:
@@ -1021,14 +1022,25 @@ def _build_segment_overlays(game: GameState, *, debug: bool = False) -> str:
     for i, ((line_key, color, mode), shapes) in enumerate(clip_groups.items()):
         if not shapes:
             continue
-        clip_id = f"seg-clip-{i}"
-        shapes_svg = "".join(
-            shape
-            if isinstance(shape, str)
-            else '<polygon points="' + " ".join(f"{x:.1f},{y:.1f}" for x, y in shape) + '"/>'
-            for shape in shapes
-        )
-        defs_parts.append(f'<clipPath id="{clip_id}">{shapes_svg}</clipPath>')
+
+        # Segments come in two kinds, styled by different means. Fork shapes (raw
+        # SVG strings, hand-authored in the base map) are precise geometry and are
+        # styled directly, in place. Auto-rect segments (point polygons) instead
+        # clip a restyled copy of the whole line's artwork, so they need a
+        # clipPath. The clip must contain ONLY the auto-rect polygons: including
+        # the fork shapes too would re-fill the fork's area a second time, and two
+        # independently anti-aliased overlapping fills of the same area don't
+        # quite agree at the edge, showing as a faint seam (most visible in the
+        # dot pattern, e.g. right where a branch merges into its trunk).
+        fork_shapes = [s for s in shapes if isinstance(s, str)]
+        autorect_shapes = [s for s in shapes if not isinstance(s, str)]
+        clip_id = None
+        if autorect_shapes:
+            clip_id = f"seg-clip-{i}"
+            polygons = "".join(
+                '<polygon points="' + " ".join(f"{x:.1f},{y:.1f}" for x, y in poly) + '"/>' for poly in autorect_shapes
+            )
+            defs_parts.append(f'<clipPath id="{clip_id}">{polygons}</clipPath>')
 
         colored_paths, white_paths = line_paths.get(line_key, ([], []))
         if not colored_paths:
@@ -1036,94 +1048,51 @@ def _build_segment_overlays(game: GameState, *, debug: bool = False) -> str:
 
         all_paths = colored_paths + white_paths
 
+        def style_fork_shapes(attrs: str) -> None:
+            """Emit each fork shape with the given presentation attributes injected."""
+            for shape in fork_shapes:
+                overlay_parts.append(re.sub(r"/>$", f" {attrs}/>", shape))
+
+        def style_clipped_line(d_attrs: list[str], style: str) -> None:
+            """Emit the line's own paths restyled, clipped to the auto-rect polygons."""
+            if clip_id is None:
+                return
+            for d_attr in d_attrs:
+                overlay_parts.append(f'<path d="{d_attr}" style="{style}" clip-path="url(#{clip_id})"/>')
+
         if mode == "body":
             pat_id = _ensure_pattern(color, mode)
-            border_w = _BORDER_W * 2
+            casing_w = _BORDER_W * 2
             # Pass 1 — white outer ring
-            for shape in shapes:
-                if isinstance(shape, str):
-                    overlay_parts.append(
-                        re.sub(
-                            r"/>$",
-                            f' fill="none" stroke="#ffffff" stroke-width="{border_w:.2f}"/>',
-                            shape,
-                        )
-                    )
-            for d_attr in colored_paths:
-                overlay_parts.append(
-                    f'<path d="{d_attr}" style="fill:none;stroke:#ffffff;stroke-width:{border_w:.2f}"'
-                    f' clip-path="url(#{clip_id})"/>'
-                )
+            style_fork_shapes(f'fill="none" stroke="#ffffff" stroke-width="{casing_w:.2f}"')
+            style_clipped_line(colored_paths, f"fill:none;stroke:#ffffff;stroke-width:{casing_w:.2f}")
             # Pass 2 — team-colour outline (sits on top of white ring)
-            for shape in shapes:
-                if isinstance(shape, str):
-                    overlay_parts.append(
-                        re.sub(
-                            r"/>$",
-                            f' fill="none" stroke="{color}" stroke-width="{_BORDER_W:.2f}"/>',
-                            shape,
-                        )
-                    )
-            for d_attr in colored_paths:
-                overlay_parts.append(
-                    f'<path d="{d_attr}" style="fill:none;stroke:{color};stroke-width:{_BORDER_W:.2f}"'
-                    f' clip-path="url(#{clip_id})"/>'
-                )
+            style_fork_shapes(f'fill="none" stroke="{color}" stroke-width="{_BORDER_W:.2f}"')
+            style_clipped_line(colored_paths, f"fill:none;stroke:{color};stroke-width:{_BORDER_W:.2f}")
             # Pass 3 — dot fill covers interior and inner stroke halves. A thin
             # solid-colour stroke (matching Pass 2's border) overdraws slightly past
             # the underlying line's true edge — see _FILL_OVERDRAW. (Stroking with
             # the dot pattern itself would tile oddly at this width; the solid
             # colour blends seamlessly into Pass 2's border sitting right there.)
-            for shape in shapes:
-                if isinstance(shape, str):
-                    overlay_parts.append(
-                        re.sub(
-                            r"/>$",
-                            f' fill="url(#{pat_id})" stroke="{color}" stroke-width="{_FILL_OVERDRAW:.2f}"/>',
-                            shape,
-                        )
-                    )
-            for d_attr in all_paths:
-                overlay_parts.append(
-                    f'<path d="{d_attr}" style="fill:url(#{pat_id});stroke:{color}'
-                    f';stroke-width:{_FILL_OVERDRAW:.2f}" clip-path="url(#{clip_id})"/>'
-                )
+            style_fork_shapes(f'fill="url(#{pat_id})" stroke="{color}" stroke-width="{_FILL_OVERDRAW:.2f}"')
+            style_clipped_line(all_paths, f"fill:url(#{pat_id});stroke:{color};stroke-width:{_FILL_OVERDRAW:.2f}")
         else:
-            double_w = _BORDER_W * 2
+            casing_w = _BORDER_W * 2
             # Pass 1 — dashed strokes at doubled width (inner half covered by fill)
-            for shape in shapes:
-                if isinstance(shape, str):
-                    stroked = re.sub(
-                        r"/>$",
-                        f' fill="none" stroke="{color}" stroke-width="{double_w:.2f}"'
-                        f' stroke-dasharray="{_NECK_DASH}"/>',
-                        shape,
-                    )
-                    overlay_parts.append(stroked)
-            for d_attr in colored_paths:
-                overlay_parts.append(
-                    f'<path d="{d_attr}" style="fill:none;stroke:{color}'
-                    f';stroke-width:{double_w:.2f};stroke-dasharray:{_NECK_DASH}"'
-                    f' clip-path="url(#{clip_id})"/>'
-                )
+            style_fork_shapes(
+                f'fill="none" stroke="{color}" stroke-width="{casing_w:.2f}" stroke-dasharray="{_NECK_DASH}"'
+            )
+            style_clipped_line(
+                colored_paths,
+                f"fill:none;stroke:{color};stroke-width:{casing_w:.2f};stroke-dasharray:{_NECK_DASH}",
+            )
             # Pass 2 — solid tinted fill covers inner stroke halves (no dots; the
             # dashed casing from Pass 1 reads through, matching the marker neck style).
             # A thin same-colour stroke overdraws slightly past the underlying line's
             # true edge — see _FILL_OVERDRAW.
             neck_fill = _tint_color(color, NECK_TINT_FACTOR)
-            for shape in shapes:
-                if isinstance(shape, str):
-                    filled = re.sub(
-                        r"/>$",
-                        f' fill="{neck_fill}" stroke="{neck_fill}" stroke-width="{_FILL_OVERDRAW:.2f}"/>',
-                        shape,
-                    )
-                    overlay_parts.append(filled)
-            for d_attr in all_paths:
-                overlay_parts.append(
-                    f'<path d="{d_attr}" style="fill:{neck_fill};stroke:{neck_fill}'
-                    f';stroke-width:{_FILL_OVERDRAW:.2f}" clip-path="url(#{clip_id})"/>'
-                )
+            style_fork_shapes(f'fill="{neck_fill}" stroke="{neck_fill}" stroke-width="{_FILL_OVERDRAW:.2f}"')
+            style_clipped_line(all_paths, f"fill:{neck_fill};stroke:{neck_fill};stroke-width:{_FILL_OVERDRAW:.2f}")
 
         if debug:
             for shape in shapes:
