@@ -401,6 +401,186 @@ def test_render_map_skips_badge_on_claimed_bonus(tmp_path) -> None:
     assert '<g id="Bonus Coins">' not in svg
 
 
+def _first_line_group_index(svg: str, game) -> int:
+    line_keys = set(game.map.line_keys())
+    return next(m.start() for m in render._ANY_GROUP_RE.finditer(svg) if m.group(1) in line_keys)
+
+
+def test_render_map_draws_jump_halos_under_the_line_network(tmp_path) -> None:
+    # The halo must paint beneath every line, so the network runs over it untouched.
+    game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
+    game.jumped_stations.add("Stratford")
+    svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
+
+    halo_idx = svg.find('<g id="Jumped Stations">')
+    assert halo_idx != -1, "expected a jump halo group"
+    assert halo_idx < _first_line_group_index(svg, game), "halos must paint under the line network"
+    assert render._JUMP_HALO_FILL in svg
+
+
+def test_render_map_draws_no_halo_group_without_jumps(tmp_path) -> None:
+    game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
+    svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
+
+    assert '<g id="Jumped Stations">' not in svg
+
+
+def test_jump_halo_survives_the_station_being_claimed(tmp_path) -> None:
+    # Unlike a bonus badge (spent on claim), a jump is permanent — the halo stays.
+    game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
+    game.jumped_stations.add("Bond Street")
+    game.initial_request_challenge("A")
+    game.complete_challenge("A", "Jubilee")
+    game.request_challenge("A", "Bond Street")
+    game.complete_challenge("A", "Jubilee")  # claims Bond Street
+    assert game.map.get_claim("Bond Street") == "A"
+
+    svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
+    assert '<g id="Jumped Stations">' in svg
+
+
+def test_jump_halo_encloses_the_marker_for_every_shape() -> None:
+    # The halo is sized by ray-casting the silhouette, so it must genuinely enclose the
+    # marker for every shape the base SVG uses (circles and rounded rects alike).
+    markers = render._get_station_markers()
+    centres = render._load_geometry()["station_centres"]
+
+    for station in ("Green Park", "Bond Street", "Farringdon"):  # circle, rect, large rect
+        cx, cy = centres[station]
+        outer = render._marker_outer_radius(station, cx, cy, markers)
+        assert outer > 0, f"{station} marker silhouette not found"
+        assert render._point_in_station_marker(markers[station], cx, cy), f"{station} centre off-marker"
+
+        # Nothing of the marker may stick out past the halo, in any direction.
+        radius = outer + render._JUMP_HALO_PAD
+        for i in range(72):
+            angle = 2.0 * math.pi * i / 72
+            x, y = cx + math.cos(angle) * radius, cy + math.sin(angle) * radius
+            assert not render._point_in_station_marker(markers[station], x, y), (
+                f"{station} marker extends beyond its halo at {math.degrees(angle):.0f}deg"
+            )
+
+
+def test_render_map_raises_when_no_line_group_anchor(tmp_path, monkeypatch) -> None:
+    # Same contract as the label anchor: if the base SVG is restructured so the
+    # network can't be found, fail loudly rather than silently dropping the halos.
+    game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
+    game.jumped_stations.add("Stratford")
+    monkeypatch.setattr(render, "_ANY_GROUP_RE", re.compile(r'<g\b[^>]*\bid="(__nothing__)"'))
+
+    with pytest.raises(ValueError, match="line group"):
+        render_map(game, tmp_path / "map.svg")
+
+
+def _key_group(svg: str) -> str:
+    start = svg.index('<g id="Symbol Key">')
+    return svg[start : svg.index("</g>", start)]
+
+
+def _legend_group(svg: str) -> str:
+    # The legend nests a <g> per team, so slice to the next HUD group rather than to
+    # the first closing tag. render_map appends the key immediately after the legend.
+    return svg[svg.index('<g id="Legend">') : svg.index('<g id="Symbol Key">')]
+
+
+def test_legend_shows_the_announced_line_never_the_detoured_one(tmp_path) -> None:
+    # The map is public and Detour is explicitly unannounced, so the legend must print
+    # the line the team declared — printing the line they actually boarded would leak it.
+    game = new_game(start_positions={"A": "Baker Street"}, bonus_interchanges=set())
+    game.initial_request_challenge("A")
+    game.complete_challenge("A", "Jubilee")  # announced Jubilee
+    game.get_snake("A").coins = 50
+    game.buy_powerup("A", "detour")
+    game.play_powerup("A", "detour", line="Bakerloo")  # secretly boards the Bakerloo
+    assert game.get_snake("A").travel_line == "Bakerloo"
+
+    legend = _legend_group(render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8"))
+
+    assert game.map.get_line("Jubilee").display_name in legend
+    assert game.map.get_line("Bakerloo").display_name not in legend, "the legend leaked the Detour"
+
+
+def test_symbol_key_is_bottom_right_and_paints_on_top(tmp_path) -> None:
+    game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
+    svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
+
+    key_idx = svg.find('<g id="Symbol Key">')
+    assert key_idx != -1, "expected a symbol key"
+    # HUD: after the labels, before </svg> — same contract as the team legend.
+    assert key_idx > render._LABEL_GROUP_RE.search(svg).start()
+    assert key_idx < svg.rfind("</svg>")
+
+    # Every swatch sits in the right-hand half, clear of the bottom-left team legend.
+    width = render._canvas_width(svg)
+    xs = [float(x) for x in re.findall(r'<circle cx="([-\d.]+)"', _key_group(svg))]
+    assert xs, "expected swatches in the key"
+    assert min(xs) > width / 2, "the key belongs in the bottom-right"
+
+
+def test_symbol_key_always_explains_body_and_neck(tmp_path) -> None:
+    game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
+    key = _key_group(render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8"))
+
+    assert "Key" in key
+    for needle in ("Body", "Neck"):
+        assert needle in key
+
+
+def test_symbol_key_body_and_neck_use_a_real_team_colour(tmp_path) -> None:
+    game = new_game({"A": "Wembley Park", "B": "Stratford"}, bonus_interchanges=set())
+    first = game.get_snake("A").color
+    key = _key_group(render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8"))
+
+    assert first in key, "Body/Neck swatches should use the first team's colour"
+    # The neck swatch mirrors the map: tinted fill, solid team colour as a dashed stroke.
+    assert render._tint_color(first, render.NECK_TINT_FACTOR) in key
+    assert render.NECK_STROKE_DASHARRAY in key
+
+
+def test_symbol_key_prefers_a_living_teams_colour(tmp_path) -> None:
+    # An eliminated snake renders grey, so its colour appears nowhere on the map — the
+    # key must borrow from a team still in the game instead.
+    game = new_game({"A": "Wembley Park", "B": "Stratford"}, bonus_interchanges=set())
+    dead, alive = game.get_snake("A").color, game.get_snake("B").color
+    game.concede("A")
+    key = _key_group(render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8"))
+
+    assert alive in key
+    assert dead not in key
+
+
+def test_symbol_key_omits_rows_for_symbols_not_on_the_map(tmp_path) -> None:
+    # No bonuses, no jumps, nobody out -> only the always-on Body/Neck rows.
+    game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
+    key = _key_group(render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8"))
+
+    for absent in ("Out", "Bonus", "Jumped"):
+        assert absent not in key, f"key should not explain {absent!r} when none is drawn"
+
+
+def test_symbol_key_adds_rows_for_symbols_that_are_on_the_map(tmp_path) -> None:
+    game = new_game({"A": "Baker Street", "B": "Bond Street"}, bonus_interchanges={"Stratford"})
+    game.jumped_stations.add("Holborn")
+    game.concede("B")
+    key = _key_group(render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8"))
+
+    for needle in ("Out", "Bonus", "Jumped"):
+        assert needle in key
+
+
+def test_symbol_key_drops_the_bonus_row_once_every_bonus_is_claimed(tmp_path) -> None:
+    # Mirrors _build_bonus_badges: a claimed bonus is spent, so nothing is drawn.
+    game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges={"Bond Street"})
+    game.initial_request_challenge("A")
+    game.complete_challenge("A", "Jubilee")
+    game.request_challenge("A", "Bond Street")
+    game.complete_challenge("A", "Jubilee")
+    svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
+
+    assert '<g id="Bonus Coins">' not in svg
+    assert "Bonus" not in _key_group(svg)
+
+
 def test_render_greys_out_eliminated_snakes(tmp_path) -> None:
     # A requests through B's claimed Bond Street and crashes; its body is greyed.
     game = new_game({"A": "Baker Street", "B": "Bond Street"}, bonus_interchanges=set())

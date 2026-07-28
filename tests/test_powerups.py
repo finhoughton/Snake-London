@@ -434,7 +434,7 @@ def test_retreat_requires_an_active_normal_request(tmp_path):
 # --- detour ------------------------------------------------------------------
 
 
-def test_detour_switches_the_declared_line(tmp_path):
+def test_detour_switches_the_line_travelled_but_not_the_one_announced(tmp_path):
     game = _game(tmp_path, teams={"A": "Baker Street"})
     game.initial_request_challenge("A")
     game.complete_challenge("A", "Jubilee")  # declared Jubilee
@@ -443,7 +443,8 @@ def test_detour_switches_the_declared_line(tmp_path):
     snake.coins = 20
     game.buy_powerup("A", "detour")
     game.play_powerup("A", "detour", line="Bakerloo")  # Baker Street is on Bakerloo
-    assert snake.declared_line == "Bakerloo"
+    assert snake.travel_line == "Bakerloo"
+    assert snake.announced_line == "Jubilee", "Detour is not announced"
 
     game.request_challenge("A", "Oxford Circus")  # travels the NEW line
     assert game.neck("A") == ["Oxford Circus"]
@@ -462,7 +463,7 @@ def test_detour_validates_the_new_line(tmp_path):
     with pytest.raises(ValueError):
         game.play_powerup("A", "detour", line="Hogwarts Express")  # unknown
     assert "detour" in snake.hand
-    assert snake.declared_line == "Jubilee"  # untouched by the failed plays
+    assert snake.travel_line == "Jubilee"  # untouched by the failed plays
 
 
 def test_detour_requires_a_declared_line(tmp_path):
@@ -487,11 +488,12 @@ def test_detour_mid_challenge_overrides_the_next_declared_line(tmp_path):
     game.buy_powerup("A", "detour")
     game.play_powerup("A", "detour", line="Central")  # Bond Street is on Central
     assert snake.pending_detour == "Central"
-    assert snake.declared_line == "Jubilee"  # the current neck is untouched
+    assert snake.travel_line == "Jubilee"  # the current neck is untouched
     assert game.neck("A") == ["Bond Street"]
 
     game.complete_challenge("A", "Jubilee")  # declares Jubilee publicly...
-    assert snake.declared_line == "Central"  # ...but actually boards Central
+    assert snake.travel_line == "Central"  # ...but actually boards Central
+    assert snake.announced_line == "Jubilee", "the announcement stands — that is the secret"
     assert snake.pending_detour is None
 
     game.request_challenge("A", "Oxford Circus")  # only reachable on Central
@@ -533,7 +535,8 @@ def test_retreat_lapses_a_parked_detour(tmp_path):
     assert snake.pending_detour is None
     game.request_challenge("A", "Green Park")
     game.complete_challenge("A", "Jubilee")
-    assert snake.declared_line == "Jubilee"
+    assert snake.travel_line == "Jubilee"
+    assert snake.announced_line == "Jubilee"  # nothing secret survived the retreat
 
 
 # --- curse -------------------------------------------------------------------

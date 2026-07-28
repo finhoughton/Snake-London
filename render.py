@@ -4,6 +4,7 @@ import json
 import math
 import re
 import xml.etree.ElementTree as ET
+from collections.abc import Callable
 from pathlib import Path
 from typing import Literal, TypedDict
 
@@ -49,6 +50,24 @@ _LEGEND_TEAM_GAP = 18  # vertical gap between teams
 _LEGEND_SEP_GAP = 24  # gap below the timer separator
 _LEGEND_FONT = "Arial"
 _CANVAS_H_FALLBACK = 2697.0  # used if the SVG viewBox can't be read
+_CANVAS_W_FALLBACK = 4233.0
+
+# Shared-symbol key (bottom-right HUD). Explains the map symbols that are *not* a team
+# colour. Right-aligned — label text ends, then the symbol column — so it needs no text
+# measurement, matching the rest of the legend. Rows appear only when the symbol they
+# describe is actually on the map.
+_KEY_TITLE_FONT = 32
+_KEY_LABEL_FONT = 28
+_KEY_ROW_H = 62
+_KEY_SYMBOL_W = 72  # width of the symbol column at the panel's right edge
+_KEY_GAP = 18  # gap between the label text and the symbol column
+_KEY_TITLE_GAP = 14  # gap below the "Key" title
+_KEY_MARKER_R = 14  # radius of the demo station markers drawn in the key
+_KEY_HALO_RATIO = 2.0  # jump-halo radius as a multiple of the marker, matching the map's look
+# Fallback colour for the Body/Neck rows. Those normally borrow the first (living) team's
+# colour so the swatches match something really on the map; this is only reached by a
+# GameState with no snakes at all.
+_KEY_DEMO_COLOR = "#4a5568"
 
 # Bonus-coin badge (a small gold coin tucked against a bonus interchange's marker,
 # on the side away from its label). All values in SVG units.
@@ -60,10 +79,24 @@ _BONUS_BADGE_STROKE = "#6b4f00"
 _BONUS_BADGE_TEXT = "#4a3600"
 _BONUS_BADGE_LABEL = f"+{BONUS_AT_FRONT}"  # the headline (complete-here) bonus from config
 
+# Jumped-station halo. A soft neutral glow painted *underneath* the line network, so a
+# jumped interchange is findable at full-map zoom without ever breaking a line. Neutral
+# on purpose: every hue on the base map is already committed to a line (teal = DLR,
+# amber = Overground/bonus coin, etc.), so a new colour would read as one of them.
+_JUMP_HALO_FILL = "#101820"
+_JUMP_HALO_OPACITY = 0.22
+_JUMP_HALO_PAD = 20.0  # SVG units the halo extends beyond the marker silhouette
+_JUMP_HALO_RAYS = 24  # directions sampled to size the halo around any marker shape
+
 # Overlays are injected immediately before the first station label group so they
 # paint above the line segments but below the labels. Label groups are the <g>
 # elements whose id ends in " Label" (inner text uses " Label_h"/" Label_c").
 _LABEL_GROUP_RE = re.compile(r'<g\b[^>]*\bid="[^"]* Label"')
+
+# Jump halos are injected before the first *line* group so they paint beneath the whole
+# network. Matched by id against the map's line keys rather than a hardcoded id, so a
+# reordered or renamed base SVG still anchors correctly (and raises loudly if it can't).
+_ANY_GROUP_RE = re.compile(r'<g\b[^>]*\bid="([^"]+)"')
 
 
 def render_map(game: GameState, output_path: str | Path, *, debug: bool = False) -> Path:
@@ -92,6 +125,10 @@ def render_map(game: GameState, output_path: str | Path, *, debug: bool = False)
         marker_id = f"{station} Marker"
         svg = _set_marker_style(svg, marker_id, color, mode)
 
+    # Bottom layer: halos under jumped interchanges, beneath the line network so the
+    # lines run straight over them and nothing is ever obscured or broken.
+    svg = _insert_under_line_network(svg, _build_jump_halos(game), game)
+
     # Inject segment highlight overlays just before the first label group.
     overlay_svg = _build_segment_overlays(game, debug=debug)
     if overlay_svg:
@@ -110,6 +147,7 @@ def render_map(game: GameState, output_path: str | Path, *, debug: bool = False)
     # then the legend last so it paints on top of everything.
     svg = _insert_before_close(svg, _build_bonus_badges(game))
     svg = _insert_before_close(svg, _build_legend(game, _canvas_height(svg)))
+    svg = _insert_before_close(svg, _build_symbol_key(game, _canvas_width(svg), _canvas_height(svg)))
 
     dest = Path(output_path)
     with open(dest, "w", encoding="utf-8") as f:
@@ -473,11 +511,17 @@ def _canvas_height(svg: str) -> float:
     return float(match.group(1)) if match else _CANVAS_H_FALLBACK
 
 
-def _legend_text(x: float, y: float, text: str, size: int, *, fill: str = "#111111") -> str:
+def _canvas_width(svg: str) -> float:
+    """Read the canvas width from the SVG viewBox, falling back to the known size."""
+    match = re.search(r'viewBox="\s*[-\d.]+\s+[-\d.]+\s+([-\d.]+)', svg)
+    return float(match.group(1)) if match else _CANVAS_W_FALLBACK
+
+
+def _legend_text(x: float, y: float, text: str, size: int, *, fill: str = "#111111", anchor: str = "start") -> str:
     # Two passes: a white outline behind a solid fill, so text stays legible over
     # map lines without a background panel. (Avoids relying on paint-order support.)
     halo = max(4.0, size * 0.18)
-    common = f'x="{x:.1f}" y="{y:.1f}" font-family="{_LEGEND_FONT}" font-size="{size}" text-anchor="start"'
+    common = f'x="{x:.1f}" y="{y:.1f}" font-family="{_LEGEND_FONT}" font-size="{size}" text-anchor="{anchor}"'
     esc = _escape_text(text)
     return (
         f'<text {common} fill="none" stroke="#ffffff" stroke-width="{halo:.1f}" stroke-linejoin="round">{esc}</text>'
@@ -485,16 +529,18 @@ def _legend_text(x: float, y: float, text: str, size: int, *, fill: str = "#1111
     )
 
 
-def _legend_pair(x: float, y: float, primary: str, secondary: str, size: int) -> str:
+def _legend_pair(x: float, y: float, primary: str, secondary: str, size: int, *, anchor: str = "start") -> str:
     """Bold *primary* text with lighter *secondary* text beside it, white-haloed.
 
     Uses two tspans in one text element so the secondary sits right after the
-    primary without needing to measure the rendered primary width.
+    primary without needing to measure the rendered primary width. With
+    ``anchor="end"`` the pair right-aligns as a unit — the tspans still flow
+    left-to-right — which is how the bottom-right key stays measurement-free.
     """
     p = _escape_text(primary)
     s = _escape_text(secondary)
     halo = max(4.0, size * 0.18)
-    common = f'x="{x:.1f}" y="{y:.1f}" font-family="{_LEGEND_FONT}" font-size="{size}"'
+    common = f'x="{x:.1f}" y="{y:.1f}" font-family="{_LEGEND_FONT}" font-size="{size}" text-anchor="{anchor}"'
     spans_halo = f'<tspan font-weight="bold">{p}</tspan><tspan font-weight="normal">{s}</tspan>'
     spans_fill = (
         f'<tspan font-weight="bold" fill="#111111">{p}</tspan><tspan font-weight="normal" fill="#555555">{s}</tspan>'
@@ -569,6 +615,153 @@ def _build_bonus_badges(game: GameState) -> str:
     return '<g id="Bonus Coins">' + "".join(parts) + "</g>" if parts else ""
 
 
+def _marker_outer_radius(station: str, cx: float, cy: float, markers: dict[str, StationMarker]) -> float:
+    """Radius of the smallest circle enclosing a station's marker silhouette.
+
+    Sampled by ray-casting rather than read off the marker, so it works for circles and
+    (rotated, rounded) rects alike.
+    """
+    radius = 0.0
+    for i in range(_JUMP_HALO_RAYS):
+        angle = 2.0 * math.pi * i / _JUMP_HALO_RAYS
+        ex, ey = _marker_exit_point(station, cx, cy, cx + math.cos(angle) * 1000, cy + math.sin(angle) * 1000, markers)
+        radius = max(radius, math.hypot(ex - cx, ey - cy))
+    return radius
+
+
+def _build_jump_halos(game: GameState) -> str:
+    """Halos for every jumped interchange, to be painted under the line network.
+
+    Unlike bonus badges these are **never** removed: a jump is permanent and public, so
+    the halo stays whether or not the interchange is (or later becomes) claimed.
+    """
+    if not game.jumped_stations:
+        return ""
+    centres = _load_geometry()["station_centres"]
+    markers = _get_station_markers()
+    parts = []
+    for station in sorted(game.jumped_stations):
+        if station not in centres:
+            continue
+        cx, cy = centres[station]
+        radius = _marker_outer_radius(station, cx, cy, markers) + _JUMP_HALO_PAD
+        parts.append(
+            f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{radius:.1f}"'
+            f' fill="{_JUMP_HALO_FILL}" fill-opacity="{_JUMP_HALO_OPACITY}"/>'
+        )
+    return '<g id="Jumped Stations">' + "".join(parts) + "</g>" if parts else ""
+
+
+def _insert_under_line_network(svg: str, fragment: str, game: GameState) -> str:
+    """Insert a fragment just before the first line group, i.e. beneath the whole network."""
+    if not fragment:
+        return svg
+    line_keys = set(game.map.line_keys())
+    match = next((m for m in _ANY_GROUP_RE.finditer(svg) if m.group(1) in line_keys), None)
+    if match is None:
+        raise ValueError(f"No line group found in {SVG_SOURCE}; cannot anchor jump halos beneath the network.")
+    insert_at = match.start()
+    while insert_at > 0 and svg[insert_at - 1] in " \t\n":
+        insert_at -= 1
+    return svg[:insert_at] + "\n  " + fragment + "\n  " + svg[insert_at:]
+
+
+def _key_swatch_body(cx: float, cy: float, color: str) -> str:
+    """A claimed marker: solid fill, black border (mirrors _set_marker_style "body")."""
+    return (
+        f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{_KEY_MARKER_R}" fill="{color}" stroke="#000000" stroke-width="3.75"/>'
+    )
+
+
+def _key_swatch_neck(cx: float, cy: float, color: str) -> str:
+    """A neck marker: tinted fill, dashed team-coloured border (mirrors "neck")."""
+    return (
+        f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{_KEY_MARKER_R}"'
+        f' fill="{_tint_color(color, NECK_TINT_FACTOR)}" stroke="{color}"'
+        f' stroke-width="{_BORDER_W}" stroke-dasharray="{NECK_STROKE_DASHARRAY}"/>'
+    )
+
+
+def _key_swatch_eliminated(cx: float, cy: float) -> str:
+    return (
+        f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{_KEY_MARKER_R}"'
+        f' fill="{_CRASHED_COLOR}" stroke="#000000" stroke-width="3.75"/>'
+    )
+
+
+def _key_swatch_bonus(cx: float, cy: float) -> str:
+    """The gold coin, at the size it is drawn on the map."""
+    return (
+        f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{_BONUS_BADGE_R}"'
+        f' fill="{_BONUS_BADGE_FILL}" stroke="{_BONUS_BADGE_STROKE}" stroke-width="2.5"/>'
+        f'<text x="{cx:.1f}" y="{cy + _BONUS_BADGE_FONT * 0.34:.1f}" font-family="{_LEGEND_FONT}"'
+        f' font-size="{_BONUS_BADGE_FONT}" font-weight="bold" fill="{_BONUS_BADGE_TEXT}"'
+        f' text-anchor="middle">{_BONUS_BADGE_LABEL}</text>'
+    )
+
+
+def _key_swatch_jumped(cx: float, cy: float) -> str:
+    """A halo behind an unclaimed marker — how a jumped interchange reads on the map.
+
+    Sized to the *ratio* the halo has on the map (roughly twice the marker) rather than
+    to `_JUMP_HALO_PAD` directly: the key's demo marker is larger than a real one, so
+    reusing the absolute pad would render a proportionally tiny, unrecognisable halo.
+    """
+    return (
+        f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{_KEY_MARKER_R * _KEY_HALO_RATIO:.1f}"'
+        f' fill="{_JUMP_HALO_FILL}" fill-opacity="{_JUMP_HALO_OPACITY}"/>'
+        f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{_KEY_MARKER_R}"'
+        f' fill="#ffffff" stroke="#000000" stroke-width="3.75"/>'
+    )
+
+
+def _build_symbol_key(game: GameState, canvas_w: float, canvas_h: float) -> str:
+    """Bottom-right HUD: what the map's non-team symbols mean.
+
+    Only symbols actually present are listed, so the key never explains something the
+    player cannot see. Body/Neck are always shown — they are the core vocabulary and
+    the solid-vs-dashed distinction is not stated anywhere else.
+
+    Those two rows borrow the first team's colour, so the swatches are a colour the map
+    really uses. The first team still *in* the game is preferred: an eliminated snake
+    renders grey, so its `color` would show a shade that appears nowhere on the board
+    (and would collide with the Out row).
+    """
+    demo = next(
+        (s.color for s in game.snakes.values() if not s.eliminated),
+        next((s.color for s in game.snakes.values()), _KEY_DEMO_COLOR),
+    )
+    rows: list[tuple[str, str, Callable[[float, float], str]]] = [
+        ("Body", "  claimed", lambda cx, cy: _key_swatch_body(cx, cy, demo)),
+        ("Neck", "  vulnerable", lambda cx, cy: _key_swatch_neck(cx, cy, demo)),
+    ]
+    if any(s.eliminated for s in game.snakes.values()):
+        rows.append(("Out", "  crashed / conceded", _key_swatch_eliminated))
+    # Match the badge rule exactly: a claimed bonus is spent and draws nothing.
+    if any(not game.map.is_claimed(s) for s in game.bonus_interchanges):
+        rows.append(("Bonus", f"  +{BONUS_AT_FRONT} for a challenge here", _key_swatch_bonus))
+    if game.jumped_stations:
+        rows.append(("Jumped", "  passable by everyone", _key_swatch_jumped))
+
+    title_h = _KEY_TITLE_FONT + 6
+    content_h = title_h + _KEY_TITLE_GAP + len(rows) * _KEY_ROW_H
+
+    panel_right = canvas_w - _LEGEND_MARGIN
+    top = canvas_h - _LEGEND_MARGIN - content_h
+    symbol_cx = panel_right - _KEY_SYMBOL_W / 2.0
+    text_right = panel_right - _KEY_SYMBOL_W - _KEY_GAP
+
+    parts = [_legend_text(panel_right, top + _KEY_TITLE_FONT * 0.8, "Key", _KEY_TITLE_FONT, anchor="end")]
+    y = top + title_h + _KEY_TITLE_GAP
+    for i, (name, description, swatch) in enumerate(rows):
+        cy = y + i * _KEY_ROW_H + _KEY_ROW_H / 2.0
+        parts.append(swatch(symbol_cx, cy))
+        parts.append(
+            _legend_pair(text_right, cy + _KEY_LABEL_FONT * 0.36, name, description, _KEY_LABEL_FONT, anchor="end")
+        )
+    return '<g id="Symbol Key">' + "".join(parts) + "</g>"
+
+
 def _build_legend(game: GameState, canvas_h: float) -> str:
     """Build the bottom-left HUD: a time-elapsed header above a per-team legend.
 
@@ -604,7 +797,10 @@ def _build_legend(game: GameState, canvas_h: float) -> str:
         block_top = y
         body = len(game.body_stations(team))
         neck = len(game.neck(team))
-        line = snake.declared_line
+        # The *announced* line, never the one actually being travelled: the map is public,
+        # and Detour is explicitly unannounced. (The neck's segments below are drawn on the
+        # real line, which is correct — requesting a challenge makes the neck public.)
+        line = snake.announced_line
         line_name = game.map.get_line(line).display_name if line and game.map.has_line(line) else None
 
         # While attempting a challenge (neck active) show where the team currently
@@ -948,17 +1144,17 @@ def _build_segment_overlays(game: GameState, *, debug: bool = False) -> str:
     # them, then claimed body segments last — a claimed segment always wins over any
     # neck (including an eliminated snake's ghost neck).
     for team, snake in game.snakes.items():
-        if snake.eliminated and snake.neck_active and snake.declared_line:
+        if snake.eliminated and snake.neck_active and snake.travel_line:
             neck_path = [snake.anchor] + game.neck(team)
             for i in range(len(neck_path) - 1):
                 station_a, station_b = sorted((neck_path[i], neck_path[i + 1]))
-                highlights[(snake.declared_line, station_a, station_b)] = (_CRASHED_COLOR, "neck")
+                highlights[(snake.travel_line, station_a, station_b)] = (_CRASHED_COLOR, "neck")
     for team, snake in game.snakes.items():
-        if snake.neck_active and not snake.eliminated and snake.declared_line:
+        if snake.neck_active and not snake.eliminated and snake.travel_line:
             neck_path = [snake.anchor] + game.neck(team)
             for i in range(len(neck_path) - 1):
                 station_a, station_b = sorted((neck_path[i], neck_path[i + 1]))
-                highlights[(snake.declared_line, station_a, station_b)] = (snake.color, "neck")
+                highlights[(snake.travel_line, station_a, station_b)] = (snake.color, "neck")
     for team, snake in game.snakes.items():
         color = _CRASHED_COLOR if snake.eliminated else snake.color
         for seg in game.map.segments_claimed_by(team):

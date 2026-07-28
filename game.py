@@ -28,7 +28,12 @@ class Snake:
     anchor: str
     front: str
     color: str = "#888888"  # hex color for this team's claimed stations
-    declared_line: str | None = None  # line declared after last challenge
+    # The line a snake is on is two separate facts, because Detour is secret. Everything
+    # the engine *does* (necks, travel validation, segment claiming) keys off travel_line;
+    # everything the public is told keys off announced_line. They match until a Detour is
+    # played, and complete_challenge resets both. Never show travel_line to opponents.
+    travel_line: str | None = None  # the line actually boarded; None until the initial challenge
+    announced_line: str | None = None  # the line declared to the other teams (public info)
     neck_active: bool = False  # True during challenge attempt, False otherwise
     crashed: bool = False
     conceded: bool = False
@@ -81,9 +86,9 @@ class GameState:
         snake = self.snakes[team]
         if snake.front == snake.anchor:
             return []
-        if snake.declared_line is None:
+        if snake.travel_line is None:
             raise ValueError(f"{team!r} has no declared line")
-        path = self.map._path_between_on_line(snake.declared_line, snake.anchor, snake.front)
+        path = self.map._path_between_on_line(snake.travel_line, snake.anchor, snake.front)
         return path[1:]  # exclude anchor
 
     def body_stations(self, team: str) -> list[str]:
@@ -115,7 +120,7 @@ class GameState:
         every team gets the same challenge (drawn once, in `new_game`).
         """
         snake = self._acting_snake(team)
-        if snake.declared_line is not None:
+        if snake.travel_line is not None:
             raise ValueError(f"{team!r} has already completed their initial challenge")
         if snake.neck_active:
             raise ValueError(f"{team!r} already has an active challenge request")
@@ -134,12 +139,12 @@ class GameState:
         so the snake crashes immediately.
         """
         snake = self._acting_snake(team)
-        if snake.declared_line is None:
+        if snake.travel_line is None:
             raise ValueError(f"{team!r} has no declared line — use initial_request_challenge() first")
         if not self.map.has_station(station):
             raise ValueError(f"Unknown station: {station!r}")
-        if not self.map.get_station(station).has_line(snake.declared_line):
-            raise ValueError(f"{station!r} is not on line {snake.declared_line!r}")
+        if not self.map.get_station(station).has_line(snake.travel_line):
+            raise ValueError(f"{station!r} is not on line {snake.travel_line!r}")
         if station == snake.anchor:
             raise ValueError(f"{station!r} is the current Anchor — travel to a different interchange")
         if snake.neck_active:
@@ -151,7 +156,7 @@ class GameState:
         # opponent's — crashes the snake, unless the interchange has been jumped
         # (jumping makes it passable). Requesting is still a legal move; the
         # crash is the consequence of the neck being claimed.
-        path = self.map._path_between_on_line(snake.declared_line, snake.anchor, station)
+        path = self.map._path_between_on_line(snake.travel_line, snake.anchor, station)
         neck_is_claimed = any(self._blocks_travel(interchange) for interchange in path[1:])
 
         snake.blocked_station = None  # any successful request clears the retreat block
@@ -179,7 +184,7 @@ class GameState:
         snake = self._acting_snake(team)
         if not snake.neck_active:
             raise ValueError(f"{team!r} has no active challenge request")
-        is_initial = snake.declared_line is None
+        is_initial = snake.travel_line is None
         if not self.map.has_line(next_line):
             raise ValueError(f"Unknown line: {next_line!r}")
         if not self.map.get_station(snake.front).has_line(next_line):
@@ -202,10 +207,10 @@ class GameState:
             self.map.claim(station_key, team)
 
         # Record which line segments were claimed (the full path, as always).
-        if snake.declared_line:
+        if snake.travel_line:
             full_path = [snake.anchor] + segment
             for i in range(len(full_path) - 1):
-                self.map.claim_segment(snake.declared_line, full_path[i], full_path[i + 1], team)
+                self.map.claim_segment(snake.travel_line, full_path[i], full_path[i + 1], team)
 
         # Claiming these interchanges may have invaded another team's active neck,
         # which crashes that snake.
@@ -227,12 +232,16 @@ class GameState:
 
         snake.anchor = snake.front
         snake.neck_active = False
-        snake.declared_line = next_line
+        # Declaring a line is public and resets both facts: whatever secret line the
+        # team was travelling on, they have now announced this one and are on it.
+        snake.announced_line = next_line
+        snake.travel_line = next_line
         snake.offer = None
-        # A Detour played during this challenge silently replaces what was just
-        # declared: it was validated against the Front, which is now the Anchor.
+        # A Detour played during this challenge silently replaces the line actually
+        # boarded — it was validated against the Front, which is now the Anchor. The
+        # announcement above is left standing: that is exactly what makes it secret.
         if snake.pending_detour is not None:
-            snake.declared_line = snake.pending_detour
+            snake.travel_line = snake.pending_detour
             snake.pending_detour = None
         return newly_claimed
 
@@ -270,7 +279,7 @@ class GameState:
         free = snake.free_vetoes > 0
         if free:
             snake.free_vetoes = 0
-        if snake.declared_line is None:
+        if snake.travel_line is None:
             self._draw_new_initial_offer(snake)
         else:
             self._draw_offer(team)
@@ -305,7 +314,7 @@ class GameState:
         if self.challenges is None:
             return
         snake = self.snakes[team]
-        weights = neck_weights(self.map, snake.declared_line or "", self.neck(team))
+        weights = neck_weights(self.map, snake.travel_line or "", self.neck(team))
         snake.offer = self.challenges.pair_for(get_difficulty(weights), rng=self.rng)
 
     # Powerups
@@ -349,9 +358,10 @@ class GameState:
         which held curse to play (default: the oldest held). The curse itself was
         drawn when it was bought, so playing one never touches the deck.
 
-        ``"detour"`` takes ``line=``. Played at the Anchor it swaps ``declared_line``
+        ``"detour"`` takes ``line=``. Played at the Anchor it swaps ``travel_line``
         outright; played mid-challenge it parks on ``Snake.pending_detour`` and takes
         effect when the current challenge completes (see ``complete_challenge``).
+        Either way ``announced_line`` is untouched — Detour is not announced.
         """
         snake = self._acting_snake(team)
         if powerup_id not in snake.hand:
@@ -501,7 +511,8 @@ def new_game(
             anchor=station,
             front=station,
             color=colors.get(team) or next(default_color_iter, "#888888"),
-            declared_line=None,
+            travel_line=None,
+            announced_line=None,
             coins=STARTING_COINS,
         )
         for team, station in start_positions.items()

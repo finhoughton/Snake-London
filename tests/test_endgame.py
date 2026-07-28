@@ -82,7 +82,7 @@ def test_win_lead_counts_your_body_only_not_your_neck():
     # Give A a (large) active neck: under the old body+neck rule this would win,
     # but the neck must NOT count toward A's own total — still no win.
     snake = game.get_snake("A")
-    snake.declared_line = "Jubilee"
+    snake.travel_line = "Jubilee"
     snake.anchor = "Wembley Park"
     snake.front = "Green Park"
     snake.neck_active = True

@@ -104,7 +104,7 @@ def _handle_retreat(game: GameState, team: str) -> None:
     snake = game.get_snake(team)
     if not snake.neck_active:
         raise ValueError(f"{team!r} has no active challenge request to retreat")
-    if snake.declared_line is None:
+    if snake.travel_line is None:
         raise ValueError(f"{team!r} cannot retreat the initial challenge")
     snake.blocked_station = snake.front
     snake.front = snake.anchor
@@ -126,9 +126,14 @@ def _handle_detour(game: GameState, team: str, *, line: str | None = None) -> No
     completes). A mid-challenge detour therefore can't take effect yet — it is
     parked on ``Snake.pending_detour`` and overrides the line declared by the next
     ``complete_challenge``.
+
+    Only ``travel_line`` ever moves. ``announced_line`` keeps whatever was declared
+    publicly, because the rules make this powerup's use unannounced — that gap between
+    the two fields *is* the secret, and it closes on its own at the next challenge
+    request, when the neck (and so the real line) becomes public anyway.
     """
     snake = game.get_snake(team)
-    if snake.declared_line is None:
+    if snake.travel_line is None:
         raise ValueError(f"{team!r} has no declared line to detour from")
     if line is None or not game.map.has_line(line):
         raise ValueError(f"Unknown line for detour: {line!r}")
@@ -138,7 +143,7 @@ def _handle_detour(game: GameState, team: str, *, line: str | None = None) -> No
     if snake.neck_active:
         snake.pending_detour = line
     else:
-        snake.declared_line = line
+        snake.travel_line = line
     return None
 
 
