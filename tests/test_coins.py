@@ -19,28 +19,43 @@ def test_teams_start_with_starting_coins():
     assert game.get_snake("B").coins == STARTING_COINS
 
 
-def test_easier_challenge_awards_easier_reward():
+def _started(station: str = "Wembley Park", **kwargs):
+    """A one-team game past the (unpaid) initial challenge, declared onto the Jubilee."""
+    game = new_game({"A": station}, bonus_interchanges=kwargs.pop("bonus_interchanges", set()), **kwargs)
+    game.initial_request_challenge("A")
+    game.complete_challenge("A", "Jubilee")
+    return game
+
+
+def test_initial_challenge_awards_no_coins():
+    # The initial challenge only unlocks the first line — there is one challenge on
+    # offer, not an easier/harder pair, so neither `hard` value pays anything.
     game = new_game({"A": "Wembley Park"}, bonus_interchanges=set())
     game.initial_request_challenge("A")
+    game.complete_challenge("A", "Jubilee", hard=True)
+    assert game.get_snake("A").coins == STARTING_COINS
+
+
+def test_easier_challenge_awards_easier_reward():
+    game = _started()
+    game.request_challenge("A", "Bond Street")
     game.complete_challenge("A", "Jubilee")  # easier (default)
     assert game.get_snake("A").coins == STARTING_COINS + EASIER_REWARD
 
 
 def test_harder_challenge_awards_harder_reward():
-    game = new_game({"A": "Wembley Park"}, bonus_interchanges=set())
-    game.initial_request_challenge("A")
+    game = _started()
+    game.request_challenge("A", "Bond Street")
     game.complete_challenge("A", "Jubilee", hard=True)
     assert game.get_snake("A").coins == STARTING_COINS + HARDER_REWARD
 
 
 def test_completing_at_a_bonus_interchange_pays_front_bonus():
     # The Front of a non-initial challenge is a bonus interchange -> front bonus.
-    game = new_game({"A": "Wembley Park"}, bonus_interchanges={"Bond Street"})
-    game.initial_request_challenge("A")
-    game.complete_challenge("A", "Jubilee")  # claims the origin (never a bonus): +EASIER_REWARD
+    game = _started(bonus_interchanges={"Bond Street"})  # initial challenge pays nothing
     game.request_challenge("A", "Bond Street")
     game.complete_challenge("A", "Jubilee")  # Front = Bond Street (bonus): +EASIER_REWARD +BONUS_AT_FRONT
-    expected = STARTING_COINS + EASIER_REWARD + (EASIER_REWARD + BONUS_AT_FRONT)
+    expected = STARTING_COINS + EASIER_REWARD + BONUS_AT_FRONT
     assert game.get_snake("A").coins == expected
 
 
@@ -60,13 +75,11 @@ def test_claiming_a_bonus_interchange_from_elsewhere_pays_claim_bonus():
     intermediate = path[1]  # in the neck, but not the Front (Bond Street)
     assert intermediate != "Bond Street"
 
-    game = new_game({"A": "Wembley Park"}, bonus_interchanges={intermediate})
-    game.initial_request_challenge("A")
-    game.complete_challenge("A", "Jubilee")  # claims Wembley Park (not a bonus): +EASIER_REWARD
+    game = _started(bonus_interchanges={intermediate})  # initial challenge pays nothing
     game.request_challenge("A", "Bond Street")
     game.complete_challenge("A", "Jubilee")  # claims the neck incl. the bonus intermediate
 
-    expected = STARTING_COINS + EASIER_REWARD + (EASIER_REWARD + BONUS_CLAIMED)
+    expected = STARTING_COINS + EASIER_REWARD + BONUS_CLAIMED
     assert game.get_snake("A").coins == expected
 
 

@@ -1,0 +1,82 @@
+{
+  "challenges": [
+    {
+      "id": "high_five",
+      "name": "High five a stranger",
+      "description": "High five a stranger",
+      "difficulty": 1.5
+    },
+    {
+      "id": "sit_bench",
+      "name": "Sit on a bench",
+      "description": "Sit on a bench",
+      "difficulty": 2.0
+    },
+    {
+      "id": "every_digit",
+      "name": "Find every digit",
+      "description": "On posters or signs, find every digit from 0 to 9. You may not include timetables or phone numbers.",
+      "difficulty": 2.5
+    },
+    {
+      "id": "pet_pet",
+      "name": "Pet a pet",
+      "description": "Touch a pet with your hand. If the owner is present, you must ask permission.",
+      "difficulty": 4.0
+    },
+    {
+      "id": "climb_tree",
+      "name": "Climb a tree",
+      "description": "You must get at least two metres off the ground.",
+      "difficulty": 4.5
+    },
+    {
+      "id": "water_pong",
+      "name": "Water Pong",
+      "description": "Throw a ball into a cup of water from at least 2 metres away. The cup and ball may be makeshift.",
+      "difficulty": 5.0
+    },
+    {
+      "id": "elevation_guess",
+      "name": "Guess your elevation",
+      "description": "Check the elevation of the starting point. Guess your current elevation to within 10%. You have one attempt. (Note: Use https://en-gb.topographic-map.com/map-kb57/England to determine elevation)",
+      "difficulty": 5.5
+    },
+    {
+      "id": "eat_cake",
+      "name": "Eat Cake",
+      "description": "Obtain some sort of cake and eat the whole thing. If you get a selection of multiple cakes, you must eat all of them.",
+      "difficulty": 5.5
+    },
+    {
+      "id": "newspaper_puzzle",
+      "name": "Solve a puzzle",
+      "description": "Completely solve a puzzle found in any newspaper. You may not look up the answer.",
+      "difficulty": 6.0
+    },
+    {
+      "id": "cry",
+      "name": "Cry",
+      "description": "Produce a single tear",
+      "difficulty": 6.0
+    },
+    {
+      "id": "follow_jogger",
+      "name": "Follow a jogger",
+      "description": "Find a jogger and jog behind them until they turn a corner.",
+      "difficulty": 6.5
+    },
+    {
+      "id": "stations_panic",
+      "name": "Play Stations Panic",
+      "description": "Complete a Stations Panic challenge from your current interchange. If your interchange is multiple stations, you may pick any",
+      "difficulty": 7.0
+    },
+    {
+      "id": "square_off",
+      "name": "Play Square Off",
+      "description": "Generatate a Square Off board and get a line",
+      "difficulty": 7.5
+    }
+  ]
+}

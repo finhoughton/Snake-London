@@ -13,10 +13,12 @@ from config import (
     HARDER_REWARD,
     INITIAL_DIFFICULTY_MAX,
     INITIAL_DIFFICULTY_MIN,
+    POWERUP_COSTS,
     STARTING_COINS,
     WINNING_THRESHOLD,
 )
 from map import Map
+from powerups import POWERUP_HANDLERS, POWERUP_ON_BUY, Curse, CurseDeck
 
 
 @dataclass
@@ -32,6 +34,14 @@ class Snake:
     conceded: bool = False
     coins: int = 0
     offer: tuple[Challenge, Challenge] | None = None  # (easier, harder); identical entries during the initial phase
+    # --- Powerups ---
+    hand: list[str] = field(default_factory=list)  # powerup ids held; duplicates allowed, no limit
+    free_vetoes: int = 0  # 1 while a free (Efficiency) veto is armed; never above 1
+    double_up_remaining: int = 0  # completions left with a doubled reward (0-2)
+    blocked_station: str | None = None  # set by Retreat; the next request must differ
+    pending_detour: str | None = None  # Detour played mid-challenge; overrides the next declared line
+    held_curses: list[Curse] = field(default_factory=list)  # curses bought and not yet played
+    curses: list[Curse] = field(default_factory=list)  # curses inflicted on this team by others
 
     @property
     def eliminated(self) -> bool:
@@ -45,8 +55,12 @@ class GameState:
     snakes: dict[str, Snake]  # team -> Snake
     bonus_interchanges: set[str] = field(default_factory=set)  # interchanges that pay bonus coins
     challenges: ChallengePool | None = None  # pool the offers are drawn from (None = no challenges)
-    rng: random.Random = field(default_factory=random.Random)  # drives challenge draws
+    rng: random.Random = field(default_factory=random.Random)  # drives challenge and curse draws
     initial_challenge: Challenge | None = None  # shared initial challenge (default for every team, unless vetoed)
+    # --- Powerups ---
+    enabled_powerups: set[str] = field(default_factory=set)  # powerup ids buyable this game
+    jumped_stations: set[str] = field(default_factory=set)  # globally, permanently passable (all players)
+    curse_deck: CurseDeck | None = None  # deck the curse powerup draws from (None = curse unavailable)
 
     # Snake access
 
@@ -130,13 +144,17 @@ class GameState:
             raise ValueError(f"{station!r} is the current Anchor — travel to a different interchange")
         if snake.neck_active:
             raise ValueError(f"{team!r} already has an active challenge request")
+        if snake.blocked_station is not None and station == snake.blocked_station:
+            raise ValueError(f"{station!r} was just retreated from — request a different interchange")
 
         # A neck that runs through any claimed interchange — your own or an
-        # opponent's — crashes the snake. Requesting is still a legal move; the
+        # opponent's — crashes the snake, unless the interchange has been jumped
+        # (jumping makes it passable). Requesting is still a legal move; the
         # crash is the consequence of the neck being claimed.
         path = self.map._path_between_on_line(snake.declared_line, snake.anchor, station)
-        neck_is_claimed = any(self.map.is_claimed(interchange) for interchange in path[1:])
+        neck_is_claimed = any(self._blocks_travel(interchange) for interchange in path[1:])
 
+        snake.blocked_station = None  # any successful request clears the retreat block
         snake.front = station
         snake.neck_active = True
         if neck_is_claimed:
@@ -152,11 +170,16 @@ class GameState:
         Each newly-claimed bonus interchange also pays out: BONUS_AT_FRONT if it is
         the Front (where the challenge was completed), else BONUS_CLAIMED.
 
+        The *initial* challenge is the exception: it pays nothing at all (there is
+        only ever one challenge on offer, so ``hard`` is meaningless there), and it
+        leaves a Double up armed rather than spending a charge on a zero reward.
+
         Returns the list of newly claimed interchanges.
         """
         snake = self._acting_snake(team)
         if not snake.neck_active:
             raise ValueError(f"{team!r} has no active challenge request")
+        is_initial = snake.declared_line is None
         if not self.map.has_line(next_line):
             raise ValueError(f"Unknown line: {next_line!r}")
         if not self.map.get_station(snake.front).has_line(next_line):
@@ -166,10 +189,19 @@ class GameState:
         if not segment:
             # Initial challenge: snake hasn't moved yet, claim the origin station
             segment = [snake.front]
+        newly_claimed: list[str] = []
         for station_key in segment:
+            # A jumped station can leave another team's claim inside the neck; the
+            # original owner keeps it (jump affects passability, not ownership) —
+            # so skip it, and it never counts toward this team's Body or bonuses.
+            existing = self.map.get_claim(station_key)
+            if existing is not None and existing != team:
+                continue
+            if existing is None:
+                newly_claimed.append(station_key)
             self.map.claim(station_key, team)
 
-        # Record which line segments were claimed
+        # Record which line segments were claimed (the full path, as always).
         if snake.declared_line:
             full_path = [snake.anchor] + segment
             for i in range(len(full_path) - 1):
@@ -179,17 +211,30 @@ class GameState:
         # which crashes that snake.
         self._apply_neck_crashes(exclude=team)
 
-        # Award coins: the challenge reward plus any bonus interchanges just claimed.
-        snake.coins += HARDER_REWARD if hard else EASIER_REWARD
-        for station_key in segment:
-            if station_key in self.bonus_interchanges:
-                snake.coins += BONUS_AT_FRONT if station_key == snake.front else BONUS_CLAIMED
+        # Award coins: the challenge reward (doubled while Double up is armed) plus
+        # any bonus interchanges just claimed. Bonus coins are never doubled. The
+        # initial challenge pays neither — it only unlocks the first line — and it
+        # spends no Double up charge, since there is no reward to double.
+        if not is_initial:
+            reward = HARDER_REWARD if hard else EASIER_REWARD
+            if snake.double_up_remaining > 0:
+                reward *= 2
+                snake.double_up_remaining -= 1
+            snake.coins += reward
+            for station_key in newly_claimed:
+                if station_key in self.bonus_interchanges:
+                    snake.coins += BONUS_AT_FRONT if station_key == snake.front else BONUS_CLAIMED
 
         snake.anchor = snake.front
         snake.neck_active = False
         snake.declared_line = next_line
         snake.offer = None
-        return segment
+        # A Detour played during this challenge silently replaces what was just
+        # declared: it was validated against the Front, which is now the Anchor.
+        if snake.pending_detour is not None:
+            snake.declared_line = snake.pending_detour
+            snake.pending_detour = None
+        return newly_claimed
 
     # Challenge offers
 
@@ -205,7 +250,7 @@ class GameState:
         """
         return self.snakes[team].offer
 
-    def veto_challenges(self, team: str) -> None:
+    def veto_challenges(self, team: str) -> bool:
         """Veto the current challenge(s) and draw fresh one(s) for this team only.
 
         Also used after a *failed* challenge, which the rules treat like a veto.
@@ -215,14 +260,21 @@ class GameState:
         — every other team keeps the game's shared `initial_challenge` unchanged.
         Afterwards (a normal challenge) it draws a fresh (easier, harder) pair
         sized to the requester's own neck, as always.
+
+        Returns True if a free (Efficiency) veto charge was consumed — the bot then
+        skips the 15-minute veto period — else False for a normal, timed veto.
         """
         snake = self._acting_snake(team)
         if not snake.neck_active:
             raise ValueError(f"{team!r} has no active challenge to veto")
+        free = snake.free_vetoes > 0
+        if free:
+            snake.free_vetoes = 0
         if snake.declared_line is None:
             self._draw_new_initial_offer(snake)
         else:
             self._draw_offer(team)
+        return free
 
     def _sync_initial_offer(self, snake: Snake) -> None:
         """Set a snake's offer to the game's shared initial challenge (both slots identical)."""
@@ -256,6 +308,58 @@ class GameState:
         weights = neck_weights(self.map, snake.declared_line or "", self.neck(team))
         snake.offer = self.challenges.pair_for(get_difficulty(weights), rng=self.rng)
 
+    # Powerups
+
+    def buy_powerup(self, team: str, powerup_id: str) -> Curse | None:
+        """Buy a powerup into the team's hand, deducting its coin cost.
+
+        Raises ValueError if the team is out of the game, the id is unknown, the
+        powerup is not enabled this game, or the team can't afford it. (A missing
+        curse deck already strips ``"curse"`` from ``enabled_powerups`` at
+        ``new_game``, so no separate deck check is needed here.)
+
+        Returns whatever the powerup's buy-time effect produced — for ``"curse"``
+        that's the concrete ``Curse`` drawn into ``Snake.held_curses``, so the buyer
+        knows what they're holding before they play it; None for everything else.
+        """
+        snake = self._acting_snake(team)
+        if powerup_id not in POWERUP_COSTS:
+            raise ValueError(f"Unknown powerup: {powerup_id!r}")
+        if powerup_id not in self.enabled_powerups:
+            raise ValueError(f"Powerup {powerup_id!r} is not enabled in this game")
+        cost = POWERUP_COSTS[powerup_id]
+        if snake.coins < cost:
+            raise ValueError(f"Not enough coins to buy {powerup_id!r}: need {cost}, have {snake.coins}")
+        # Buy-time effects run only once every check has passed, so a rejected
+        # purchase never consumes deck content (a drawn curse would be lost).
+        on_buy = POWERUP_ON_BUY.get(powerup_id)
+        acquired = on_buy(self, team) if on_buy is not None else None
+        snake.coins -= cost
+        snake.hand.append(powerup_id)
+        return acquired
+
+    def play_powerup(self, team: str, powerup_id: str, **kwargs) -> Curse | None:
+        """Play a powerup from the team's hand, dispatching to its handler.
+
+        The card is removed from the hand only *after* the handler returns, so a
+        failed play (the handler raises ValueError on bad input) keeps the card.
+        Returns the handler's result — the ``Curse`` played for ``"curse"``, else None.
+
+        ``"curse"`` takes ``target_team=`` plus an optional ``curse_id=`` selecting
+        which held curse to play (default: the oldest held). The curse itself was
+        drawn when it was bought, so playing one never touches the deck.
+
+        ``"detour"`` takes ``line=``. Played at the Anchor it swaps ``declared_line``
+        outright; played mid-challenge it parks on ``Snake.pending_detour`` and takes
+        effect when the current challenge completes (see ``complete_challenge``).
+        """
+        snake = self._acting_snake(team)
+        if powerup_id not in snake.hand:
+            raise ValueError(f"{powerup_id!r} is not in {team!r}'s hand")
+        result = POWERUP_HANDLERS[powerup_id](self, team, **kwargs)
+        snake.hand.remove(powerup_id)
+        return result
+
     def crash(self, team: str) -> None:
         """Mark a snake as crashed."""
         self.snakes[team].crashed = True
@@ -269,12 +373,22 @@ class GameState:
 
     # Crash detection
 
+    def _blocks_travel(self, station: str) -> bool:
+        """Whether a station a neck runs through is fatal to traverse.
+
+        A claimed interchange (your own or an opponent's) blocks travel, unless it
+        has been jumped — a jumped station is permanently passable for everyone.
+        """
+        return self.map.is_claimed(station) and station not in self.jumped_stations
+
     def is_neck_safe(self, team: str) -> bool:
-        """Return True if no interchange in the Neck is claimed by another team."""
+        """Return True if no un-jumped interchange in the Neck is claimed by another team."""
         snake = self.snakes[team]
         if not snake.neck_active:
             return True
         for station_key in self.neck(team):
+            if station_key in self.jumped_stations:
+                continue
             claim = self.map.get_claim(station_key)
             if claim is not None and claim != team:
                 return False
@@ -338,6 +452,9 @@ def new_game(
     bonus_interchanges: set[str] | frozenset[str] | None = None,
     challenge_pool: ChallengePool | None = None,
     challenges_path: str = "challenges.json",
+    enabled_powerups: set[str] | None = None,
+    curse_deck: CurseDeck | None = None,
+    curses_path: str = "curses.json",
     rng: random.Random | None = None,
 ) -> GameState:
     """Load the map and create a new GameState.
@@ -413,6 +530,25 @@ def new_game(
         else None
     )
 
+    if curse_deck is None:
+        # curses.json gets the same treatment as challenges.json: a missing file
+        # just means no curse deck (which in turn disables the curse powerup).
+        try:
+            curse_deck = CurseDeck(curses_path)
+        except FileNotFoundError:
+            curse_deck = None
+
+    # A deck with no curses in it counts as no deck at all — otherwise the powerup
+    # would stay enabled and sell a card that can never be played.
+    if curse_deck is not None and len(curse_deck) == 0:
+        curse_deck = None
+
+    # None enables every known powerup; otherwise honour the given set. A missing
+    # curse deck strips "curse" either way — it's unusable without content.
+    enabled = set(POWERUP_COSTS) if enabled_powerups is None else set(enabled_powerups)
+    if curse_deck is None:
+        enabled.discard("curse")
+
     return GameState(
         map=game_map,
         snakes=snakes,
@@ -420,4 +556,7 @@ def new_game(
         challenges=challenge_pool,
         rng=picker,
         initial_challenge=initial_challenge,
+        enabled_powerups=enabled,
+        jumped_stations=set(),
+        curse_deck=curse_deck,
     )

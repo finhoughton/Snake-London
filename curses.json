@@ -1,0 +1,29 @@
+{
+  "curses": [
+    {
+      "id": "get_a_melon",
+      "name": "Get a melon",
+      "description": "Before starting another challenge, you must acquire a melon. You must keep it with you for the rest of the game."
+    },
+    {
+      "id": "egg_partner",
+      "name": "Curse of the Egg partner",
+      "description": "You must acquire an egg if you do not have one. This egg is now treated as an official team member. If any team members are abandoned or killed (defined as any crack, in the egg's case) while this curse applies, you immediately fail your current or next challenge."
+    },
+    {
+      "id": "best_friends_forever",
+      "name": "Best Friends Forever",
+      "description": "When you next board a train, pick two other passengers. You may only get off when one of them gets off or at the end of the line."
+    },
+    {
+      "id": "pub",
+      "name": "Pub",
+      "description": "Go to a pub, then the team must drink one pint of liquid per team member at the pub."
+    },
+    {
+      "id": "together_forever",
+      "name": "Together forever",
+      "description": "For the next 60 minutes, two team members must link arms. You may switch which team members are linking arms, but the linked teammates must participate in all challenges. This curse does not apply while passing through ticket barriers."
+    }
+  ]
+}

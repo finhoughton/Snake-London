@@ -78,48 +78,6 @@ class Map:
             raise ValueError(f"{station_key!r} is already claimed by {current!r}")
         self._claims[station_key] = team
 
-    def claim_line(
-        self,
-        start_station_key: str,
-        end_station_key: str,
-        team: str,
-        line: str,
-    ) -> list[str]:
-        """
-        Claim the stations on the path between two stations on the same line.
-
-        The start station is excluded. The end station is included.
-        """
-        if not self.has_station(start_station_key):
-            raise ValueError(f"Unknown station: {start_station_key!r}")
-        if not self.has_station(end_station_key):
-            raise ValueError(f"Unknown station: {end_station_key!r}")
-
-        if not self.has_line(line):
-            raise ValueError(f"Unknown line: {line!r}")
-        if not self.get_station(start_station_key).has_line(line):
-            raise ValueError(f"{start_station_key!r} is not on line {line!r}")
-        if not self.get_station(end_station_key).has_line(line):
-            raise ValueError(f"{end_station_key!r} is not on line {line!r}")
-
-        path = self._path_between_on_line(
-            line,
-            start_station_key,
-            end_station_key,
-        )
-        segment = path[1:]
-
-        for station_key in segment:
-            current = self._claims.get(station_key)
-            if current is not None:
-                raise ValueError(f"{station_key!r} is already claimed by {current!r}")
-            self._claims[station_key] = team
-
-        return segment
-
-    def unclaim(self, station_key: str) -> None:
-        self._claims.pop(station_key, None)
-
     def get_claim(self, station_key: str) -> str | None:
         """Return the team that has claimed a station, or None."""
         return self._claims.get(station_key)

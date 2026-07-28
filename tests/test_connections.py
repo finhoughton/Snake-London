@@ -226,34 +226,25 @@ def test_network_is_connected(tube_map: Map):
     assert not isolated, f"Stations not reachable from {first!r}: {isolated}"
 
 
-def test_claim_line_claims_path_excluding_start():
+# `tube_map` is session-scoped, so anything that mutates claims builds its own Map.
+
+
+def test_claiming_a_station_records_the_owner():
     tube_map = Map("map/connections.json")
 
-    claimed = tube_map.claim_line("Kenton", "Oxford Circus", "red", "Bakerloo")
+    tube_map.claim("Oxford Circus", "red")
 
-    assert claimed == [
-        "Willesden Junction",
-        "Queen's Park",
-        "Paddington",
-        "Edgware Road",
-        "Baker Street",
-        "Oxford Circus",
-    ]
-    assert tube_map.get_claim("Kenton") is None
     assert tube_map.get_claim("Oxford Circus") == "red"
+    assert tube_map.is_claimed("Oxford Circus")
+    assert tube_map.get_claim("Baker Street") is None
+    assert tube_map.stations_claimed_by("red") == ["Oxford Circus"]
 
 
-def test_claim_line_requires_line_parameter():
+def test_claiming_another_teams_station_raises():
     tube_map = Map("map/connections.json")
+    tube_map.claim("Oxford Circus", "red")
 
-    with pytest.raises(ValueError):
-        tube_map.claim_line("Euston", "King's Cross", "blue", "Bakerloo")  # type: ignore[misc]
+    with pytest.raises(ValueError, match="already claimed"):
+        tube_map.claim("Oxford Circus", "blue")
 
-
-def test_claim_line_accepts_explicit_line():
-    tube_map = Map("map/connections.json")
-
-    claimed = tube_map.claim_line("Euston", "King's Cross", "blue", line="Met")
-
-    assert claimed == ["King's Cross"]
-    assert tube_map.get_claim("King's Cross") == "blue"
+    tube_map.claim("Oxford Circus", "red")  # re-claiming your own is a no-op

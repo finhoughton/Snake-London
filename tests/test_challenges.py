@@ -71,6 +71,10 @@ def test_initial_challenge_also_offers_a_pair(tmp_path):
 def test_completing_clears_the_offer_and_awards_role_coins(tmp_path):
     game = _game(tmp_path)
     game.initial_request_challenge("A")
+    game.complete_challenge("A", "Jubilee")  # the initial challenge pays nothing
+    assert game.get_snake("A").coins == STARTING_COINS
+
+    game.request_challenge("A", "Bond Street")
     game.complete_challenge("A", "Jubilee", hard=True)  # completed the harder challenge
     assert game.current_challenges("A") is None
     assert game.get_snake("A").coins == STARTING_COINS + HARDER_REWARD
