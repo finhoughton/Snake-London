@@ -1,4 +1,4 @@
-"""Powerups system (see PLAN_POWERUPS.md).
+"""Powerups system
 
 Teams buy powerups with coins into an unlimited hand and play them later. This
 module owns the powerup *content* (the curse deck) and the registry of play

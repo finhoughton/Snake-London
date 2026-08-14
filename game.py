@@ -210,7 +210,14 @@ class GameState:
         if snake.travel_line:
             full_path = [snake.anchor] + segment
             for i in range(len(full_path) - 1):
-                self.map.claim_segment(snake.travel_line, full_path[i], full_path[i + 1], team)
+                station_a, station_b = full_path[i], full_path[i + 1]
+                # Same rule as the interchange loop above: track another team already
+                # owns stays theirs. Only reachable by travelling through a jumped
+                # interchange — any other route over their track would have crashed
+                # this snake before it got here.
+                if self.map.get_segment_claim(snake.travel_line, station_a, station_b) not in (None, team):
+                    continue
+                self.map.claim_segment(snake.travel_line, station_a, station_b, team)
 
         # Claiming these interchanges may have invaded another team's active neck,
         # which crashes that snake.
@@ -529,7 +536,9 @@ def new_game(
         bonus_interchanges = set(bonus_interchanges) - origins
 
     if challenge_pool is None:
-        # challenges.json is gitignored, so a missing file just means no offers.
+        # A missing challenges.json is tolerated rather than fatal: a game with no
+        # offers is still a playable board (and every test that supplies its own pool
+        # never touches the repo file).
         try:
             challenge_pool = ChallengePool(challenges_path)
         except FileNotFoundError:
