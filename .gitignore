@@ -22,3 +22,8 @@ segment_debug/
 *.egg-info/
 dist/
 build/
+
+TOKEN
+save
+jloxgame
+generated_maps

@@ -55,3 +55,8 @@ DEFAULT_TEAM_COLORS = [
     "#8877ff",  # periwinkle
     "#991100",  # dark red
 ]
+
+# --- Paths -------------------------------------------------------------------
+CHALLENGES_PATH = "challenges.json"
+CONNECTIONS_PATH = "map/connections.json"
+CURSES_PATH = "curses.json"

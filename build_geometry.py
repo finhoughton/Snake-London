@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import math
 import re
+from typing import Literal
 import xml.etree.ElementTree as ET
 
 
@@ -12,8 +13,8 @@ SVG_PATH = "map/snake map.svg"
 CONNECTIONS_PATH = "map/connections.json"
 OUTPUT_PATH = "map/geometry.json"
 
-
-def _parse_transform(t: str) -> tuple | None:
+ParsedTransform = tuple[Literal["unknown"], str] | tuple[Literal["scale"], float, float] | tuple[Literal["rotate"], float, float, float]
+def _parse_transform(t: str) -> ParsedTransform | None:
     if not t:
         return None
     t = t.strip()
@@ -32,14 +33,13 @@ def _parse_transform(t: str) -> tuple | None:
     return ("unknown", t)
 
 
-def _apply_transform(cx: float, cy: float, parsed: tuple) -> tuple[float, float]:
-    kind = parsed[0]
-    if kind == "rotate":
+def _apply_transform(cx: float, cy: float, parsed: ParsedTransform) -> tuple[float, float]:
+    if parsed[0] == "rotate":
         _, angle, ox, oy = parsed
         a = math.radians(angle)
         dx, dy = cx - ox, cy - oy
         return (dx * math.cos(a) - dy * math.sin(a) + ox, dx * math.sin(a) + dy * math.cos(a) + oy)
-    if kind == "scale":
+    if parsed[0] == "scale":
         _, sx, sy = parsed
         return (cx * sx, cy * sy)
     raise ValueError(f"Unknown transform: {parsed}")

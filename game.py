@@ -1,12 +1,19 @@
 from __future__ import annotations
 
-import random
 from dataclasses import dataclass, field
+import re
+import traceback
+from typing import Any, Self
+
+from discord import ApplicationContext, Colour, Interaction, SelectOption
+from discord.ui import DesignerModal, Label, InputText, StringSelect, TextDisplay
 
 from challenges import Challenge, ChallengePool, get_difficulty, neck_weights
 from config import (
     BONUS_AT_FRONT,
     BONUS_CLAIMED,
+    CHALLENGES_PATH,
+    CURSES_PATH,
     DEFAULT_BONUS_CHANCE,
     DEFAULT_TEAM_COLORS,
     EASIER_REWARD,
@@ -17,16 +24,22 @@ from config import (
     STARTING_COINS,
     WINNING_THRESHOLD,
 )
+from jloxgame.events import GameEvent, register_event
+from jloxgame.state import Status
 from map import Map
 from powerups import POWERUP_HANDLERS, POWERUP_ON_BUY, Curse, CurseDeck
 
+import jloxgame
+from jloxgame import GameContext, Team
 
 @dataclass
 class Snake:
-    team: str
     origin: str
     anchor: str
     front: str
+
+    vetoed: bool = False
+    
     color: str = "#888888"  # hex color for this team's claimed stations
     # The line a snake is on is two separate facts, because Detour is secret. Everything
     # the engine *does* (necks, travel validation, segment claiming) keys off travel_line;
@@ -40,77 +53,96 @@ class Snake:
     coins: int = 0
     offer: tuple[Challenge, Challenge] | None = None  # (easier, harder); identical entries during the initial phase
     # --- Powerups ---
-    hand: list[str] = field(default_factory=list)  # powerup ids held; duplicates allowed, no limit
+    hand: list[str] = field(default_factory=list[str])  # powerup ids held; duplicates allowed, no limit
     free_vetoes: int = 0  # 1 while a free (Efficiency) veto is armed; never above 1
     double_up_remaining: int = 0  # completions left with a doubled reward (0-2)
     blocked_station: str | None = None  # set by Retreat; the next request must differ
     pending_detour: str | None = None  # Detour played mid-challenge; overrides the next declared line
-    held_curses: list[Curse] = field(default_factory=list)  # curses bought and not yet played
-    curses: list[Curse] = field(default_factory=list)  # curses inflicted on this team by others
+    held_curses: list[Curse] = field(default_factory=list[Curse])  # curses bought and not yet played
+    curses: list[Curse] = field(default_factory=list[Curse])  # curses inflicted on this team by others
 
     @property
     def eliminated(self) -> bool:
         """Out of the game — either crashed or conceded."""
         return self.crashed or self.conceded
 
+class GameState(GameContext):
+    def __init__(self) -> None:
+        super().__init__()
 
-@dataclass
-class GameState:
-    map: Map
-    snakes: dict[str, Snake]  # team -> Snake
-    bonus_interchanges: set[str] = field(default_factory=set)  # interchanges that pay bonus coins
-    challenges: ChallengePool | None = None  # pool the offers are drawn from (None = no challenges)
-    rng: random.Random = field(default_factory=random.Random)  # drives challenge and curse draws
-    initial_challenge: Challenge | None = None  # shared initial challenge (default for every team, unless vetoed)
-    # --- Powerups ---
-    enabled_powerups: set[str] = field(default_factory=set)  # powerup ids buyable this game
-    jumped_stations: set[str] = field(default_factory=set)  # globally, permanently passable (all players)
-    curse_deck: CurseDeck | None = None  # deck the curse powerup draws from (None = curse unavailable)
+        self.map: Map = Map("map/connections.json")
+        self.snakes: dict[Team, Snake] = {}  # Team -> Snake
+        self.bonus_interchanges: set[str] = set()  # interchanges that pay bonus coins
+        self.challenges: ChallengePool | None = None  # pool the offers are drawn from (None = no challenges)
+        self.initial_challenge: Challenge | None = None  # shared initial challenge (default for every team, unless vetoed)
+        # --- Powerups ---
+        self.enabled_powerups: set[str] = set(POWERUP_COSTS.keys())  # powerup ids buyable this game
+        self.jumped_stations: set[str] = set()  # globally, permanently passable (all players)
+        self.curse_deck: CurseDeck | None = None  # deck the curse powerup draws from (None = curse unavailable)
+
+        self.latest_generated_map = 0 # not synced
+
+        try:
+            self.challenges = ChallengePool(CHALLENGES_PATH)
+        except FileNotFoundError:
+            self.challenges = None
+        
+        try:
+            self.curse_deck = CurseDeck(CURSES_PATH)
+            # A deck with no curses in it counts as no deck at all
+            if len(self.curse_deck) == 0: self.curse_deck = None
+        except FileNotFoundError:
+            self.curse_deck = None
+
+
+        self.bonus_chance = DEFAULT_BONUS_CHANCE
+
+        self.teams = []
 
     # Snake access
 
-    def get_snake(self, team: str) -> Snake:
+    def get_snake(self, team: Team) -> Snake:
         return self.snakes[team]
 
-    def active_teams(self) -> list[str]:
+    def active_teams(self) -> list[Team]:
         """Teams still in the game (not crashed or conceded)."""
         return [t for t, s in self.snakes.items() if not s.eliminated]
 
     # Neck / body queries
 
-    def neck(self, team: str) -> list[str]:
+    def neck(self, team: Team) -> list[str]:
         """Path from Anchor to Front (anchor excluded, front included).
 
         Returns an empty list when the snake is at its Anchor.
         """
-        snake = self.snakes[team]
+        snake = self.get_snake(team)
         if snake.front == snake.anchor:
             return []
         if snake.travel_line is None:
             raise ValueError(f"{team!r} has no declared line")
-        path = self.map._path_between_on_line(snake.travel_line, snake.anchor, snake.front)
+        path = self.map.path_between_on_line(snake.travel_line, snake.anchor, snake.front)
         return path[1:]  # exclude anchor
 
-    def body_stations(self, team: str) -> list[str]:
+    def body_stations(self, team: Team) -> list[str]:
         """All interchanges currently in the snake's Body (claimed stations)."""
         return self.map.stations_claimed_by(team)
 
-    def total_controlled(self, team: str) -> int:
+    def total_controlled(self, team: Team) -> int:
         """Body + active Neck — the opponent-side total in the win-lead comparison (see `winner`)."""
         return len(self.body_stations(team)) + len(self.neck(team))
 
     # Game events
 
-    def _acting_snake(self, team: str) -> Snake:
+    def _acting_snake(self, team: Team) -> Snake:
         """Look up a snake for an action, rejecting teams that are out of the game."""
-        snake = self.snakes[team]
+        snake = self.get_snake(team)
         if snake.crashed:
             raise ValueError(f"{team!r} has crashed and can no longer act")
         if snake.conceded:
             raise ValueError(f"{team!r} has conceded and can no longer act")
         return snake
 
-    def initial_request_challenge(self, team: str) -> None:
+    def initial_request_challenge(self, team: Team) -> None:
         """Request the initial challenge at the Origin.
 
         Used at the start of the game before the team has a declared line or has
@@ -127,7 +159,7 @@ class GameState:
         snake.neck_active = True
         self._sync_initial_offer(snake)
 
-    def request_challenge(self, team: str, station: str) -> None:
+    def request_challenge(self, team: Team, station: str) -> None:
         """Travel to an interchange and request a challenge there.
 
         checks:
@@ -156,7 +188,7 @@ class GameState:
         # opponent's — crashes the snake, unless the interchange has been jumped
         # (jumping makes it passable). Requesting is still a legal move; the
         # crash is the consequence of the neck being claimed.
-        path = self.map._path_between_on_line(snake.travel_line, snake.anchor, station)
+        path = self.map.path_between_on_line(snake.travel_line, snake.anchor, station)
         neck_is_claimed = any(self._blocks_travel(interchange) for interchange in path[1:])
 
         snake.blocked_station = None  # any successful request clears the retreat block
@@ -167,7 +199,7 @@ class GameState:
         else:
             self._draw_offer(team)
 
-    def complete_challenge(self, team: str, next_line: str, *, hard: bool = False) -> list[str]:
+    def complete_challenge(self, team: Team, next_line: str, *, hard: bool = False) -> list[str]:
         """Complete a challenge: claim the Neck, award coins, advance the Anchor, declare next line.
 
         ``hard`` selects which of the two offered challenges was completed — the
@@ -247,7 +279,7 @@ class GameState:
 
     # Challenge offers
 
-    def current_challenges(self, team: str) -> tuple[Challenge, Challenge] | None:
+    def current_challenges(self, team: Team) -> tuple[Challenge, Challenge] | None:
         """The two challenges currently offered to a team (easier, harder), or None.
 
         Both are live at once — the team completes whichever it likes (pass the
@@ -257,9 +289,9 @@ class GameState:
         shared `initial_challenge` by default, unless this team has vetoed it, in
         which case both entries are its own freshly-drawn replacement instead.
         """
-        return self.snakes[team].offer
+        return self.get_snake(team).offer
 
-    def veto_challenges(self, team: str) -> bool:
+    def veto_challenges(self, team: Team) -> bool:
         """Veto the current challenge(s) and draw fresh one(s) for this team only.
 
         Also used after a *failed* challenge, which the rules treat like a veto.
@@ -302,7 +334,7 @@ class GameState:
         challenge = self.challenges.pick_in_range(INITIAL_DIFFICULTY_MIN, INITIAL_DIFFICULTY_MAX, rng=self.rng)
         snake.offer = (challenge, challenge)
 
-    def _draw_offer(self, team: str) -> None:
+    def _draw_offer(self, team: Team) -> None:
         """Draw the (easier, harder) pair for a team's current neck, sized by its difficulty.
 
         Only used once a line has been declared (i.e. after the initial
@@ -313,13 +345,13 @@ class GameState:
         """
         if self.challenges is None:
             return
-        snake = self.snakes[team]
+        snake = self.get_snake(team)
         weights = neck_weights(self.map, snake.travel_line or "", self.neck(team))
         snake.offer = self.challenges.pair_for(get_difficulty(weights), rng=self.rng)
 
     # Powerups
 
-    def buy_powerup(self, team: str, powerup_id: str) -> Curse | None:
+    def buy_powerup(self, team: Team, powerup_id: str) -> Curse | None:
         """Buy a powerup into the team's hand, deducting its coin cost.
 
         Raises ValueError if the team is out of the game, the id is unknown, the
@@ -347,7 +379,7 @@ class GameState:
         snake.hand.append(powerup_id)
         return acquired
 
-    def play_powerup(self, team: str, powerup_id: str, **kwargs) -> Curse | None:
+    def play_powerup(self, team: Team, powerup_id: str, **kwargs: Any) -> Curse | None:
         """Play a powerup from the team's hand, dispatching to its handler.
 
         The card is removed from the hand only *after* the handler returns, so a
@@ -370,13 +402,13 @@ class GameState:
         snake.hand.remove(powerup_id)
         return result
 
-    def crash(self, team: str) -> None:
+    def crash(self, team: Team) -> None:
         """Mark a snake as crashed."""
-        self.snakes[team].crashed = True
+        self.get_snake(team).crashed = True
 
-    def concede(self, team: str) -> None:
+    def concede(self, team: Team) -> None:
         """Concede the game — a voluntary loss (a loss path alongside crashing)."""
-        snake = self.snakes[team]
+        snake = self.get_snake(team)
         if snake.eliminated:
             raise ValueError(f"{team!r} is already out of the game")
         snake.conceded = True
@@ -391,9 +423,9 @@ class GameState:
         """
         return self.map.is_claimed(station) and station not in self.jumped_stations
 
-    def is_neck_safe(self, team: str) -> bool:
+    def is_neck_safe(self, team: Team) -> bool:
         """Return True if no un-jumped interchange in the Neck is claimed by another team."""
-        snake = self.snakes[team]
+        snake = self.get_snake(team)
         if not snake.neck_active:
             return True
         for station_key in self.neck(team):
@@ -404,7 +436,7 @@ class GameState:
                 return False
         return True
 
-    def _apply_neck_crashes(self, exclude: str) -> None:
+    def _apply_neck_crashes(self, exclude: Team) -> None:
         """Crash any other active-neck team whose neck now contains a claimed station.
 
         Called right after a team claims interchanges: a neck interchange that has
@@ -414,12 +446,12 @@ class GameState:
         interchange survives and the other crashes.
         """
         for other_team, other_snake in self.snakes.items():
-            if other_team == exclude or other_snake.eliminated:
+            if other_team.role_id == exclude.role_id or other_snake.eliminated:
                 continue
             if not self.is_neck_safe(other_team):
                 self.crash(other_team)
 
-    def winner(self) -> str | None:
+    def winner(self) -> Team | None:
         """Return the winning team if a win condition is met, otherwise None.
 
         Win conditions:
@@ -437,7 +469,7 @@ class GameState:
                 return team
         return None
 
-    def tiebreak_winner(self) -> str | None:
+    def tiebreak_winner(self) -> Team | None:
         """End-of-game tiebreaker: the active team with the most claimed stations (Body).
 
         For use when the time limit is reached (the clock itself is the bot's job).
@@ -451,123 +483,210 @@ class GameState:
         best = max(counts.values())
         leaders = [t for t, count in counts.items() if count == best]
         return leaders[0] if len(leaders) == 1 else None
+    
+    # jloxgame functions
 
-
-def new_game(
-    start_positions: dict[str, str],
-    team_colors: dict[str, str] | None = None,
-    connections_path: str = "map/connections.json",
-    *,
-    bonus_chance: float = DEFAULT_BONUS_CHANCE,
-    bonus_interchanges: set[str] | frozenset[str] | None = None,
-    challenge_pool: ChallengePool | None = None,
-    challenges_path: str = "challenges.json",
-    enabled_powerups: set[str] | None = None,
-    curse_deck: CurseDeck | None = None,
-    curses_path: str = "curses.json",
-    rng: random.Random | None = None,
-) -> GameState:
-    """Load the map and create a new GameState.
-
-    start_positions maps each team name to their starting station key.
-    team_colors optionally maps each team name to a hex color string.
-    If a team has no entry in team_colors, it is assigned the next colour from
-    DEFAULT_TEAM_COLORS in the order teams appear in start_positions.
-    Teams must start at different interchanges, and each begins with STARTING_COINS
-    coins, no declared line, and must complete an initial challenge first.
-
-    Bonus interchanges (which pay out bonus coins) are chosen at random — each
-    interchange has ``bonus_chance`` probability. Pass an explicit
-    ``bonus_interchanges`` to override, or a seeded ``rng`` for reproducibility.
-    Origins are never bonus interchanges (excluded from both paths).
-
-    Challenges are drawn from ``challenge_pool`` (or loaded from ``challenges_path``,
-    default ``challenges.json``); a missing file just means no offers. ``rng`` seeds
-    bonus selection and all challenge draws.
-
-    All teams share one **initial challenge** (`GameState.initial_challenge`), drawn
-    once here — since there's no neck yet to size a difficulty from — with a
-    difficulty picked uniformly from `INITIAL_DIFFICULTY_MIN`..`INITIAL_DIFFICULTY_MAX`
-    (in `config.py`) rather than via `get_difficulty`.
-    """
-    if not start_positions:
-        raise ValueError("At least one team is required")
-
-    game_map = Map(connections_path)
-
-    for team, station in start_positions.items():
-        if not game_map.has_station(station):
-            raise ValueError(f"Unknown start station for {team!r}: {station!r}")
-
-    if len(start_positions) != len(set(start_positions.values())):
-        raise ValueError("Teams must not start at the same interchange")
-
-    colors = team_colors or {}
-    default_color_iter = iter(DEFAULT_TEAM_COLORS)
-    snakes = {
-        team: Snake(
-            team=team,
-            origin=station,
-            anchor=station,
-            front=station,
-            color=colors.get(team) or next(default_color_iter, "#888888"),
-            travel_line=None,
-            announced_line=None,
-            coins=STARTING_COINS,
+    async def configure(self, dctx: ApplicationContext) -> bool:
+        modal = ConfigModal(self.status, 
+            [team.name for team in self.teams], 
+            [self.snakes[team].origin for team in self.teams], 
+            [f"#{team.colour:0>6x}" for team in self.teams],
+            self.bonus_chance,
+            {powerup: powerup in self.enabled_powerups for powerup in POWERUP_COSTS.keys()}
         )
-        for team, station in start_positions.items()
-    }
-
-    # One RNG drives both bonus selection and challenge drawing (seed via `rng`).
-    picker = rng or random.Random()
-
-    # Origins are never bonus interchanges, whether chosen randomly or passed in.
-    origins = set(start_positions.values())
-    if bonus_interchanges is None:
-        bonus_interchanges = {s for s in game_map.station_keys() if s not in origins and picker.random() < bonus_chance}
-    else:
-        bonus_interchanges = set(bonus_interchanges) - origins
-
-    if challenge_pool is None:
-        # challenges.json is gitignored, so a missing file just means no offers.
+        await dctx.send_modal(modal)
+        
+        if not await modal.wait():
+            return False
+        
+        message = ""
         try:
-            challenge_pool = ChallengePool(challenges_path)
-        except FileNotFoundError:
-            challenge_pool = None
+            assert modal.team_names_input.value is not None
+            message = "Invalid team name format!"
+            team_names = [s.strip() for s in modal.team_names_input.value.split(",")]
+            message = "Invalid number of teams specified!"
+            assert 2 <= len(team_names) <= 5
 
-    initial_challenge = (
-        challenge_pool.pick_in_range(INITIAL_DIFFICULTY_MIN, INITIAL_DIFFICULTY_MAX, rng=picker)
-        if challenge_pool is not None
-        else None
-    )
+            assert modal.team_positions_input.value is not None
+            message = "Invalid team starting location format!"
+            team_positions = [s.strip() for s in modal.team_positions_input.value.split(",")]
+            message = "Invalid station entered!"
+            assert all(self.map.has_station(position) for position in team_positions)
+            message = "Not enough stations entered!"
+            assert len(team_positions) >= len(team_names)
+            message = "Team starting stations must be unique!"
+            assert len(team_positions) == len(set(team_positions))
 
-    if curse_deck is None:
-        # curses.json gets the same treatment as challenges.json: a missing file
-        # just means no curse deck (which in turn disables the curse powerup).
-        try:
-            curse_deck = CurseDeck(curses_path)
-        except FileNotFoundError:
-            curse_deck = None
+            if modal.team_colors_input.value is not None and modal.team_colors_input.value != "":
+                message = "Invalid team colour format!"
+                team_colors = [s.strip() for s in modal.team_colors_input.value.split(",")]
+            else:
+                team_colors = []
+            message = "Invalid colour entered!"
+            assert all(re.match(r"#[\da-f]{6}$", color) is not None for color in team_colors)
 
-    # A deck with no curses in it counts as no deck at all — otherwise the powerup
-    # would stay enabled and sell a card that can never be played.
-    if curse_deck is not None and len(curse_deck) == 0:
-        curse_deck = None
+            assert modal.bonus_chance_input.value is not None
+            message = "Invalid bonus chance format!"
+            bonus_chance = float(modal.bonus_chance_input.value.strip())
+            message = "Invalid bonus chance entered!"
+            assert 0 <= bonus_chance <= 1
 
-    # None enables every known powerup; otherwise honour the given set. A missing
-    # curse deck strips "curse" either way — it's unusable without content.
-    enabled = set(POWERUP_COSTS) if enabled_powerups is None else set(enabled_powerups)
-    if curse_deck is None:
-        enabled.discard("curse")
+            assert modal.enabled_powerups_input.values is not None
+            enabled_powerups = modal.enabled_powerups_input.values
 
-    return GameState(
-        map=game_map,
-        snakes=snakes,
-        bonus_interchanges=set(bonus_interchanges),
-        challenges=challenge_pool,
-        rng=picker,
-        initial_challenge=initial_challenge,
-        enabled_powerups=enabled,
-        jumped_stations=set(),
-        curse_deck=curse_deck,
-    )
+            assert dctx.guild
+            self.teams = [Team(name, int(color[1:], base=16)) for name, color in zip(team_names, team_colors + DEFAULT_TEAM_COLORS)]
+
+            self.add_event(Configure(team_positions, team_colors, bonus_chance, set(enabled_powerups)))
+
+            for team, colour in zip(self.teams, team_colors):
+                if team.role:
+                    colour_int = int(colour[1:], base=16)
+                    if team.role.colours.primary.value != colour_int:
+                        await team.role.edit(color = Colour(colour_int))
+
+            return True
+
+        except Exception:
+            await dctx.respond(f"Something went wrong: {message}", ephemeral=True)
+            print(traceback.format_exc())
+            return False
+    
+    async def start(self, dctx: ApplicationContext) -> None:
+        self.add_event(Start())
+
+class ConfigModal(DesignerModal):
+    def __init__(
+        self, 
+        status: jloxgame.Status, 
+        team_names: list[str] = [], 
+        team_positions: list[str] = [], 
+        team_colors: list[str] = [], 
+        bonus_chance: float = DEFAULT_BONUS_CHANCE, 
+        enabled_powerups: dict[str, bool] = {}
+    ) -> None:
+        super().__init__(title="Snake: London Setup") # pyright: ignore[reportUnknownMemberType]
+        
+        if status == jloxgame.Status.INIT:
+            self.team_names_input = InputText(placeholder="Team Alpha, Team Beta, Team Gamma, Team Delta, Team Epsilon", value=", ".join(team_names))        
+            self.add_item(Label(f"Teams (comma-separated)", self.team_names_input)) # pyright: ignore[reportUnknownMemberType]
+        else:
+            self.add_item(TextDisplay("Teams: " + ", ".join(team_names))) # pyright: ignore[reportUnknownMemberType]
+
+        if status in [jloxgame.Status.INIT, jloxgame.Status.SETUP]:
+            self.team_positions_input = InputText(placeholder="Wembley Park, Abbey Wood, Tooting Broadway, Rayners Lane, Ealing Broadway", value=", ".join(team_positions))
+            self.add_item(Label(f"Team starting positions (comma-separated)", self.team_positions_input)) # pyright: ignore[reportUnknownMemberType]
+        else:
+            self.add_item(TextDisplay("Team starting positions: " + "".join(team_positions))) # pyright: ignore[reportUnknownMemberType]
+        
+        self.team_colors_input = InputText(placeholder=", ".join(DEFAULT_TEAM_COLORS), value=", ".join(team_colors), required=False)
+        self.add_item(Label(f"Team colours (comma-separated)", self.team_colors_input)) # pyright: ignore[reportUnknownMemberType]
+
+        if status in [jloxgame.Status.INIT, jloxgame.Status.SETUP]:
+            self.bonus_chance_input = InputText(placeholder=str(DEFAULT_BONUS_CHANCE), value=str(bonus_chance))
+            self.add_item(Label(f"Bonus chance", self.bonus_chance_input)) # pyright: ignore[reportUnknownMemberType]
+        else:
+            self.add_item(TextDisplay(f"Bonus chance: {bonus_chance}")) # pyright: ignore[reportUnknownMemberType]
+
+        self.enabled_powerups_input = StringSelect(max_values=len(POWERUP_COSTS), options=[SelectOption(label=key, default=enabled_powerups.get(key, True)) for key in POWERUP_COSTS.keys()])
+        self.add_item(Label(f"Enabled powerups", self.enabled_powerups_input)) # pyright: ignore[reportUnknownMemberType]
+        
+    async def callback(self, interaction: Interaction):
+        return await interaction.response.defer()
+
+@register_event
+@dataclass
+class Configure(GameEvent[GameState]):
+    @staticmethod
+    def event_type() -> str: return "configure"
+    
+    team_positions: list[str]
+    team_colors: list[str]
+    bonus_chance: float
+    enabled_powerups: set[str]
+        
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "team_positions": self.team_positions, 
+            "team_colors": self.team_colors, 
+            "bonus_chance": self.bonus_chance,
+            "enabled_powerups": list(self.enabled_powerups)
+        }
+    
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        return cls(data["team_positions"], data["team_colors"], data["bonus_chance"], set(data["enabled_powerups"]))
+    
+    def update(self, gctx: GameState) -> None:
+        gctx.enabled_powerups = self.enabled_powerups
+        if gctx.curse_deck is None: gctx.enabled_powerups.discard("curse") # if there are no curses, this powerup is not playable
+
+        if gctx.status in [Status.INIT, Status.SETUP]:
+            print(f"[{gctx.thread_id} | configure | info] resetting snakes")
+            for team, station, colour in zip(gctx.teams, self.team_positions, self.team_colors + DEFAULT_TEAM_COLORS):
+                team.colour = int(colour[1:], base=16)
+                gctx.snakes[team] = Snake(
+                    origin=station,
+                    anchor=station,
+                    front=station,
+                    color=colour,
+                    travel_line=None,
+                    announced_line=None,
+                    coins=STARTING_COINS,
+                )
+            gctx.bonus_chance = self.bonus_chance
+            gctx.status = Status.SETUP
+        else:
+            print(f"[{gctx.thread_id} | configure | info] game running, only changing colours/powerups")
+            for team, colour in zip(gctx.teams, self.team_colors):
+                gctx.snakes[team].color = colour
+
+@register_event
+@dataclass
+class Start(GameEvent[GameState]):
+    @staticmethod
+    def event_type() -> str: return "start"
+        
+    def to_dict(self) -> dict[str, Any]:
+        return {}
+    
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        return cls()
+    
+    def update(self, gctx: GameState) -> None:
+        if gctx.status != Status.SETUP: return
+
+        print(f"[{gctx.thread_id} | start | info] randomising interchanges")
+        # Origins are never bonus interchanges
+        origins = set(snake.origin for snake in gctx.snakes.values())
+        gctx.bonus_interchanges = {s for s in gctx.map.station_keys() if s not in origins and gctx.rng.random() < gctx.bonus_chance}
+        
+        print(f"[{gctx.thread_id} | start | info] picking initial challenge")
+        if gctx.challenges is not None:
+            gctx.initial_challenge = gctx.challenges.pick_in_range(INITIAL_DIFFICULTY_MIN, INITIAL_DIFFICULTY_MAX, rng=gctx.rng)
+
+        for team in gctx.teams:
+            gctx.initial_request_challenge(team)
+
+        gctx.status = Status.RUNNING
+
+@register_event
+@dataclass
+class TimeLimit(GameEvent[GameState]):
+    @staticmethod
+    def event_type() -> str: return "time_limit"
+        
+    def to_dict(self) -> dict[str, Any]:
+        return {}
+    
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Self:
+        return cls()
+    
+    def update(self, gctx: GameState) -> None:
+        if gctx.status != Status.RUNNING: return
+
+        winner = gctx.tiebreak_winner()
+        print(f"[{gctx.thread_id} | time_limit | info] tiebreak winner {winner}")
+        gctx.status = Status.END

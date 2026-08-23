@@ -15,9 +15,10 @@ import json
 import random
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Concatenate
 
 from config import POWERUP_COSTS
+from jloxgame.state import Team
 
 if TYPE_CHECKING:
     from game import GameState
@@ -79,7 +80,7 @@ class CurseDeck:
 # returns None.
 
 
-def _handle_jump(game: GameState, team: str, *, station: str | None = None) -> None:
+def _handle_jump(game: GameState, team: Team, *, station: str | None = None) -> None:
     """Make a station permanently passable for everyone (does not steal it)."""
     if station is None or not game.map.has_station(station):
         raise ValueError(f"Unknown station for jump: {station!r}")
@@ -87,19 +88,19 @@ def _handle_jump(game: GameState, team: str, *, station: str | None = None) -> N
     return None
 
 
-def _handle_efficiency(game: GameState, team: str) -> None:
+def _handle_efficiency(game: GameState, team: Team) -> None:
     """Arm a free veto. No stacking — ``free_vetoes`` is set to 1, never above."""
     game.get_snake(team).free_vetoes = 1
     return None
 
 
-def _handle_double_up(game: GameState, team: str) -> None:
+def _handle_double_up(game: GameState, team: Team) -> None:
     """Arm two doubled challenge rewards. Sets (never adds) to 2 — never exceeds 2."""
     game.get_snake(team).double_up_remaining = 2
     return None
 
 
-def _handle_retreat(game: GameState, team: str) -> None:
+def _handle_retreat(game: GameState, team: Team) -> None:
     """Cancel the active request; the next request must go to a different station."""
     snake = game.get_snake(team)
     if not snake.neck_active:
@@ -117,7 +118,7 @@ def _handle_retreat(game: GameState, team: str) -> None:
     return None
 
 
-def _handle_detour(game: GameState, team: str, *, line: str | None = None) -> None:
+def _handle_detour(game: GameState, team: Team, *, line: str | None = None) -> None:
     """Board a different line from the one declared — playable at any time.
 
     The line swapped to is the one the team will *next* board, so it has to serve
@@ -147,7 +148,7 @@ def _handle_detour(game: GameState, team: str, *, line: str | None = None) -> No
     return None
 
 
-def _handle_curse(game: GameState, team: str, *, target_team: str, curse_id: str | None = None) -> Curse:
+def _handle_curse(game: GameState, team: Team, *, target_team: Team, curse_id: str | None = None) -> Curse:
     """Attach a curse the team already holds to another living team; return the Curse.
 
     The specific curse was drawn at *buy* time (see ``_on_buy_curse``), so this only
@@ -181,7 +182,7 @@ def _handle_curse(game: GameState, team: str, *, target_team: str, curse_id: str
 # them only after every check passes, so a rejected buy consumes nothing.
 
 
-def _on_buy_curse(game: GameState, team: str) -> Curse:
+def _on_buy_curse(game: GameState, team: Team) -> Curse:
     """Draw a concrete curse into the buyer's hand; the deck loses it now, not at play."""
     if game.curse_deck is None:
         raise ValueError("No curse deck available")
@@ -190,12 +191,12 @@ def _on_buy_curse(game: GameState, team: str) -> Curse:
     return curse
 
 
-POWERUP_ON_BUY: dict[str, Callable] = {
+POWERUP_ON_BUY: dict[str, Callable[[GameState, Team], Curse]] = {
     "curse": _on_buy_curse,
 }
 
 
-POWERUP_HANDLERS: dict[str, Callable] = {
+POWERUP_HANDLERS: dict[str, Callable[Concatenate[GameState, Team, ...], Curse | None]] = {
     "jump": _handle_jump,
     "efficiency": _handle_efficiency,
     "double_up": _handle_double_up,

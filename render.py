@@ -3,12 +3,17 @@ from __future__ import annotations
 import json
 import math
 import re
+import time
+import subprocess
 import xml.etree.ElementTree as ET
 from collections.abc import Callable
 from pathlib import Path
 from typing import Literal, TypedDict
 
-import resvg_py
+from shutil import which
+RSVG_PATH = which("rsvg-convert")
+if RSVG_PATH is None:
+    print("[render | warn] librsvg could not be found, falling back to resvg (8x slower)")
 
 from config import BONUS_AT_FRONT
 from game import GameState
@@ -100,6 +105,8 @@ _ANY_GROUP_RE = re.compile(r'<g\b[^>]*\bid="([^"]+)"')
 
 
 def render_map(game: GameState, output_path: str | Path, *, debug: bool = False) -> Path:
+    start = time.time()
+
     with open(SVG_SOURCE, "r", encoding="utf-8") as f:
         svg = f.read()
 
@@ -153,6 +160,7 @@ def render_map(game: GameState, output_path: str | Path, *, debug: bool = False)
     with open(dest, "w", encoding="utf-8") as f:
         f.write(svg)
 
+    print(f"[render | info] svg building took {time.time() - start:.03} seconds")
     return dest
 
 
@@ -188,7 +196,7 @@ def _set_marker_style(svg: str, marker_id: str, color: str, mode: str) -> str:
         tint = _tint_color(color, NECK_TINT_FACTOR)
         new_style = f"fill:{tint};stroke:{color};stroke-width:{_BORDER_W};stroke-dasharray:{NECK_STROKE_DASHARRAY}"
 
-    def replace_tag(m: re.Match) -> str:
+    def replace_tag(m: re.Match[str]) -> str:
         tag = m.group(1)
         if 'style="' in tag:
             # Replace the entire style value
@@ -201,16 +209,33 @@ def _set_marker_style(svg: str, marker_id: str, color: str, mode: str) -> str:
 
 
 def svg_to_png(svg_path: str | Path, png_path: str | Path) -> Path:
-    svg_str = Path(svg_path).read_text(encoding="utf-8")
-    png_bytes = resvg_py.svg_to_bytes(svg_str)
-    dest = Path(png_path)
-    dest.write_bytes(png_bytes)
-    return dest
+    # Fin's solution uses resvg_py. This is a rather slow library. (2.33s on example.py @ 2000px width)
+    # I have found rsvg-convert (GNOME, librsvg) to be the fastest (0.31s on example.py @ 2000px width, 7.5x faster than resvg)
+    # but the best python bindings for it (cairosvg) are slower and a right pain to install on windows
+    
+    # Here I invoke rsvg-convert if it is available (should always be on the VPS), and use resvg as a fallback.
 
+    start = time.time()
+    
+    dest = Path(png_path)
+
+    if RSVG_PATH is not None:
+        proc = subprocess.run([RSVG_PATH, "-w", "2000", "-f", "png", "-o", dest, svg_path])
+        if proc.returncode != 0: raise
+
+    else:
+        import resvg_py # I would have put this in the RSVG_PATH conditional, but pyright got mad :/
+        svg_str = Path(svg_path).read_text(encoding="utf-8")
+        png_bytes = resvg_py.svg_to_bytes(svg_str, width=2000)
+        dest.write_bytes(png_bytes)
+
+    print(f"[render | info] conversion took {time.time() - start:.03} seconds")
+    return dest
 
 # Segment highlighting
 
-_geometry_cache: dict | None = None
+Geometry = TypedDict("Geometry", {"station_centres": dict[str, list[float]], "line_segments": dict[str, list[list[str]]]})
+_geometry_cache: Geometry | None = None
 _line_paths_cache: dict[str, tuple[list[str], list[str]]] | None = None
 _svg_fork_geometry_cache: dict[tuple[str, str, str], "ForkGroup"] | None = None
 _station_markers_cache: dict[str, "StationMarker"] | None = None
@@ -604,7 +629,7 @@ def _build_bonus_badges(game: GameState) -> str:
     """Badges for every *unclaimed* bonus interchange (a claimed one's bonus is spent)."""
     if not game.bonus_interchanges:
         return ""
-    centres = _load_geometry()["station_centres"]
+    centres = load_geometry()["station_centres"]
     markers = _get_station_markers()
     labels = _get_label_anchors()
     parts = [
@@ -637,9 +662,9 @@ def _build_jump_halos(game: GameState) -> str:
     """
     if not game.jumped_stations:
         return ""
-    centres = _load_geometry()["station_centres"]
+    centres = load_geometry()["station_centres"]
     markers = _get_station_markers()
-    parts = []
+    parts: list[str] = []
     for station in sorted(game.jumped_stations):
         if station not in centres:
             continue
@@ -789,8 +814,8 @@ def _build_legend(game: GameState, canvas_h: float) -> str:
 
     # Time-elapsed header (placeholder — clock not yet implemented). The clock sits
     # right after the label rather than spanning to the panel edge.
-    timer_baseline = y + _LEGEND_TIMER_FONT * 0.8
-    parts.append(_legend_pair(content_left, timer_baseline, "Time elapsed", "   00:00:00", _LEGEND_TIMER_FONT))
+    # timer_baseline = y + _LEGEND_TIMER_FONT * 0.8
+    # parts.append(_legend_pair(content_left, timer_baseline, "Time elapsed", "   00:00:00", _LEGEND_TIMER_FONT))
     y += header_h + _LEGEND_SEP_GAP
 
     for i, (team, snake) in enumerate(teams):
@@ -818,7 +843,7 @@ def _build_legend(game: GameState, canvas_h: float) -> str:
         elif snake.conceded:
             name = f"{team} (conceded)"
         else:
-            name = team
+            name = team.name
 
         parts.append('<g opacity="0.45">' if snake.eliminated else "<g>")
         swatch_y = block_top + (_LEGEND_NAME_LH - _LEGEND_SWATCH) / 2
@@ -975,7 +1000,7 @@ def _get_svg_fork_geometry(
     return _svg_fork_geometry_cache
 
 
-def _load_geometry() -> dict:
+def load_geometry() -> Geometry:
     global _geometry_cache
     if _geometry_cache is not None:
         return _geometry_cache
@@ -1131,7 +1156,7 @@ def _build_segment_overlays(game: GameState, *, debug: bool = False) -> str:
 
     When *debug* is True, an extra layer shows every clip shape at 50% opacity.
     """
-    geometry = _load_geometry()
+    geometry = load_geometry()
     centres: dict[str, list[float]] = geometry["station_centres"]
     line_segments: dict[str, list[list[str]]] = geometry["line_segments"]
     line_paths = _get_line_paths()

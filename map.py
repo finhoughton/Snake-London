@@ -3,7 +3,11 @@ from __future__ import annotations
 import json
 from collections import deque
 from dataclasses import dataclass
+from typing import TypedDict, cast
 
+from jloxgame import Team
+
+LineDict = TypedDict("LineDict", {"display_name": str, "has_branches": bool, "stations": tuple[str, ...]})
 
 @dataclass(frozen=True)
 class Line:
@@ -13,7 +17,7 @@ class Line:
     stations: tuple[str, ...]
 
     @classmethod
-    def from_dict(cls, key: str, data: dict) -> Line:
+    def from_dict(cls, key: str, data: LineDict) -> Line:
         return cls(
             key=key,
             display_name=data["display_name"],
@@ -25,6 +29,8 @@ class Line:
         return station_key in self.stations
 
 
+StationDict = TypedDict("StationDict", {"display_name": str, "weight": int})
+
 @dataclass(frozen=True)
 class Station:
     key: str
@@ -33,10 +39,10 @@ class Station:
     _adjacency: dict[str, list[str]]
 
     @classmethod
-    def from_dict(cls, key: str, data: dict) -> Station:
-        adjacency = {
+    def from_dict(cls, key: str, data: StationDict) -> Station:
+        adjacency = cast(dict[str, list[str]], {
             line_key: neighbours for line_key, neighbours in data.items() if line_key not in ("display_name", "weight")
-        }
+        })
         if "weight" in data:
             weight = data["weight"]
         else:
@@ -66,36 +72,36 @@ class Map:
         self._stations: dict[str, Station] = {
             key: Station.from_dict(key, station_data) for key, station_data in data["stations"].items()
         }
-        self._claims: dict[str, str] = {}  # station_key -> team
-        self._claimed_segments: dict[tuple[str, str, str], str] = {}  # (line, a, b) -> team
+        self._claims: dict[str, Team] = {}  # station_key -> team
+        self._claimed_segments: dict[tuple[str, str, str], Team] = {}  # (line, a, b) -> team
 
     # claims:
 
-    def claim(self, station_key: str, team: str) -> None:
+    def claim(self, station_key: str, team: Team) -> None:
         """Claim a station for a team. Raises ValueError if already claimed by another team."""
         current = self._claims.get(station_key)
         if current is not None and current != team:
             raise ValueError(f"{station_key!r} is already claimed by {current!r}")
         self._claims[station_key] = team
 
-    def get_claim(self, station_key: str) -> str | None:
+    def get_claim(self, station_key: str) -> Team | None:
         """Return the team that has claimed a station, or None."""
         return self._claims.get(station_key)
 
     def is_claimed(self, station_key: str) -> bool:
         return station_key in self._claims
 
-    def stations_claimed_by(self, team: str) -> list[str]:
+    def stations_claimed_by(self, team: Team) -> list[str]:
         return [s for s, t in self._claims.items() if t == team]
 
-    def all_claims(self) -> dict[str, str]:
+    def all_claims(self) -> dict[str, Team]:
         return dict(self._claims)
 
-    def claim_segment(self, line_key: str, station_a: str, station_b: str, team: str) -> None:
-        key = (line_key, *sorted([station_a, station_b]))
+    def claim_segment(self, line_key: str, station_a: str, station_b: str, team: Team) -> None:
+        key = (line_key, min(station_a, station_b), max(station_a, station_b))
         self._claimed_segments[key] = team
 
-    def segments_claimed_by(self, team: str) -> list[tuple[str, str, str]]:
+    def segments_claimed_by(self, team: Team) -> list[tuple[str, str, str]]:
         return [k for k, v in self._claimed_segments.items() if v == team]
 
     # data getters:
@@ -124,7 +130,7 @@ class Map:
     def iter_stations(self) -> list[Station]:
         return list(self._stations.values())
 
-    def _path_between_on_line(
+    def path_between_on_line(
         self,
         line_key: str,
         start_station_key: str,
