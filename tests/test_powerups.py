@@ -9,6 +9,7 @@ Map facts used below (verified against map/connections.json):
   - Jubilee runs Baker Street — Bond Street — Green Park — Westminster (consecutive).
   - Baker Street is also on the Bakerloo line, adjacent to Oxford Circus.
   - Baker Street is NOT on the Victoria line.
+  - Picc runs Rayners Lane — Park Royal — Ealing Common — Acton Town — Turnham Green.
 """
 
 from __future__ import annotations
@@ -262,6 +263,39 @@ def test_jump_allows_travel_through_own_claim(tmp_path):
     game.request_challenge("A", "Green Park")
     assert not snake.crashed
     assert game.neck("A") == ["Bond Street", "Green Park"]
+
+
+def test_jumping_through_a_claim_does_not_steal_its_segments(tmp_path):
+    # Jumping grants passage, never ownership — and that has to hold for the track
+    # between two interchanges as well as for the interchanges themselves. This is
+    # the only way two teams can ever travel the same segment.
+    game = _game(tmp_path, teams={"A": "Rayners Lane", "B": "Turnham Green"})
+    for team in ("A", "B"):
+        game.initial_request_challenge(team)
+        game.complete_challenge(team, "Picc")
+
+    game.request_challenge("A", "Acton Town")
+    game.complete_challenge("A", "Picc")
+    assert game.map.get_segment_claim("Picc", "Ealing Common", "Acton Town") == "A"
+
+    # B jumps both of A's interchanges, then re-travels the track between them.
+    game.get_snake("B").coins = 20
+    for station in ("Acton Town", "Ealing Common"):
+        game.buy_powerup("B", "jump")
+        game.play_powerup("B", "jump", station=station)
+    game.request_challenge("B", "Ealing Common")
+    assert not game.get_snake("B").crashed
+    game.complete_challenge("B", "Picc")
+
+    # The stretch running between two of A's interchanges is still A's...
+    assert game.map.get_segment_claim("Picc", "Ealing Common", "Acton Town") == "A"
+    assert game.map.get_claim("Ealing Common") == "A"
+    assert game.map.get_claim("Acton Town") == "A"
+    # ...but the one B opened up from its own station is B's.
+    assert game.map.get_segment_claim("Picc", "Turnham Green", "Acton Town") == "B"
+    # B fronted at a jumped interchange it does not own: Anchor without Body.
+    assert game.get_snake("B").anchor == "Ealing Common"
+    assert game.body_stations("B") == ["Turnham Green"]
 
 
 # --- efficiency --------------------------------------------------------------

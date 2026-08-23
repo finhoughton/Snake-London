@@ -1,9 +1,33 @@
 {
   "challenges": [
     {
+      "id": "roundel_portrait",
+      "name": "Roundel portrait",
+      "description": "Take a team photo with a roundel at this station. The station name must be legible.",
+      "difficulty": 1.0
+    },
+    {
       "id": "high_five",
       "name": "High five a stranger",
       "description": "High five a stranger",
+      "difficulty": 1.5
+    },
+    {
+      "id": "ask_the_time",
+      "name": "Ask the time",
+      "description": "Get a stranger to tell you the time.",
+      "difficulty": 1.5
+    },
+    {
+      "id": "touch_grass",
+      "name": "Touch grass",
+      "description": "Touch a living plant rooted in the ground.",
+      "difficulty": 1.5
+    },
+    {
+      "id": "six_word_review",
+      "name": "Six-word review",
+      "description": "Record a review of this station using exactly six words and send it to the opposing team.",
       "difficulty": 1.5
     },
     {
@@ -13,10 +37,160 @@
       "difficulty": 2.0
     },
     {
+      "id": "compliment_commuter",
+      "name": "Compliment a commuter",
+      "description": "Give a stranger an actual compliment. They must acknowledge it.",
+      "difficulty": 2.0
+    },
+    {
+      "id": "wave_it_off",
+      "name": "Wave it off",
+      "description": "Wave goodbye to a departing train until it is completely out of sight.",
+      "difficulty": 2.0
+    },
+    {
+      "id": "pigeon_metre",
+      "name": "Pigeon metre",
+      "description": "Get within one metre of a pigeon.",
+      "difficulty": 2.0
+    },
+    {
+      "id": "bin_five",
+      "name": "Bin five",
+      "description": "Put five separate pieces of litter in a bin. You may not split litter into more pieces.",
+      "difficulty": 2.0
+    },
+    {
+      "id": "seat_census",
+      "name": "Seat census",
+      "description": "Count every seat on one platform and declare the total.",
+      "difficulty": 2.0
+    },
+    {
       "id": "every_digit",
       "name": "Find every digit",
       "description": "On posters or signs, find every digit from 0 to 9. You may not include timetables or phone numbers.",
       "difficulty": 2.5
+    },
+    {
+      "id": "line_colour_hunt",
+      "name": "Line colour hunt",
+      "description": "Find a stranger wearing the colour of the line you arrived on, and tell them why you are pleased about it.",
+      "difficulty": 2.5
+    },
+    {
+      "id": "station_couplet",
+      "name": "Station couplet",
+      "description": "Write a rhyming couplet ending on this station's name and read it aloud to a stranger.",
+      "difficulty": 2.5
+    },
+    {
+      "id": "five_hellos",
+      "name": "Five hellos",
+      "description": "Greet five different strangers in five different languages.",
+      "difficulty": 2.5
+    },
+    {
+      "id": "dated",
+      "name": "Dated",
+      "description": "Find the current year written somewhere.",
+      "difficulty": 2.5
+    },
+    {
+      "id": "directions_to_here",
+      "name": "Directions to here",
+      "description": "Ask a stranger for directions to the station you alighted at. You must hear them out fully.",
+      "difficulty": 2.5
+    },
+    {
+      "id": "count_the_steps",
+      "name": "Count the steps",
+      "description": "Count every step between a platform and the street, and declare the total.",
+      "difficulty": 2.5
+    },
+    {
+      "id": "wrong_hand",
+      "name": "Wrong hand",
+      "description": "Every member writes this station's name with their non-dominant hand. A stranger must confirm all of them are legible.",
+      "difficulty": 2.5
+    },
+    {
+      "id": "zebra_conga",
+      "name": "Zebra conga",
+      "description": "Cross a marked pedestrian crossing in single file, every member doing the same silly walk.",
+      "difficulty": 3.0
+    },
+    {
+      "id": "cheapest_thing",
+      "name": "Cheapest thing",
+      "description": "Buy the single cheapest item available in any shop.",
+      "difficulty": 3.0
+    },
+    {
+      "id": "five_in_a_row",
+      "name": "Five in a row",
+      "description": "Name five consecutive stations on the line you just left, from memory, in order. One error and you fail.",
+      "difficulty": 3.0
+    },
+    {
+      "id": "statue_mimic",
+      "name": "Statue mimic",
+      "description": "Find a statue or sculpture and hold its pose for 60 seconds.",
+      "difficulty": 3.5
+    },
+    {
+      "id": "vending_roulette",
+      "name": "Vending roulette",
+      "description": "From a vending machine, buy the item you would least like, then eat or drink it.",
+      "difficulty": 3.5
+    },
+    {
+      "id": "upside_down",
+      "name": "Upside down",
+      "description": "Read a full newspaper paragraph aloud with the paper upside down. Any error and you fail.",
+      "difficulty": 3.5
+    },
+    {
+      "id": "found_roundel",
+      "name": "Found roundel",
+      "description": "Build a recognisable roundel out of objects you find, and photograph it.",
+      "difficulty": 3.5
+    },
+    {
+      "id": "five_high_five",
+      "name": "Five high five",
+      "description": "High five five different strangers. You may not ask them to high five you.",
+      "difficulty": 3.5
+    },
+    {
+      "id": "small_print",
+      "name": "Small print",
+      "description": "Read every word of one advertising poster aloud, including the small print.",
+      "difficulty": 3.5
+    },
+    {
+      "id": "advert_pose",
+      "name": "Advert pose",
+      "description": "Find an advert featuring a person and recreate their pose beside it.",
+      "difficulty": 3.5
+    },
+    {
+      "id": "two_ways_out",
+      "name": "Two ways out",
+      "description": "Find both a Way Out sign and an Exit sign within this interchange, and photograph each.",
+      "difficulty": 3.5
+    },
+    {
+      "id": "blue_plaque",
+      "name": "Blue plaque",
+      "description": "Find a blue plaque and read it aloud on camera.",
+      "difficulty": 4.0
+    },
+    {
+      "id": "ten_routes",
+      "name": "Five routes",
+      "description": "Photograph five different bus route numbers.",
+      "difficulty": 4.0
     },
     {
       "id": "pet_pet",
@@ -25,9 +199,153 @@
       "difficulty": 4.0
     },
     {
+      "id": "staff_fact",
+      "name": "Staff fact",
+      "description": "Politely get a member of station staff to tell you one fact about this station. Do not approach anyone who is busy.",
+      "difficulty": 4.0
+    },
+    {
+      "id": "gate_count",
+      "name": "Gate count",
+      "description": "Determine the total number of ticket barriers at your station. Make sure to get every entrance if there are multiple",
+      "difficulty": 4.0
+    },
+    {
+      "id": "ten_letters",
+      "name": "Ten letters",
+      "description": "Find shop or street names beginning with ten consecutive letters of the alphabet.",
+      "difficulty": 4.0
+    },
+    {
+      "id": "squat_squad",
+      "name": "Squat squad",
+      "description": "Every member does 30 full squats, thighs parallel to the ground. You may rest between squats.",
+      "difficulty": 4.0
+    },
+    {
+      "id": "newspaper_hat",
+      "name": "Newspaper hat",
+      "description": "Make a hat from a newspaper and wear it. If it leaves your head before you complete your next challenge, you fail.",
+      "difficulty": 4.0
+    },
+    {
+      "id": "union_flag",
+      "name": "Union Flag",
+      "description": "Find a physical Union Jack or a non-digital pictorial representation of one. It may not have been made by you.",
+      "difficulty": 4.0
+    },
+    {
+      "id": "advert_audit",
+      "name": "Advert audit",
+      "description": "Photograph every advert on one platform and categorise them into three categories, each with at least 15% of them.",
+      "difficulty": 4.0
+    },
+    {
+      "id": "foreign_sign",
+      "name": "Foreign sign",
+      "description": "Find text in a language other than English inside this station, and photograph it.",
+      "difficulty": 4.0
+    },
+    {
+      "id": "forced_perspective",
+      "name": "Forced perspective",
+      "description": "Take a forced-perspective photo in which a teammate appears to be holding a roundel.",
+      "difficulty": 4.0
+    },
+    {
+      "id": "sketch_the_view",
+      "name": "Sketch the view",
+      "description": "Draw the view from a station entrance. Ask a stranger to score it out of ten, you must get seven or better. If they do not rate it high enough, you may retry with a new drawing and a new stranger.",
+      "difficulty": 4.5
+    },
+    {
+      "id": "three_chains",
+      "name": "Three chains",
+      "description": "Photograph three different coffee shop chains on the same road.",
+      "difficulty": 4.5
+    },
+    {
       "id": "climb_tree",
       "name": "Climb a tree",
       "description": "You must get at least two metres off the ground.",
+      "difficulty": 4.5
+    },
+    {
+      "id": "hundred_steps",
+      "name": "Hundred steps",
+      "description": "Ascend 100 steps in total. No escalators.",
+      "difficulty": 4.5
+    },
+    {
+      "id": "vox_pop",
+      "name": "Vox populi",
+      "description": "Determine your favourite tube line. Ask five strangers what their favourite tube line is and why. If they agree with you, high five them. If they disagree, tell them why they're wrong.",
+      "difficulty": 4.5
+    },
+    {
+      "id": "five_clues",
+      "name": "Crossword (easy)",
+      "description": "Solve five clues of a newspaper crossword. You may not look up any answers. A wrong answer fails the challenge.",
+      "difficulty": 4.5
+    },
+    {
+      "id": "dont_step_on_a_crack",
+      "name": "Don't step on a crack",
+      "description": "Walk 100 metres of pavement without stepping on a crack. If you step on one, start again.",
+      "difficulty": 4.5
+    },
+    {
+      "id": "way_out_census",
+      "name": "Way out census",
+      "description": "Count every 'Way Out' sign in this station and declare the total.",
+      "difficulty": 4.5
+    },
+    {
+      "id": "age_guess",
+      "name": "Age guess",
+      "description": "Three strangers each guess one team member's age. The average must be within 1.5 years of the truth or you fail.",
+      "difficulty": 4.5
+    },
+    {
+      "id": "alphabet_map",
+      "name": "Alphabet map",
+      "description": "Using only the tube map, find station names which between them contain every letter of the alphabet",
+      "difficulty": 4.5
+    },
+    {
+      "id": "catch_it",
+      "name": "Catch it",
+      "description": "Throw a food item into your own mouth and catch it. The throw must peak above your head.",
+      "difficulty": 4.5
+    },
+    {
+      "id": "silent_purchase",
+      "name": "Silent purchase",
+      "description": "Buy something without any team member speaking or writing a word.",
+      "difficulty": 4.5
+    },
+    {
+      "id": "paper_aeroplane_200m",
+      "name": "Paper aeroplane 200m",
+      "description": "Travel 200 metres in a straight line by throwing a paper aeroplane, walking to it, and throwing again.",
+      "difficulty": 4.5
+    },
+    {
+      "id": "long_and_short",
+      "name": "Long and short",
+      "description": "Using only the tube map, find the longest and the shortest station names by letter count.",
+      "difficulty": 4.5
+    },
+    {
+      "id": "line_ranking",
+      "name": "Line ranking",
+      "description": "Rank the lines serving this interchange by number of stations, from memory, then check. One error and you fail.",
+      "difficulty": 4.5
+    },
+    {
+      "id": "colour_wheel",
+      "name": "Colour wheel",
+      "description": "Photograph objects matching six different tube line colours, one object per colour.",
       "difficulty": 4.5
     },
     {
@@ -37,9 +355,81 @@
       "difficulty": 5.0
     },
     {
+      "id": "rock_paper_scissors",
+      "name": "Rock paper scissors",
+      "description": "Beat a stranger at rock paper scissors, best of thirteen.",
+      "difficulty": 5.0
+    },
+    {
+      "id": "melt_something",
+      "name": "Melt something",
+      "description": "Heat a solid object at least 1cm across until it becomes liquid.",
+      "difficulty": 5.0
+    },
+    {
+      "id": "escalator_steps",
+      "name": "Escalator steps",
+      "description": "Guess the number of visible steps on an escalator, then count them. Within 10% or you fail.",
+      "difficulty": 5.0
+    },
+    {
+      "id": "star_jumps",
+      "name": "Star jumps",
+      "description": "Every member does 50 star jumps, in unison.",
+      "difficulty": 5.0
+    },
+    {
+      "id": "meal_deal_roulette",
+      "name": "Meal deal roulette",
+      "description": "Roll a die to pick the shelf position of each component of a meal deal. Buy and eat what you get.",
+      "difficulty": 5.0
+    },
+    {
+      "id": "shazam",
+      "name": "Shazam",
+      "description": "Hum or sing a song until Shazam correctly identifies it. You may not play the recording.",
+      "difficulty": 5.0
+    },
+    {
+      "id": "nickname",
+      "name": "Nickname",
+      "description": "Get a stranger to invent a nickname for every team member. Change your Discord nickname to them and use them for each other for the rest of the game.",
+      "difficulty": 5.0
+    },
+    {
+      "id": "exactly_five_pounds",
+      "name": "Exactly five pounds",
+      "description": "Buy items totalling exactly five pounds.",
+      "difficulty": 5.0
+    },
+    {
+      "id": "one_leg",
+      "name": "One leg",
+      "description": "Every member balances on one leg for three minutes. If a foot touches down, that member restarts.",
+      "difficulty": 5.0
+    },
+    {
+      "id": "bottle_flip",
+      "name": "Bottle flip",
+      "description": "Land three bottle flips upright in a row.",
+      "difficulty": 5.0
+    },
+    {
+      "id": "straight_swap",
+      "name": "Straight swap",
+      "description": "Make a trade with a stranger. No money involved.",
+      "difficulty": 5.5
+    },
+    {
+      "id": "something_new",
+      "name": "Something new",
+      "description": "Every member eats something they have never eaten before.",
+      "difficulty": 5.5
+    },
+    {
       "id": "elevation_guess",
       "name": "Guess your elevation",
-      "description": "Check the elevation of the starting point. Guess your current elevation to within 10%. You have one attempt. (Note: Use https://en-gb.topographic-map.com/map-kb57/England to determine elevation)",
+      "description": "Check the elevation of the starting point. Guess your current elevation to within 20%. You have one attempt. (Note: Use https://en-gb.topographic-map.com/map-kb57/England to determine elevation)",
       "difficulty": 5.5
     },
     {
@@ -47,6 +437,96 @@
       "name": "Eat Cake",
       "description": "Obtain some sort of cake and eat the whole thing. If you get a selection of multiple cakes, you must eat all of them.",
       "difficulty": 5.5
+    },
+    {
+      "id": "animal_street",
+      "name": "Animal street",
+      "description": "Find a street whose name contains an animal, and photograph the sign.",
+      "difficulty": 5.5
+    },
+    {
+      "id": "feed_some_birds",
+      "name": "Feed some birds",
+      "description": "Obtain bird-friendly food and get a wild bird to eat some of it.",
+      "difficulty": 5.5
+    },
+    {
+      "id": "backwards_block",
+      "name": "Backwards block",
+      "description": "Every member walks around a (city) block backwards.",
+      "difficulty": 5.5
+    },
+    {
+      "id": "human_sundial",
+      "name": "Human sundial",
+      "description": "Find north using a method involving shadows, then check with a compass. Within 20 degrees or you fail.",
+      "difficulty": 5.5
+    },
+    {
+      "id": "grab_a_bargain",
+      "name": "Grab a bargain",
+      "description": "At any shop or market, buy something reduced by more than 50%.",
+      "difficulty": 5.5
+    },
+    {
+      "id": "staring_contest",
+      "name": "Staring contest",
+      "description": "Win a staring contest against a stranger.",
+      "difficulty": 5.5
+    },
+    {
+      "id": "old_timer",
+      "name": "Old timer",
+      "description": "Pick a building you believe is at least a century old, then verify its age. If it is younger than 100, you fail.",
+      "difficulty": 5.5
+    },
+    {
+      "id": "copy_wikipedia",
+      "name": "Copy Wikipedia",
+      "description": "Find a Wikipedia photograph of this area and retake it from the same position and angle.",
+      "difficulty": 5.5
+    },
+    {
+      "id": "sing_along",
+      "name": "Sing along",
+      "description": "Find a song being played publicly and sing along to every word until it ends.",
+      "difficulty": 5.5
+    },
+    {
+      "id": "unusual_item",
+      "name": "Unusual item",
+      "description": "In any shop, find an item that cannot be ordered from Tesco online. It may not be own-brand.",
+      "difficulty": 5.5
+    },
+    {
+      "id": "floor_plan",
+      "name": "Floor plan",
+      "description": "Walk the whole station, then draw a map of it from memory.",
+      "difficulty": 5.5
+    },
+    {
+      "id": "anagram_station",
+      "name": "Anagram station",
+      "description": "Find a station name that anagrams into a real word or phrase, using every letter.",
+      "difficulty": 5.5
+    },
+    {
+      "id": "five_heads",
+      "name": "Five heads",
+      "description": "Flip five heads or five tails in a row. You choose which.",
+      "difficulty": 6.0
+    },
+    {
+      "id": "doubles_thrice",
+      "name": "Doubles thrice",
+      "description": "Roll doubles three times in a row.",
+      "difficulty": 6.0
+    },
+    {
+      "id": "price_is_right",
+      "name": "Price is right",
+      "description": "One team member picks a shop item, the other guesses its price to within 10p. One attempt.",
+      "difficulty": 6.0
     },
     {
       "id": "newspaper_puzzle",
@@ -61,10 +541,238 @@
       "difficulty": 6.0
     },
     {
+      "id": "non_hat_hat",
+      "name": "Non-hat hat",
+      "description": "Wear something on your head that was not made to be headgear. If it leaves your head before your next challenge is complete, you fail.",
+      "difficulty": 6.0
+    },
+    {
+      "id": "hopscotch",
+      "name": "Hopscotch",
+      "description": "Find or draw a hopscotch court of at least eight spaces and play a full round using a stone as a marker.",
+      "difficulty": 6.0
+    },
+    {
+      "id": "homophones",
+      "name": "Homophones",
+      "description": "Find two physical things whose common names are pronounced the same, and photograph both.",
+      "difficulty": 6.0
+    },
+    {
+      "id": "five_thank_yous",
+      "name": "Five thank-yous",
+      "description": "Get five different strangers to thank you verbally.",
+      "difficulty": 6.0
+    },
+    {
+      "id": "life_imitates_art",
+      "name": "Life imitates art",
+      "description": "Find a sign, photo or painting of an animal or plant, then find that species. Same family at minimum. Humans do not count.",
+      "difficulty": 6.0
+    },
+    {
+      "id": "charades",
+      "name": "Charades",
+      "description": "One member acts out five station names. Teammates must guess all five.",
+      "difficulty": 6.0
+    },
+    {
+      "id": "window_memory",
+      "name": "Window memory",
+      "description": "Memorise twenty items in a shop window, then recall all twenty facing away from it.",
+      "difficulty": 6.0
+    },
+    {
+      "id": "soundscape",
+      "name": "Soundscape",
+      "description": "Record sixty seconds of station audio and identify ten distinct sounds in it.",
+      "difficulty": 6.0
+    },
+    {
+      "id": "timetable_maths",
+      "name": "Timetable maths",
+      "description": "From a bus timetable, calculate the average interval between buses over 24 hours, and the average buses per hour.",
+      "difficulty": 6.0
+    },
+    {
+      "id": "architecture_critique",
+      "name": "Architecture critique",
+      "description": "Go to a building over ten metres tall and record a video discussing five things you like about it and five improvements you would make.",
+      "difficulty": 6.0
+    },
+    {
+      "id": "catch_a_critter",
+      "name": "Catch a critter",
+      "description": "Catch an insect or bug in a container, name it, then release it unharmed.",
+      "difficulty": 6.0
+    },
+    {
+      "id": "pay_your_respects",
+      "name": "Pay your respects",
+      "description": "Visit a graveyard and place a flower on a grave that does not have one. Observe two minutes of silence, then leave and do not return.",
+      "difficulty": 6.0
+    },
+    {
+      "id": "card_school",
+      "name": "Card school",
+      "description": "One teammate should teach the others a card game they do not know, then play a full hand.",
+      "difficulty": 6.0
+    },
+    {
+      "id": "piggyback",
+      "name": "Piggyback",
+      "description": "Carry a teammate 100 metres without their feet touching the ground. You may swap carriers.",
+      "difficulty": 6.0
+    },
+    {
+      "id": "three_legged",
+      "name": "Three-legged",
+      "description": "Tie two members together at the ankle and run 100m in 30 seconds or less",
+      "difficulty": 6.0
+    },
+    {
+      "id": "coin_cup",
+      "name": "Coin cup",
+      "description": "Land five coins in a cup from two metres away. The cup may be makeshift.",
+      "difficulty": 6.0
+    },
+    {
+      "id": "hop_to_it",
+      "name": "Hop to it",
+      "description": "Every member hops 100 metres on one foot. If the other foot touches down, that member restarts.",
+      "difficulty": 6.0
+    },
+    {
+      "id": "height_guess",
+      "name": "Height guess",
+      "description": "Guess a stranger's height, then ask them their height. You must get it exactly right and in the same units.",
+      "difficulty": 6.5
+    },
+    {
       "id": "follow_jogger",
       "name": "Follow a jogger",
       "description": "Find a jogger and jog behind them until they turn a corner.",
       "difficulty": 6.5
+    },
+    {
+      "id": "tell_the_time",
+      "name": "Tell the time",
+      "description": "Start a timer and stop it at five minutes without looking at any clock or timed event. Within ten seconds or you fail.",
+      "difficulty": 6.5
+    },
+    {
+      "id": "three_laps",
+      "name": "Three laps",
+      "description": "Make three laps of a block, each faster than the last.",
+      "difficulty": 6.5
+    },
+    {
+      "id": "makeover",
+      "name": "Makeover",
+      "description": "Change one item of clothing, your hairstyle and an accessory, then take at least five photos of the result.",
+      "difficulty": 6.5
+    },
+    {
+      "id": "balancing_act",
+      "name": "Balancing act",
+      "description": "Walk from one station entrance to another entrance with a leaf on your head. You may not attach it to your head or hair.",
+      "difficulty": 6.5
+    },
+    {
+      "id": "blind_taste",
+      "name": "Blind taste",
+      "description": "Buy assorted sweets. With eyes closed, randomly draw three, taste them, and name their flavours. You may practise. All three correct or you fail.",
+      "difficulty": 6.5
+    },
+    {
+      "id": "sandwich_assembly",
+      "name": "Sandwich assembly",
+      "description": "Buy the components separately and build a sandwich. No pre-made sandwiches.",
+      "difficulty": 6.5
+    },
+    {
+      "id": "five_london_things",
+      "name": "Five London things",
+      "description": "Photograph a black cab, a red bus, a hire bike, a pigeon, and a London plane tree.",
+      "difficulty": 6.5
+    },
+    {
+      "id": "picnic",
+      "name": "Picnic",
+      "description": "Lay out a picnic on the ground and eat from it for five minutes.",
+      "difficulty": 6.5
+    },
+    {
+      "id": "parkour",
+      "name": "Parkour",
+      "description": "Make a parkour video at least thirty seconds long containing at least three stunts.",
+      "difficulty": 6.5
+    },
+    {
+      "id": "half_a_kilometre",
+      "name": "Half a kilometre",
+      "description": "Close your eyes, spin, and point. Get as close as publicly accessible land allows to the point exactly 500 metres in that direction.",
+      "difficulty": 6.5
+    },
+    {
+      "id": "question_mode",
+      "name": "Question mode",
+      "description": "One teammate speaks only in questions until your next challenge is complete. A statement fails the challenge.",
+      "difficulty": 6.5
+    },
+    {
+      "id": "escalator_marathon",
+      "name": "Escalator marathon",
+      "description": "Ride the same pair of escalators up and down ten times.",
+      "difficulty": 6.5
+    },
+    {
+      "id": "wall_sit",
+      "name": "Wall sit",
+      "description": "Every member holds a wall sit for three minutes. Does not need to be continuous. Legs at 90 degrees",
+      "difficulty": 6.5
+    },
+    {
+      "id": "backwards_phonetic",
+      "name": "Backwards phonetic",
+      "description": "Every member recites the NATO phonetic alphabet in reverse. Any error fails the challenge.",
+      "difficulty": 6.5
+    },
+    {
+      "id": "cover_version",
+      "name": "Cover version",
+      "description": "Rewrite the chorus of a popular song to be about this station and then perform it.",
+      "difficulty": 6.5
+    },
+    {
+      "id": "know_your_teammate",
+      "name": "Know your teammate",
+      "description": "One teammate should guess the number of photos on the other's phone. Within 30% or fail.",
+      "difficulty": 6.5
+    },
+    {
+      "id": "sonnet",
+      "name": "Sonnet",
+      "description": "Write a fourteen-line sonnet about this station with a consistent rhyme scheme, and read it aloud.",
+      "difficulty": 6.5
+    },
+    {
+      "id": "same_year",
+      "name": "Same year",
+      "description": "Find the year this station opened, then find something nearby dated the same year.",
+      "difficulty": 6.5
+    },
+    {
+      "id": "three_trees",
+      "name": "Three trees",
+      "description": "Find three streets named after three different trees.",
+      "difficulty": 7.0
+    },
+    {
+      "id": "arm_wrestle",
+      "name": "Arm wrestle",
+      "description": "Beat a stranger at arm wrestling.",
+      "difficulty": 7.0
     },
     {
       "id": "stations_panic",
@@ -73,10 +781,460 @@
       "difficulty": 7.0
     },
     {
-      "id": "square_off",
-      "name": "Play Square Off",
-      "description": "Generatate a Square Off board and get a line",
+      "id": "cairn",
+      "name": "Cairn",
+      "description": "Build a free-standing stack of seven stones that stays up for five seconds.",
+      "difficulty": 7.0
+    },
+    {
+      "id": "build_a_tower",
+      "name": "Build a tower",
+      "description": "Build a free-standing tower at least one metre tall from any materials. At least five components, none taller than 40cm, standing for five seconds.",
+      "difficulty": 7.0
+    },
+    {
+      "id": "traffic_prediction",
+      "name": "Traffic prediction",
+      "description": "At a busy crossing, predict how many cars will pass in two minutes. Your answer must be at least ten and within 10%, or you fail.",
+      "difficulty": 7.0
+    },
+    {
+      "id": "line_diagram",
+      "name": "Line diagram",
+      "description": "Reproduce the full line diagram for the line you arrived on from memory, then check it.",
+      "difficulty": 7.0
+    },
+    {
+      "id": "body_letters",
+      "name": "Body letters",
+      "description": "Photograph your team forming each letter of this station's name with your bodies, in order.",
+      "difficulty": 7.0
+    },
+    {
+      "id": "charge_your_phone",
+      "name": "Charge your phone",
+      "description": "Charge your phone (as usual, you may not use your own cable or powerbank)",
+      "difficulty": 7.0
+    },
+    {
+      "id": "get_a_honk",
+      "name": "Get a honk",
+      "description": "Write a sign that elicits a honk from a passing driver. You should not step onto the road.",
+      "difficulty": 7.0
+    },
+    {
+      "id": "every_colour",
+      "name": "Every colour",
+      "description": "Photograph every tube line colour represented somewhere inside this interchange.",
+      "difficulty": 7.0
+    },
+    {
+      "id": "haiku_contest",
+      "name": "Haiku contest",
+      "description": "Every member writes a haiku about this station. Read them all to a stranger who will pick the winner, who must then thank the stranger in haiku.",
+      "difficulty": 7.0
+    },
+    {
+      "id": "snake_sketch",
+      "name": "Snake sketch",
+      "description": "Draw your snake's entire body onto a blank map from memory. The referee checks it against the real one.",
+      "difficulty": 7.0
+    },
+    {
+      "id": "tunnel_distance",
+      "name": "Tunnel distance",
+      "description": "Estimate the distance to the next station along your line, then check. Within 15% or you fail.",
+      "difficulty": 7.0
+    },
+    {
+      "id": "word_ladder",
+      "name": "Word ladder",
+      "description": "Get from one station name to another by changing, inserting, or deleting one letter at a time. Every intermediate step must be a real word.",
+      "difficulty": 7.0
+    },
+    {
+      "id": "geocache",
+      "name": "Geocache",
+      "description": "Find and sign a physical geocache.",
       "difficulty": 7.5
+    },
+    {
+      "id": "five_continents_shop",
+      "name": "Five continents shop",
+      "description": "In a single shop, find products originating from five different continents.",
+      "difficulty": 7.5
+    },
+    {
+      "id": "order_abroad",
+      "name": "Order abroad",
+      "description": "Order and receive food or drink speaking only a language no team member speaks natively.",
+      "difficulty": 7.5
+    },
+    {
+      "id": "keepy_uppies",
+      "name": "Keepy-uppies",
+      "description": "Make twenty consecutive keepy-uppies with a ball. The ball may be makeshift.",
+      "difficulty": 7.5
+    },
+    {
+      "id": "basket",
+      "name": "Basket",
+      "description": "Find a publicly accessible basketball hoop and score.",
+      "difficulty": 7.5
+    },
+    {
+      "id": "perimeter_guess",
+      "name": "Perimeter guess",
+      "description": "Estimate the perimeter of a block without using any measuring instrument, then check. Within 20% or you fail.",
+      "difficulty": 7.5
+    },
+    {
+      "id": "fifty_digits",
+      "name": "Fifty digits",
+      "description": "Learn and recite fifty digits of pi from memory.",
+      "difficulty": 7.5
+    },
+    {
+      "id": "famous_photo",
+      "name": "Famous photo",
+      "description": "Recreate a well-known photograph taken in London, in the right place, as closely as you can.",
+      "difficulty": 7.5
+    },
+    {
+      "id": "documentary",
+      "name": "Documentary",
+      "description": "Film a sixty-second documentary about this station with at least five shots, narration and a title card.",
+      "difficulty": 7.5
+    },
+    {
+      "id": "eat_pray_love",
+      "name": "Eat, pray, love",
+      "description": "Eat a snack, spend a minute inside a place of worship, then tell the opponents how much you respect them for thirty seconds. In that order.",
+      "difficulty": 7.5
+    },
+    {
+      "id": "just_a_minute",
+      "name": "Just a minute",
+      "description": "Talk about this station for sixty seconds with no hesitation, repetition or deviation. A stranger judges, and may buzz you out.",
+      "difficulty": 7.5
+    },
+    {
+      "id": "hundred_press_ups",
+      "name": "Hundred press-ups",
+      "description": "One hundred press-ups as a team total, in unbroken sets of at least ten.",
+      "difficulty": 7.5
+    },
+    {
+      "id": "dinosaur",
+      "name": "Dinosaur",
+      "description": "Using only the tube map, find the one station whose name shares no letters with the word 'dinosaur'. No cheating.",
+      "difficulty": 7.5
+    },
+    {
+      "id": "line_audit",
+      "name": "Line audit",
+      "description": "Name every interchange on the Snake map served by the line you arrived on, then check. No errors",
+      "difficulty": 7.5
+    },
+    {
+      "id": "stop_motion",
+      "name": "Stop-motion",
+      "description": "Make a stop-motion animation of at least thirty frames.",
+      "difficulty": 7.5
+    },
+    {
+      "id": "sudoku",
+      "name": "Sudoku",
+      "description": "Complete a newspaper sudoku with no errors. You may not look up the answer or cheat. A wrong grid fails the challenge.",
+      "difficulty": 8.0
+    },
+    {
+      "id": "footfall",
+      "name": "Footfall",
+      "description": "Count people entering this station over five minutes and extrapolate to TfL's published annual entries figure. Within 25% or you fail.",
+      "difficulty": 8.0
+    },
+    {
+      "id": "top_attraction",
+      "name": "Top attraction",
+      "description": "Determine the highest-ranked TripAdvisor attraction within two miles, get within ten metres of it, and give five reasons it is the best.",
+      "difficulty": 8.0
+    },
+    {
+      "id": "wordless_request",
+      "name": "Wordless request",
+      "description": "Ask a stranger for directions or to borrow an object without speaking or writing any words.",
+      "difficulty": 8.0
+    },
+    {
+      "id": "cat",
+      "name": "Cat",
+      "description": "Find and photograph a cat.",
+      "difficulty": 8.0
+    },
+    {
+      "id": "origami",
+      "name": "Origami",
+      "description": "Fold a paper crane from instructions. First attempt only.",
+      "difficulty": 8.0
+    },
+    {
+      "id": "fifteen_thank_yous",
+      "name": "Fifteen thank-yous",
+      "description": "Get fifteen different strangers to thank you verbally. You may not ask them to.",
+      "difficulty": 8.0
+    },
+    {
+      "id": "stand_or_walk",
+      "name": "Stand or walk",
+      "description": "Record twenty strangers saying whether they stand or walk on escalators, and present the distribution with analysis.",
+      "difficulty": 8.0
+    },
+    {
+      "id": "platform_headcount",
+      "name": "Platform headcount",
+      "description": "Guess the number of people on a platform, then count them. Within 10% or you fail.",
+      "difficulty": 8.0
+    },
+    {
+      "id": "paper_bridge",
+      "name": "Paper bridge",
+      "description": "Build a paper bridge spanning 30cm between two objects that holds a phone for five seconds.",
+      "difficulty": 8.0
+    },
+    {
+      "id": "introductions",
+      "name": "Introductions",
+      "description": "Introduce two strangers who do not know each other. They must talk to each other for fifteen seconds.",
+      "difficulty": 8.5
+    },
+    {
+      "id": "the_knowledge",
+      "name": "The Knowledge",
+      "description": "Get a black cab driver to explain the Knowledge on camera. Don't waste their time etc.",
+      "difficulty": 8.5
+    },
+    {
+      "id": "applause",
+      "name": "Applause",
+      "description": "Get unprompted applause from five different strangers. Need not be five at the same time.",
+      "difficulty": 8.5
+    },
+    {
+      "id": "instrument",
+      "name": "Instrument",
+      "description": "Build an instrument from found materials and play a recognisable tune on it.",
+      "difficulty": 8.5
+    },
+    {
+      "id": "life_drawing",
+      "name": "Life drawing",
+      "description": "Get five strangers to each draw the same team member, and display the gallery.",
+      "difficulty": 8.5
+    },
+    {
+      "id": "plank_relay",
+      "name": "Plank relay",
+      "description": "Accumulate (4 \u00d7 number of team members) minutes of plank as a team total.",
+      "difficulty": 8.5
+    },
+    {
+      "id": "birthday_card",
+      "name": "Birthday card",
+      "description": "Get ten strangers to sign a card for an opponent, each writing a different message.",
+      "difficulty": 8.5
+    },
+    {
+      "id": "board_memory",
+      "name": "Commercial memory",
+      "description": "Memorise the names of fifteen different businesses around your station. When the train you want to get on to depart approaches (i.e. when you can see it), recite the names of all fifteen. No mistakes.",
+      "difficulty": 8.5
+    },
+    {
+      "id": "full_line_recital",
+      "name": "Full line recital",
+      "description": "Recite every station on the line you arrived on from memory. You may practise. One error and you fail.",
+      "difficulty": 9.0
+    },
+    {
+      "id": "skim_a_stone",
+      "name": "Skim a stone",
+      "description": "Skim a stone with at least three bounces.",
+      "difficulty": 9.0
+    },
+    {
+      "id": "marathon_steps",
+      "name": "Marathon steps",
+      "description": "Ascend 500 steps in total, consecutively or not. No escalators.",
+      "difficulty": 9.0
+    },
+    {
+      "id": "balloon_animal",
+      "name": "Balloon animal",
+      "description": "Buy a balloon and make a balloon dog. Keep it with you for the rest of the day.",
+      "difficulty": 9.0
+    },
+    {
+      "id": "human_pyramid",
+      "name": "Human pyramid",
+      "description": "Build a three-person pyramid including at least one stranger, and hold it for five seconds.",
+      "difficulty": 9.0
+    },
+    {
+      "id": "front_page",
+      "name": "Front page",
+      "description": "Write (with a pen and a sheet of A4 paper!) a newspaper front page about this JL:OX event. It should have at least three articles and one illustration. The A4 sheet should be completely full",
+      "difficulty": 9.0
+    },
+    {
+      "id": "hundred_burpees",
+      "name": "Hundred burpees",
+      "description": "Every member does one hundred burpees. You may rest between them.",
+      "difficulty": 9.0
+    },
+    {
+      "id": "house_of_cards",
+      "name": "House of cards",
+      "description": "Build a four-storey house of cards that stands unsupported for ten seconds.",
+      "difficulty": 9.0
+    },
+    {
+      "id": "handstand_minute",
+      "name": "Handstand minute",
+      "description": "Every member accumulates sixty seconds of handstand, in holds of at least five seconds each.",
+      "difficulty": 9.0
+    },
+    {
+      "id": "mexican_wave",
+      "name": "Mexican wave",
+      "description": "Start a Mexican wave that at least eight strangers join.",
+      "difficulty": 9.5
+    },
+    {
+      "id": "trade_up",
+      "name": "Trade up",
+      "description": "Starting from a paperclip, pen, or similar, make at least five successive trades with strangers, each for something more valuable, ending with something which verifiably costs more than \u00a35",
+      "difficulty": 9.5
+    },
+    {
+      "id": "five_continents",
+      "name": "Five continents",
+      "description": "Meet five strangers each born on a different continent. Confirm each and photograph them with permission.",
+      "difficulty": 9.5
+    },
+    {
+      "id": "music_video",
+      "name": "Music video",
+      "description": "Film a full sixty-second music video with choreography, three locations and one costume change.",
+      "difficulty": 9.5
+    },
+    {
+      "id": "crossword_and_sudoku",
+      "name": "Puzzling",
+      "description": "Complete both the quick crossword and the sudoku from the same newspaper. No lookups. Any error fails the challenge.",
+      "difficulty": 9.5
+    },
+    {
+      "id": "twenty_station_quiz",
+      "name": "Twenty-station quiz",
+      "description": "One teammate will be quizzed: The rest of the team randomly generates (by whatever means, but it should be actually random with all outputs equal probability) ten pairs of two tube stations. The quizzing teammate must, for each pair, give the fastest route to travel between them. Check with Google Maps (8:30am Monday), it counts if their route is within three minutes of the given route.",
+      "difficulty": 9.5
+    },
+    {
+      "id": "forwards_and_back",
+      "name": "Forwards and back",
+      "description": "Memorise thirty digits randomly chosen 0-9, then recite them forwards and backwards. Any mistake is a failure.",
+      "difficulty": 9.5
+    },
+    {
+      "id": "three_links",
+      "name": "Three links",
+      "description": "Meet a stranger, get them to introduce you to another stranger, and repeat until you are three introductions deep.",
+      "difficulty": 9.5
+    },
+    {
+      "id": "endurance_busk",
+      "name": "Endurance busk",
+      "description": "Perform continuously for fifteen minutes - off TfL property. Get at least one donation (Once they try to give you the money you should decline).",
+      "difficulty": 9.5
+    },
+    {
+      "id": "blank_map",
+      "name": "Blank map",
+      "description": "Redraw the Snake map's lines and interchanges onto blank paper from memory. You are allowed one mistake on the lines (which lines exist) and five on the interchanges (which interchanges exist, and which lines serve which interchanges)",
+      "difficulty": 9.5
+    },
+    {
+      "id": "full_cube",
+      "name": "Full cube",
+      "description": "Solve a Rubik's cube completely, having learned how during this challenge.",
+      "difficulty": 10.0
+    },
+    {
+      "id": "fox",
+      "name": "Fox",
+      "description": "Photograph a fox (alive)",
+      "difficulty": 10.0
+    },
+    {
+      "id": "benchmark",
+      "name": "Benchmark",
+      "description": "Find and photograph a cut Ordnance Survey benchmark on a wall or building.",
+      "difficulty": 10.0
+    },
+    {
+      "id": "twenty_signatures",
+      "name": "Twenty signatures",
+      "description": "Collect signatures from twenty strangers whose first names all begin with different letters.",
+      "difficulty": 10.0
+    },
+    {
+      "id": "thirty_thank_yous",
+      "name": "Thirty thank-yous",
+      "description": "Get thirty different strangers to thank you verbally. You may not ask them to.",
+      "difficulty": 10.0
+    },
+    {
+      "id": "fifty_words",
+      "name": "Fifty words",
+      "description": "Record fifty strangers each saying one word, then assemble a coherent sentence from the recordings.",
+      "difficulty": 10.0
+    },
+    {
+      "id": "documentary_feature",
+      "name": "Documentary feature",
+      "description": "Film a five-minute documentary about this interchange with three interviewed strangers, titles and narration.",
+      "difficulty": 10.0
+    },
+    {
+      "id": "sketch_show",
+      "name": "Sketch show",
+      "description": "Write, rehearse and perform a two-minute sketch with speaking parts for two strangers, to an audience of at least three.",
+      "difficulty": 10.0
+    },
+    {
+      "id": "dead_reckoning",
+      "name": "Dead reckoning",
+      "description": "Randomly generate a direction, walk one kilometre with no map, then check your position. Within 100 metres or you fail.",
+      "difficulty": 10.0
+    },
+    {
+      "id": "two_hundred_digits",
+      "name": "Two hundred digits",
+      "description": "Recite one hundred digits of pi from memory.",
+      "difficulty": 10.0
+    },
+    {
+      "id": "deck_order",
+      "name": "Deck order",
+      "description": "Memorise the order of a shuffled deck of cards, then recite the whole deck correctly.",
+      "difficulty": 10.5
+    },
+    {
+      "id": "feature_animation",
+      "name": "Feature animation",
+      "description": "Make a three-minute stop-motion film of at least three hundred frames, with titles and sound.",
+      "difficulty": 10.5
     }
   ]
 }

@@ -248,3 +248,29 @@ def test_claiming_another_teams_station_raises():
         tube_map.claim("Oxford Circus", "blue")
 
     tube_map.claim("Oxford Circus", "red")  # re-claiming your own is a no-op
+
+
+def test_claiming_a_segment_records_the_owner():
+    tube_map = Map("map/connections.json")
+
+    tube_map.claim_segment("Picc", "Ealing Common", "Acton Town", "red")
+
+    assert tube_map.get_segment_claim("Picc", "Ealing Common", "Acton Town") == "red"
+    # Segments are undirected: either station order names the same segment.
+    assert tube_map.get_segment_claim("Picc", "Acton Town", "Ealing Common") == "red"
+    assert tube_map.get_segment_claim("Picc", "Acton Town", "Turnham Green") is None
+    assert tube_map.segments_claimed_by("red") == [("Picc", "Acton Town", "Ealing Common")]
+
+
+def test_claiming_another_teams_segment_raises():
+    tube_map = Map("map/connections.json")
+    tube_map.claim_segment("Picc", "Ealing Common", "Acton Town", "red")
+
+    with pytest.raises(ValueError, match="already claimed"):
+        tube_map.claim_segment("Picc", "Ealing Common", "Acton Town", "blue")
+    # Reversed order is the same segment, so it is protected just the same.
+    with pytest.raises(ValueError, match="already claimed"):
+        tube_map.claim_segment("Picc", "Acton Town", "Ealing Common", "blue")
+
+    tube_map.claim_segment("Picc", "Acton Town", "Ealing Common", "red")  # re-claiming your own is a no-op
+    assert tube_map.get_segment_claim("Picc", "Ealing Common", "Acton Town") == "red"
