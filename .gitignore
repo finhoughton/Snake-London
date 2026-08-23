@@ -19,6 +19,8 @@ current_map.svg
 fork_examples/
 segment_debug/
 
+*.txt
+
 *.egg-info/
 dist/
 build/
