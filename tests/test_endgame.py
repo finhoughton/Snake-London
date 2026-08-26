@@ -3,7 +3,7 @@ from __future__ import annotations
 import pytest
 
 from config import WINNING_THRESHOLD
-from game import new_game
+from new_game import new_game
 
 
 def _claim(game, team, stations):

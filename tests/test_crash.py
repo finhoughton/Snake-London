@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from game import new_game
+from new_game import new_game
 
 # Baker Street — Bond Street — Green Park — Westminster are consecutive on the
 # Jubilee line, so two teams starting at Baker Street and Green Park can both aim

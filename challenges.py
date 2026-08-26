@@ -5,6 +5,8 @@ import math
 import random
 from dataclasses import dataclass
 
+from map import Map
+
 
 @dataclass(frozen=True)
 class Challenge:
@@ -82,5 +84,5 @@ def get_difficulty(weights: list[int]) -> float:
     return 10.0 * (1 - math.exp(-raw / 100))
 
 
-def neck_weights(game_map, line: str, neck: list[str]) -> list[int]:
+def neck_weights(game_map: Map, line: str, neck: list[str]) -> list[int]:
     return [game_map.get_station(s).weight for s in neck]

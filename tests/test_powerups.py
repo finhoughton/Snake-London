@@ -19,7 +19,7 @@ import random
 import pytest
 
 import config
-from game import new_game
+from new_game import new_game
 
 powerups = pytest.importorskip("powerups", reason="powerups.py not implemented yet — see PLAN_POWERUPS.md")
 Curse = powerups.Curse

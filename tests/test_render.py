@@ -7,7 +7,7 @@ import pytest
 
 import render
 from config import BONUS_AT_FRONT
-from game import new_game
+from new_game import new_game
 from render import _clip_shapes_for_segment, _extract_svg_fork_geometry, render_map
 
 
@@ -443,7 +443,7 @@ def test_jump_halo_encloses_the_marker_for_every_shape() -> None:
     # The halo is sized by ray-casting the silhouette, so it must genuinely enclose the
     # marker for every shape the base SVG uses (circles and rounded rects alike).
     markers = render._get_station_markers()
-    centres = render._load_geometry()["station_centres"]
+    centres = render.load_geometry()["station_centres"]
 
     for station in ("Green Park", "Bond Street", "Farringdon"):  # circle, rect, large rect
         cx, cy = centres[station]

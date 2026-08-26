@@ -4,8 +4,8 @@ import os
 import re
 import sys
 
-from game import new_game
-from render import _load_geometry, render_map, svg_to_png
+from new_game import new_game
+from render import load_geometry, render_map, svg_to_png
 
 TEAM = "test"
 COLOR = "#FF1493"  # deep pink — distinct from all line colours
@@ -21,10 +21,11 @@ def _label(line: str, a: str, b: str) -> str:
 
 def render_segment(line: str, a: str, b: str) -> None:
     game = new_game(start_positions={TEAM: a}, team_colors={TEAM: COLOR})
-    game.initial_request_challenge(TEAM)
-    game.complete_challenge(TEAM, line)
-    game.request_challenge(TEAM, b)
-    game.complete_challenge(TEAM, line)
+    team = game.teams[0]
+    game.initial_request_challenge(team)
+    game.complete_challenge(team, line)
+    game.request_challenge(team, b)
+    game.complete_challenge(team, line)
 
     stem = os.path.join(OUTPUT_DIR, _label(line, a, b))
     render_map(game, f"{stem}.svg", debug=True)
@@ -33,7 +34,7 @@ def render_segment(line: str, a: str, b: str) -> None:
 
 
 def main() -> None:
-    geometry = _load_geometry()
+    geometry = load_geometry()
     line_segments: dict[str, list[list[str]]] = geometry["line_segments"]
 
     filter_lines = set(sys.argv[1:])

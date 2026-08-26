@@ -8,8 +8,8 @@ from game import (
     EASIER_REWARD,
     HARDER_REWARD,
     STARTING_COINS,
-    new_game,
 )
+from new_game import new_game
 from map import Map
 
 
@@ -71,7 +71,7 @@ def test_origins_are_never_bonus():
 
 def test_claiming_a_bonus_interchange_from_elsewhere_pays_claim_bonus():
     # A bonus interchange that lands in the neck (not the Front) pays the smaller bonus.
-    path = Map("map/connections.json")._path_between_on_line("Jubilee", "Wembley Park", "Bond Street")
+    path = Map("map/connections.json").path_between_on_line("Jubilee", "Wembley Park", "Bond Street")
     intermediate = path[1]  # in the neck, but not the Front (Bond Street)
     assert intermediate != "Bond Street"
 

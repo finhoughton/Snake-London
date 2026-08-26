@@ -24,3 +24,7 @@ segment_debug/
 *.egg-info/
 dist/
 build/
+
+TOKEN
+save
+generated_maps
