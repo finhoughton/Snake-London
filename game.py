@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
 import re
 import traceback
+from dataclasses import dataclass, field
 from typing import Any, Self
 
 from discord import ApplicationContext, Colour, Interaction, SelectOption
-from discord.ui import DesignerModal, Label, InputText, StringSelect, TextDisplay
+from discord.ui import DesignerModal, InputText, Label, StringSelect, TextDisplay
 
+import jloxgame
 from challenges import Challenge, ChallengePool, get_difficulty, neck_weights
 from config import (
     BONUS_AT_FRONT,
@@ -24,13 +25,12 @@ from config import (
     STARTING_COINS,
     WINNING_THRESHOLD,
 )
+from jloxgame import GameContext, Team
 from jloxgame.events import GameEvent, register_event
 from jloxgame.state import Status
 from map import Map
 from powerups import POWERUP_HANDLERS, POWERUP_ON_BUY, Curse, CurseDeck
 
-import jloxgame
-from jloxgame import GameContext, Team
 
 @dataclass
 class Snake:
@@ -39,7 +39,7 @@ class Snake:
     front: str
 
     vetoed: bool = False
-    
+
     color: str = "#888888"  # hex color for this team's claimed stations
     # The line a snake is on is two separate facts, because Detour is secret. Everything
     # the engine *does* (necks, travel validation, segment claiming) keys off travel_line;
@@ -66,6 +66,7 @@ class Snake:
         """Out of the game — either crashed or conceded."""
         return self.crashed or self.conceded
 
+
 class GameState(GameContext):
     def __init__(self) -> None:
         super().__init__()
@@ -74,26 +75,28 @@ class GameState(GameContext):
         self.snakes: dict[Team, Snake] = {}  # Team -> Snake
         self.bonus_interchanges: set[str] = set()  # interchanges that pay bonus coins
         self.challenges: ChallengePool | None = None  # pool the offers are drawn from (None = no challenges)
-        self.initial_challenge: Challenge | None = None  # shared initial challenge (default for every team, unless vetoed)
+        self.initial_challenge: Challenge | None = (
+            None  # shared initial challenge (default for every team, unless vetoed)
+        )
         # --- Powerups ---
         self.enabled_powerups: set[str] = set(POWERUP_COSTS.keys())  # powerup ids buyable this game
         self.jumped_stations: set[str] = set()  # globally, permanently passable (all players)
         self.curse_deck: CurseDeck | None = None  # deck the curse powerup draws from (None = curse unavailable)
 
-        self.latest_generated_map = 0 # not synced
+        self.latest_generated_map = 0  # not synced
 
         try:
             self.challenges = ChallengePool(CHALLENGES_PATH)
         except FileNotFoundError:
             self.challenges = None
-        
+
         try:
             self.curse_deck = CurseDeck(CURSES_PATH)
             # A deck with no curses in it counts as no deck at all
-            if len(self.curse_deck) == 0: self.curse_deck = None
+            if len(self.curse_deck) == 0:
+                self.curse_deck = None
         except FileNotFoundError:
             self.curse_deck = None
-
 
         self.bonus_chance = DEFAULT_BONUS_CHANCE
 
@@ -242,7 +245,14 @@ class GameState(GameContext):
         if snake.travel_line:
             full_path = [snake.anchor] + segment
             for i in range(len(full_path) - 1):
-                self.map.claim_segment(snake.travel_line, full_path[i], full_path[i + 1], team)
+                station_a, station_b = full_path[i], full_path[i + 1]
+                # Same rule as the interchange loop above: track another team already
+                # owns stays theirs. Only reachable by travelling through a jumped
+                # interchange — any other route over their track would have crashed
+                # this snake before it got here.
+                if self.map.get_segment_claim(snake.travel_line, station_a, station_b) not in (None, team):
+                    continue
+                self.map.claim_segment(snake.travel_line, station_a, station_b, team)
 
         # Claiming these interchanges may have invaded another team's active neck,
         # which crashes that snake.
@@ -483,22 +493,23 @@ class GameState(GameContext):
         best = max(counts.values())
         leaders = [t for t, count in counts.items() if count == best]
         return leaders[0] if len(leaders) == 1 else None
-    
+
     # jloxgame functions
 
     async def configure(self, dctx: ApplicationContext) -> bool:
-        modal = ConfigModal(self.status, 
-            [team.name for team in self.teams], 
-            [self.snakes[team].origin for team in self.teams], 
+        modal = ConfigModal(
+            self.status,
+            [team.name for team in self.teams],
+            [self.snakes[team].origin for team in self.teams],
             [f"#{team.colour:0>6x}" for team in self.teams],
             self.bonus_chance,
-            {powerup: powerup in self.enabled_powerups for powerup in POWERUP_COSTS.keys()}
+            {powerup: powerup in self.enabled_powerups for powerup in POWERUP_COSTS},
         )
         await dctx.send_modal(modal)
-        
+
         if not await modal.wait():
             return False
-        
+
         message = ""
         try:
             assert modal.team_names_input.value is not None
@@ -535,7 +546,10 @@ class GameState(GameContext):
             enabled_powerups = modal.enabled_powerups_input.values
 
             assert dctx.guild
-            self.teams = [Team(name, int(color[1:], base=16)) for name, color in zip(team_names, team_colors + DEFAULT_TEAM_COLORS)]
+            self.teams = [
+                Team(name, int(color[1:], base=16))
+                for name, color in zip(team_names, team_colors + DEFAULT_TEAM_COLORS)
+            ]
 
             self.add_event(Configure(team_positions, team_colors, bonus_chance, set(enabled_powerups)))
 
@@ -543,83 +557,102 @@ class GameState(GameContext):
                 if team.role:
                     colour_int = int(colour[1:], base=16)
                     if team.role.colours.primary.value != colour_int:
-                        await team.role.edit(color = Colour(colour_int))
+                        await team.role.edit(color=Colour(colour_int))
 
             return True
 
-        except Exception:
+        except Exception:  # noqa: BLE001 - a UI handler must not let anything escape and kill the bot
             await dctx.respond(f"Something went wrong: {message}", ephemeral=True)
             print(traceback.format_exc())
             return False
-    
+
     async def start(self, dctx: ApplicationContext) -> None:
         self.add_event(Start())
 
+
 class ConfigModal(DesignerModal):
     def __init__(
-        self, 
-        status: jloxgame.Status, 
-        team_names: list[str] = [], 
-        team_positions: list[str] = [], 
-        team_colors: list[str] = [], 
-        bonus_chance: float = DEFAULT_BONUS_CHANCE, 
-        enabled_powerups: dict[str, bool] = {}
+        self,
+        status: jloxgame.Status,
+        team_names: list[str] | None = None,
+        team_positions: list[str] | None = None,
+        team_colors: list[str] | None = None,
+        bonus_chance: float = DEFAULT_BONUS_CHANCE,
+        enabled_powerups: dict[str, bool] | None = None,
     ) -> None:
-        super().__init__(title="Snake: London Setup") # pyright: ignore[reportUnknownMemberType]
-        
+        super().__init__(title="Snake: London Setup")  # pyright: ignore[reportUnknownMemberType]
+
+        team_names = team_names or []
+        team_positions = team_positions or []
+        team_colors = team_colors or []
+        enabled_powerups = enabled_powerups or {}
+
         if status == jloxgame.Status.INIT:
-            self.team_names_input = InputText(placeholder="Team Alpha, Team Beta, Team Gamma, Team Delta, Team Epsilon", value=", ".join(team_names))        
-            self.add_item(Label(f"Teams (comma-separated)", self.team_names_input)) # pyright: ignore[reportUnknownMemberType]
+            self.team_names_input = InputText(
+                placeholder="Team Alpha, Team Beta, Team Gamma, Team Delta, Team Epsilon", value=", ".join(team_names)
+            )
+            self.add_item(Label("Teams (comma-separated)", self.team_names_input))  # pyright: ignore[reportUnknownMemberType]
         else:
-            self.add_item(TextDisplay("Teams: " + ", ".join(team_names))) # pyright: ignore[reportUnknownMemberType]
+            self.add_item(TextDisplay("Teams: " + ", ".join(team_names)))  # pyright: ignore[reportUnknownMemberType]
 
         if status in [jloxgame.Status.INIT, jloxgame.Status.SETUP]:
-            self.team_positions_input = InputText(placeholder="Wembley Park, Abbey Wood, Tooting Broadway, Rayners Lane, Ealing Broadway", value=", ".join(team_positions))
-            self.add_item(Label(f"Team starting positions (comma-separated)", self.team_positions_input)) # pyright: ignore[reportUnknownMemberType]
+            self.team_positions_input = InputText(
+                placeholder="Wembley Park, Abbey Wood, Tooting Broadway, Rayners Lane, Ealing Broadway",
+                value=", ".join(team_positions),
+            )
+            self.add_item(Label("Team starting positions (comma-separated)", self.team_positions_input))  # pyright: ignore[reportUnknownMemberType]
         else:
-            self.add_item(TextDisplay("Team starting positions: " + "".join(team_positions))) # pyright: ignore[reportUnknownMemberType]
-        
-        self.team_colors_input = InputText(placeholder=", ".join(DEFAULT_TEAM_COLORS), value=", ".join(team_colors), required=False)
-        self.add_item(Label(f"Team colours (comma-separated)", self.team_colors_input)) # pyright: ignore[reportUnknownMemberType]
+            self.add_item(TextDisplay("Team starting positions: " + "".join(team_positions)))  # pyright: ignore[reportUnknownMemberType]
+
+        self.team_colors_input = InputText(
+            placeholder=", ".join(DEFAULT_TEAM_COLORS), value=", ".join(team_colors), required=False
+        )
+        self.add_item(Label("Team colours (comma-separated)", self.team_colors_input))  # pyright: ignore[reportUnknownMemberType]
 
         if status in [jloxgame.Status.INIT, jloxgame.Status.SETUP]:
             self.bonus_chance_input = InputText(placeholder=str(DEFAULT_BONUS_CHANCE), value=str(bonus_chance))
-            self.add_item(Label(f"Bonus chance", self.bonus_chance_input)) # pyright: ignore[reportUnknownMemberType]
+            self.add_item(Label("Bonus chance", self.bonus_chance_input))  # pyright: ignore[reportUnknownMemberType]
         else:
-            self.add_item(TextDisplay(f"Bonus chance: {bonus_chance}")) # pyright: ignore[reportUnknownMemberType]
+            self.add_item(TextDisplay(f"Bonus chance: {bonus_chance}"))  # pyright: ignore[reportUnknownMemberType]
 
-        self.enabled_powerups_input = StringSelect(max_values=len(POWERUP_COSTS), options=[SelectOption(label=key, default=enabled_powerups.get(key, True)) for key in POWERUP_COSTS.keys()])
-        self.add_item(Label(f"Enabled powerups", self.enabled_powerups_input)) # pyright: ignore[reportUnknownMemberType]
-        
+        self.enabled_powerups_input = StringSelect(
+            max_values=len(POWERUP_COSTS),
+            options=[SelectOption(label=key, default=enabled_powerups.get(key, True)) for key in POWERUP_COSTS],
+        )
+        self.add_item(Label("Enabled powerups", self.enabled_powerups_input))  # pyright: ignore[reportUnknownMemberType]
+
     async def callback(self, interaction: Interaction):
         return await interaction.response.defer()
+
 
 @register_event
 @dataclass
 class Configure(GameEvent[GameState]):
     @staticmethod
-    def event_type() -> str: return "configure"
-    
+    def event_type() -> str:
+        return "configure"
+
     team_positions: list[str]
     team_colors: list[str]
     bonus_chance: float
     enabled_powerups: set[str]
-        
+
     def to_dict(self) -> dict[str, Any]:
         return {
-            "team_positions": self.team_positions, 
-            "team_colors": self.team_colors, 
+            "team_positions": self.team_positions,
+            "team_colors": self.team_colors,
             "bonus_chance": self.bonus_chance,
-            "enabled_powerups": list(self.enabled_powerups)
+            "enabled_powerups": list(self.enabled_powerups),
         }
-    
+
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(data["team_positions"], data["team_colors"], data["bonus_chance"], set(data["enabled_powerups"]))
-    
+
     def update(self, gctx: GameState) -> None:
         gctx.enabled_powerups = self.enabled_powerups
-        if gctx.curse_deck is None: gctx.enabled_powerups.discard("curse") # if there are no curses, this powerup is not playable
+        if gctx.curse_deck is None:
+            gctx.enabled_powerups.discard("curse")  # if there are no curses, this powerup is not playable
 
         if gctx.status in [Status.INIT, Status.SETUP]:
             print(f"[{gctx.thread_id} | configure | info] resetting snakes")
@@ -641,51 +674,61 @@ class Configure(GameEvent[GameState]):
             for team, colour in zip(gctx.teams, self.team_colors):
                 gctx.snakes[team].color = colour
 
+
 @register_event
 @dataclass
 class Start(GameEvent[GameState]):
     @staticmethod
-    def event_type() -> str: return "start"
-        
+    def event_type() -> str:
+        return "start"
+
     def to_dict(self) -> dict[str, Any]:
         return {}
-    
+
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls()
-    
+
     def update(self, gctx: GameState) -> None:
-        if gctx.status != Status.SETUP: return
+        if gctx.status != Status.SETUP:
+            return
 
         print(f"[{gctx.thread_id} | start | info] randomising interchanges")
         # Origins are never bonus interchanges
-        origins = set(snake.origin for snake in gctx.snakes.values())
-        gctx.bonus_interchanges = {s for s in gctx.map.station_keys() if s not in origins and gctx.rng.random() < gctx.bonus_chance}
-        
+        origins = {snake.origin for snake in gctx.snakes.values()}
+        gctx.bonus_interchanges = {
+            s for s in gctx.map.station_keys() if s not in origins and gctx.rng.random() < gctx.bonus_chance
+        }
+
         print(f"[{gctx.thread_id} | start | info] picking initial challenge")
         if gctx.challenges is not None:
-            gctx.initial_challenge = gctx.challenges.pick_in_range(INITIAL_DIFFICULTY_MIN, INITIAL_DIFFICULTY_MAX, rng=gctx.rng)
+            gctx.initial_challenge = gctx.challenges.pick_in_range(
+                INITIAL_DIFFICULTY_MIN, INITIAL_DIFFICULTY_MAX, rng=gctx.rng
+            )
 
         for team in gctx.teams:
             gctx.initial_request_challenge(team)
 
         gctx.status = Status.RUNNING
 
+
 @register_event
 @dataclass
 class TimeLimit(GameEvent[GameState]):
     @staticmethod
-    def event_type() -> str: return "time_limit"
-        
+    def event_type() -> str:
+        return "time_limit"
+
     def to_dict(self) -> dict[str, Any]:
         return {}
-    
+
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls()
-    
+
     def update(self, gctx: GameState) -> None:
-        if gctx.status != Status.RUNNING: return
+        if gctx.status != Status.RUNNING:
+            return
 
         winner = gctx.tiebreak_winner()
         print(f"[{gctx.thread_id} | time_limit | info] tiebreak winner {winner}")

@@ -1,13 +1,15 @@
 from random import Random
-from config import DEFAULT_BONUS_CHANCE, DEFAULT_TEAM_COLORS, POWERUP_COSTS
+
 from challenges import ChallengePool
+from config import DEFAULT_BONUS_CHANCE, DEFAULT_TEAM_COLORS, POWERUP_COSTS
+from game import Configure, GameState, Start
 from jloxgame.state import Team
 from powerups import CurseDeck
-from game import Configure, GameState, Start
 
 # This function has been modified and moved to this file for use in local (offline) scripts.
 # It initialises a game using the events system, and fills in dummy thread and role ids to bypass all discord requirements
 # The game can be interacted with either using events or with the pre-existing functions.
+
 
 def new_game(
     start_positions: dict[str, str],
@@ -47,7 +49,8 @@ def new_game(
         raise ValueError("At least one team is required")
 
     game = GameState()
-    if rng: game.rng = rng
+    if rng:
+        game.rng = rng
     game.thread_id = 1
 
     for team, station in start_positions.items():
@@ -60,21 +63,25 @@ def new_game(
     colors = team_colors or {}
     default_color_iter = iter(DEFAULT_TEAM_COLORS)
 
-    game.teams = [Team(name, int(colour[1:], 16), role_id=id) for name, colour, id in zip(start_positions.keys(), DEFAULT_TEAM_COLORS, range(len(DEFAULT_TEAM_COLORS)))]
-    game.add_event(Configure(
-        list(start_positions.values()), 
-        [colors.get(team) or next(default_color_iter) for team in start_positions], 
-        bonus_chance, 
-        enabled_powerups or set(POWERUP_COSTS.keys())
-    ))
-
+    game.teams = [
+        Team(name, int(colour[1:], 16), role_id=id)
+        for name, colour, id in zip(start_positions.keys(), DEFAULT_TEAM_COLORS, range(len(DEFAULT_TEAM_COLORS)))
+    ]
+    game.add_event(
+        Configure(
+            list(start_positions.values()),
+            [colors.get(team) or next(default_color_iter) for team in start_positions],
+            bonus_chance,
+            enabled_powerups or set(POWERUP_COSTS.keys()),
+        )
+    )
 
     game.add_event(Start())
 
     # Origins are never bonus interchanges, whether chosen randomly or passed in.
     if bonus_interchanges is not None:
         origins = set(start_positions.values())
-        bonus_interchanges = set(bonus_interchanges) - origins
+        game.bonus_interchanges = set(bonus_interchanges) - origins
 
     if challenge_pool is not None:
         game.challenges = challenge_pool
@@ -85,5 +92,8 @@ def new_game(
         if len(curse_deck) == 0:
             curse_deck = None
         game.curse_deck = curse_deck
+
+    if game.curse_deck is None:
+        game.enabled_powerups.discard("curse")
 
     return game

@@ -322,9 +322,9 @@ def test_extract_svg_fork_geometry_rejects_duplicate_waypoint_index(
 def _game_with_active_neck():
     """A game whose snake has an active neck, so render_map produces overlays."""
     game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
-    game.initial_request_challenge("A")
-    game.complete_challenge("A", "Jubilee")
-    game.request_challenge("A", "Bond Street")
+    A = game.teams[0]
+    game.complete_challenge(A, "Jubilee")
+    game.request_challenge(A, "Bond Street")
     return game
 
 
@@ -363,10 +363,12 @@ def test_render_map_includes_team_legend(rendered_overlay) -> None:
     assert legend_idx > render._LABEL_GROUP_RE.search(svg).start()
     assert legend_idx < svg.rfind("</svg>")
 
-    # Header (placeholder clock) and per-team stats for the fixture's snake. The
-    # snake has an active neck, so the row shows its Front station rather than its
-    # declared line. Coins/cards are private and must not appear.
-    for needle in ("Time elapsed", "00:00:00", "Score: 1", "Bond Street"):
+    # Per-team stats for the fixture's snake. The snake has an active neck, so the
+    # row shows its Front station rather than its declared line. Coins/cards are
+    # private and must not appear.
+    # (The placeholder "Time elapsed 00:00:00" header is currently commented out in
+    # _build_legend, pending a real clock from the bot, so it is not asserted here.)
+    for needle in ("Score: 1", "Bond Street"):
         assert needle in svg, f"legend missing {needle!r}"
     for hidden in ("Coins", "Cards"):
         assert hidden not in svg, f"legend should not expose {hidden!r}"
@@ -392,10 +394,10 @@ def test_render_map_draws_bonus_badges(tmp_path) -> None:
 def test_render_map_skips_badge_on_claimed_bonus(tmp_path) -> None:
     # The only bonus interchange gets claimed, so its bonus is spent — no badge.
     game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges={"Bond Street"})
-    game.initial_request_challenge("A")
-    game.complete_challenge("A", "Jubilee")
-    game.request_challenge("A", "Bond Street")
-    game.complete_challenge("A", "Jubilee")  # claims Bond Street (the bonus)
+    A = game.teams[0]
+    game.complete_challenge(A, "Jubilee")
+    game.request_challenge(A, "Bond Street")
+    game.complete_challenge(A, "Jubilee")  # claims Bond Street (the bonus)
     svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
 
     assert '<g id="Bonus Coins">' not in svg
@@ -428,12 +430,12 @@ def test_render_map_draws_no_halo_group_without_jumps(tmp_path) -> None:
 def test_jump_halo_survives_the_station_being_claimed(tmp_path) -> None:
     # Unlike a bonus badge (spent on claim), a jump is permanent — the halo stays.
     game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
+    A = game.teams[0]
     game.jumped_stations.add("Bond Street")
-    game.initial_request_challenge("A")
-    game.complete_challenge("A", "Jubilee")
-    game.request_challenge("A", "Bond Street")
-    game.complete_challenge("A", "Jubilee")  # claims Bond Street
-    assert game.map.get_claim("Bond Street") == "A"
+    game.complete_challenge(A, "Jubilee")
+    game.request_challenge(A, "Bond Street")
+    game.complete_challenge(A, "Jubilee")  # claims Bond Street
+    assert game.map.get_claim("Bond Street") == A
 
     svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
     assert '<g id="Jumped Stations">' in svg
@@ -487,12 +489,12 @@ def test_legend_shows_the_announced_line_never_the_detoured_one(tmp_path) -> Non
     # The map is public and Detour is explicitly unannounced, so the legend must print
     # the line the team declared — printing the line they actually boarded would leak it.
     game = new_game(start_positions={"A": "Baker Street"}, bonus_interchanges=set())
-    game.initial_request_challenge("A")
-    game.complete_challenge("A", "Jubilee")  # announced Jubilee
-    game.get_snake("A").coins = 50
-    game.buy_powerup("A", "detour")
-    game.play_powerup("A", "detour", line="Bakerloo")  # secretly boards the Bakerloo
-    assert game.get_snake("A").travel_line == "Bakerloo"
+    A = game.teams[0]
+    game.complete_challenge(A, "Jubilee")  # announced Jubilee
+    game.get_snake(A).coins = 50
+    game.buy_powerup(A, "detour")
+    game.play_powerup(A, "detour", line="Bakerloo")  # secretly boards the Bakerloo
+    assert game.get_snake(A).travel_line == "Bakerloo"
 
     legend = _legend_group(render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8"))
 
@@ -528,7 +530,8 @@ def test_symbol_key_always_explains_body_and_neck(tmp_path) -> None:
 
 def test_symbol_key_body_and_neck_use_a_real_team_colour(tmp_path) -> None:
     game = new_game({"A": "Wembley Park", "B": "Stratford"}, bonus_interchanges=set())
-    first = game.get_snake("A").color
+    A = game.teams[0]
+    first = game.get_snake(A).color
     key = _key_group(render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8"))
 
     assert first in key, "Body/Neck swatches should use the first team's colour"
@@ -541,8 +544,10 @@ def test_symbol_key_prefers_a_living_teams_colour(tmp_path) -> None:
     # An eliminated snake renders grey, so its colour appears nowhere on the map — the
     # key must borrow from a team still in the game instead.
     game = new_game({"A": "Wembley Park", "B": "Stratford"}, bonus_interchanges=set())
-    dead, alive = game.get_snake("A").color, game.get_snake("B").color
-    game.concede("A")
+    A = game.teams[0]
+    B = game.teams[1]
+    dead, alive = game.get_snake(A).color, game.get_snake(B).color
+    game.concede(A)
     key = _key_group(render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8"))
 
     assert alive in key
@@ -560,8 +565,9 @@ def test_symbol_key_omits_rows_for_symbols_not_on_the_map(tmp_path) -> None:
 
 def test_symbol_key_adds_rows_for_symbols_that_are_on_the_map(tmp_path) -> None:
     game = new_game({"A": "Baker Street", "B": "Bond Street"}, bonus_interchanges={"Stratford"})
+    B = game.teams[1]
     game.jumped_stations.add("Holborn")
-    game.concede("B")
+    game.concede(B)
     key = _key_group(render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8"))
 
     for needle in ("Out", "Bonus", "Jumped"):
@@ -571,10 +577,10 @@ def test_symbol_key_adds_rows_for_symbols_that_are_on_the_map(tmp_path) -> None:
 def test_symbol_key_drops_the_bonus_row_once_every_bonus_is_claimed(tmp_path) -> None:
     # Mirrors _build_bonus_badges: a claimed bonus is spent, so nothing is drawn.
     game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges={"Bond Street"})
-    game.initial_request_challenge("A")
-    game.complete_challenge("A", "Jubilee")
-    game.request_challenge("A", "Bond Street")
-    game.complete_challenge("A", "Jubilee")
+    A = game.teams[0]
+    game.complete_challenge(A, "Jubilee")
+    game.request_challenge(A, "Bond Street")
+    game.complete_challenge(A, "Jubilee")
     svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
 
     assert '<g id="Bonus Coins">' not in svg
@@ -584,12 +590,12 @@ def test_symbol_key_drops_the_bonus_row_once_every_bonus_is_claimed(tmp_path) ->
 def test_render_greys_out_eliminated_snakes(tmp_path) -> None:
     # A requests through B's claimed Bond Street and crashes; its body is greyed.
     game = new_game({"A": "Baker Street", "B": "Bond Street"}, bonus_interchanges=set())
-    game.initial_request_challenge("A")
-    game.complete_challenge("A", "Jubilee")
-    game.initial_request_challenge("B")
-    game.complete_challenge("B", "Jubilee")
-    game.request_challenge("A", "Green Park")
-    assert game.get_snake("A").crashed
+    A = game.teams[0]
+    B = game.teams[1]
+    game.complete_challenge(A, "Jubilee")
+    game.complete_challenge(B, "Jubilee")
+    game.request_challenge(A, "Green Park")
+    assert game.get_snake(A).crashed
 
     svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
     assert render._CRASHED_COLOR in svg  # A's crashed body/segments rendered grey
@@ -600,12 +606,12 @@ def test_eliminated_ghost_neck_yields_to_a_live_claim(tmp_path) -> None:
     # A crashes with a neck running through B's claimed Bond Street. A's grey ghost
     # neck must NOT recolour Bond Street — B owns it, so it stays B's colour.
     game = new_game({"A": "Baker Street", "B": "Bond Street"}, bonus_interchanges=set())
-    game.initial_request_challenge("A")
-    game.complete_challenge("A", "Jubilee")
-    game.initial_request_challenge("B")
-    game.complete_challenge("B", "Jubilee")
-    game.request_challenge("A", "Green Park")  # A's neck = [Bond Street (B's), Green Park]
-    assert game.get_snake("A").crashed
+    A = game.teams[0]
+    B = game.teams[1]
+    game.complete_challenge(A, "Jubilee")
+    game.complete_challenge(B, "Jubilee")
+    game.request_challenge(A, "Green Park")  # A's neck = [Bond Street (B's), Green Park]
+    assert game.get_snake(A).crashed
 
     svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
 
@@ -614,7 +620,7 @@ def test_eliminated_ghost_neck_yields_to_a_live_claim(tmp_path) -> None:
 
     # Bond Street (B's claim, under A's ghost neck) renders in B's colour, not grey.
     bond = marker_tag("Bond Street")
-    assert game.get_snake("B").color in bond
+    assert game.get_snake(B).color in bond
     assert render._CRASHED_COLOR not in bond
     # Green Park (A's unclaimed neck tip) is the grey ghost neck.
     assert render._CRASHED_COLOR in marker_tag("Green Park")

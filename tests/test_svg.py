@@ -5,6 +5,7 @@ import re
 import xml.etree.ElementTree as ET
 
 import pytest
+
 from map import Map
 from render import _extract_svg_fork_geometry
 
@@ -250,9 +251,9 @@ def test_no_stale_station_markers(svg_ids: dict[str, ET.Element], tube_map: Map)
     stale = []
     for id_, el in svg_ids.items():
         tag = el.tag.split("}")[-1]
-        if tag in MARKER_TAGS and id_ not in known_markers and id_ not in reserved_ids and id_ not in helper_marker_ids:
-            if len(id_) > 2 and not id_.isdigit():
-                stale.append(id_)
+        unknown = id_ not in known_markers and id_ not in reserved_ids and id_ not in helper_marker_ids
+        if tag in MARKER_TAGS and unknown and len(id_) > 2 and not id_.isdigit():
+            stale.append(id_)
     assert not stale, f"SVG has {len(stale)} marker elements with unknown ids: {stale[:10]}"
 
 
@@ -295,7 +296,8 @@ def test_path_overrides_layer_hidden() -> None:
 
 def test_path_overrides_all_groups_recognised() -> None:
     """Every group in the Path Overrides layer must reference a known line and segment."""
-    svg_text = open(SVG_PATH, encoding="utf-8").read()
+    with open(SVG_PATH, encoding="utf-8") as f:
+        svg_text = f.read()
     with open("map/geometry.json", encoding="utf-8") as f:
         line_segments: dict[str, list[list[str]]] = json.load(f)["line_segments"]
     # Raises ValueError if any group id references an unknown line or segment.

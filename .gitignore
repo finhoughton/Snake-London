@@ -3,7 +3,6 @@ __pycache__/
 .vscode/
 .DS_STORE
 other resources/
-ruff.toml
 .ruff_cache/
 .github/
 CLAUDE.md

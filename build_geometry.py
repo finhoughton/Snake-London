@@ -5,15 +5,20 @@ from __future__ import annotations
 import json
 import math
 import re
-from typing import Literal
 import xml.etree.ElementTree as ET
-
+from typing import Literal
 
 SVG_PATH = "map/snake map.svg"
 CONNECTIONS_PATH = "map/connections.json"
 OUTPUT_PATH = "map/geometry.json"
 
-ParsedTransform = tuple[Literal["unknown"], str] | tuple[Literal["scale"], float, float] | tuple[Literal["rotate"], float, float, float]
+ParsedTransform = (
+    tuple[Literal["unknown"], str]
+    | tuple[Literal["scale"], float, float]
+    | tuple[Literal["rotate"], float, float, float]
+)
+
+
 def _parse_transform(t: str) -> ParsedTransform | None:
     if not t:
         return None

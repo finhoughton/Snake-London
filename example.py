@@ -1,4 +1,5 @@
 import random
+
 from challenges import get_difficulty, neck_weights
 from config import EASIER_REWARD, HARDER_REWARD
 from new_game import new_game

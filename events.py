@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from typing import Any, Self
 
+from game import GameState
 from jloxgame.events import GameEvent, register_event
 from jloxgame.state import Status
 
-from game import GameState
 
 @register_event
 @dataclass
@@ -13,20 +13,23 @@ class Request(GameEvent[GameState]):
     station: str
 
     @staticmethod
-    def event_type() -> str: return "request_challenge"
+    def event_type() -> str:
+        return "request_challenge"
 
-    def to_dict(self) -> dict[str, Any]: return {"team_id": self.team_id, "station": self.station}
+    def to_dict(self) -> dict[str, Any]:
+        return {"team_id": self.team_id, "station": self.station}
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(data["team_id"], data["station"])
-    
+
     def update(self, gctx: GameState) -> None:
         team = gctx.get_team(self.team_id)
         assert gctx.status == Status.RUNNING
         assert gctx.map.has_station(self.station)
         gctx.request_challenge(team, self.station)
-    
+
+
 @register_event
 @dataclass
 class Complete(GameEvent[GameState]):
@@ -35,38 +38,44 @@ class Complete(GameEvent[GameState]):
     hard: bool
 
     @staticmethod
-    def event_type() -> str: return "complete"
+    def event_type() -> str:
+        return "complete"
 
-    def to_dict(self) -> dict[str, Any]: return {"team_id": self.team_id, "next_line": self.next_line, "hard": self.hard}
+    def to_dict(self) -> dict[str, Any]:
+        return {"team_id": self.team_id, "next_line": self.next_line, "hard": self.hard}
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(data["team_id"], data["next_line"], data["hard"])
-    
+
     def update(self, gctx: GameState) -> None:
         team = gctx.get_team(self.team_id)
         assert gctx.status == Status.RUNNING
         gctx.complete_challenge(team, self.next_line, hard=self.hard)
-    
+
+
 @register_event
 @dataclass
 class Veto(GameEvent[GameState]):
     team_id: int
 
     @staticmethod
-    def event_type() -> str: return "veto"
+    def event_type() -> str:
+        return "veto"
 
-    def to_dict(self) -> dict[str, Any]: return {"team_id": self.team_id}
+    def to_dict(self) -> dict[str, Any]:
+        return {"team_id": self.team_id}
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(data["team_id"])
-    
+
     def update(self, gctx: GameState) -> None:
         team = gctx.get_team(self.team_id)
         assert gctx.status == Status.RUNNING
-        if not gctx.veto_challenges(team): # veto period
+        if not gctx.veto_challenges(team):  # veto period
             gctx.get_snake(team).vetoed = True
+
 
 @register_event
 @dataclass
@@ -74,18 +83,21 @@ class Unveto(GameEvent[GameState]):
     team_id: int
 
     @staticmethod
-    def event_type() -> str: return "unveto"
+    def event_type() -> str:
+        return "unveto"
 
-    def to_dict(self) -> dict[str, Any]: return {"team_id": self.team_id}
+    def to_dict(self) -> dict[str, Any]:
+        return {"team_id": self.team_id}
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(data["team_id"])
-    
+
     def update(self, gctx: GameState) -> None:
         team = gctx.get_team(self.team_id)
         assert gctx.status == Status.RUNNING
         gctx.get_snake(team).vetoed = False
+
 
 @register_event
 @dataclass
@@ -94,18 +106,21 @@ class BuyPowerup(GameEvent[GameState]):
     powerup: str
 
     @staticmethod
-    def event_type() -> str: return "buy_powerup"
+    def event_type() -> str:
+        return "buy_powerup"
 
-    def to_dict(self) -> dict[str, Any]: return {"team_id": self.team_id, "powerup": self.powerup}
+    def to_dict(self) -> dict[str, Any]:
+        return {"team_id": self.team_id, "powerup": self.powerup}
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Self:
         return cls(data["team_id"], data["powerup"])
-    
+
     def update(self, gctx: GameState) -> None:
         team = gctx.get_team(self.team_id)
         assert gctx.status == Status.RUNNING
         gctx.buy_powerup(team, self.powerup)
+
 
 @register_event
 @dataclass
@@ -118,22 +133,30 @@ class PlayPowerup(GameEvent[GameState]):
     curse: str | None = None
 
     @staticmethod
-    def event_type() -> str: return "play_powerup"
+    def event_type() -> str:
+        return "play_powerup"
 
-    def to_dict(self) -> dict[str, Any]: 
+    def to_dict(self) -> dict[str, Any]:
         return {
-            "team_id": self.team_id, 
-            "powerup": self.powerup, 
+            "team_id": self.team_id,
+            "powerup": self.powerup,
             "target_station": self.target_station,
             "target_line": self.target_line,
             "target_team_id": self.target_team_id,
-            "curse": self.curse
+            "curse": self.curse,
         }
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Self:
-        return cls(data["team_id"], data["powerup"], target_station = data["target_station"], target_line = data["target_line"], target_team_id = data["target_team_id"], curse = data["curse"])
-    
+        return cls(
+            data["team_id"],
+            data["powerup"],
+            target_station=data["target_station"],
+            target_line=data["target_line"],
+            target_team_id=data["target_team_id"],
+            curse=data["curse"],
+        )
+
     def update(self, gctx: GameState) -> None:
         team = gctx.get_team(self.team_id)
         assert gctx.status == Status.RUNNING

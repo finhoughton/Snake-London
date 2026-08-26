@@ -1,5 +1,5 @@
-from map import Map
 from challenges import get_difficulty, neck_weights
+from map import Map
 
 m = Map()
 

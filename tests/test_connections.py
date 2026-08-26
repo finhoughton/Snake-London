@@ -2,6 +2,7 @@ import json
 from collections import deque
 
 import pytest
+
 from map import Map
 
 # Fixtures
@@ -202,9 +203,14 @@ def test_no_unknown_lines(tube_map: Map):
     assert not errors, "\n".join(errors)
 
 
+def _connections() -> dict:
+    with open("map/connections.json") as f:
+        return json.load(f)
+
+
 @pytest.mark.parametrize(
     "line_key",
-    [k for k, v in json.load(open("map/connections.json"))["lines"].items() if v["stations"]],
+    [k for k, v in _connections()["lines"].items() if v["stations"]],
 )
 def test_line_is_a_tree(line_key: str, tube_map: Map):
     """Each line's adjacency graph must be a tree: connected and cycle-free."""
