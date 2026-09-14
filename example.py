@@ -5,7 +5,7 @@ from config import EASIER_REWARD, HARDER_REWARD
 from new_game import new_game
 from render import render_map, svg_to_png
 
-# Five-team game exercising all six powerups — colours assigned automatically
+# Five-team game exercising all five powerups — colours assigned automatically
 # from DEFAULT_TEAM_COLORS. Seeded so the bonus interchanges, the challenge
 # offers and the curse draw are the same on every run.
 #
@@ -28,28 +28,16 @@ game = new_game(
 
 Alpha, Beta, Gamma, Delta, Epsilon = game.teams
 
-# The initial challenge claims the Origin and unlocks the first line. It pays no
-# coins, so everyone is still on STARTING_COINS after this.
+# new_game arms every team's initial challenge. Completing it claims the Origin and
+# unlocks the first line; it pays no coins, so everyone is still on STARTING_COINS.
 
-game.initial_request_challenge(Alpha)
 game.complete_challenge(Alpha.role_id, "Jubilee")
-
-game.initial_request_challenge(Beta)
 game.complete_challenge(Beta.role_id, "Elizabeth")
-
-game.initial_request_challenge(Gamma)
 game.complete_challenge(Gamma.role_id, "Bank Branch")
-
-game.initial_request_challenge(Delta)
 game.complete_challenge(Delta.role_id, "Met")
-
-game.initial_request_challenge(Epsilon)
 game.complete_challenge(Epsilon.role_id, "Central")
 
-# Alpha — opens with Double up, so the next two challenges pay 6 instead of 3.
-
-game.buy_powerup(Alpha.role_id, "double_up")
-game.play_normal_powerup(Alpha.role_id, "double_up")
+# Alpha — heads down the Jubilee, taking the harder challenge each time.
 
 game.request_challenge(Alpha.role_id, "Bond Street")
 game.complete_challenge(Alpha.role_id, "Jubilee", hard=True)
@@ -119,7 +107,7 @@ game.complete_challenge(Epsilon.role_id, "Picc")
 
 game.request_challenge(Epsilon.role_id, "Piccadilly Circus")  # path via Alpha's Green Park → crash
 
-# Later — Alpha spends its Double up winnings on a Jump. Blackfriars is
+# Later — Alpha spends its winnings on a Jump. Blackfriars is
 # Gamma's, so the S Circle run Westminster → Embankment → Blackfriars → Bank
 # would normally crash Alpha; jumping it makes the interchange passable for
 # everyone, permanently, without taking it off Gamma.

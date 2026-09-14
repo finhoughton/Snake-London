@@ -378,7 +378,6 @@ def normal(powerup: str):
 
 
 normal("efficiency")
-normal("double_up")
 normal("retreat")
 
 def jump_station_autocomplete(ctx: AutocompleteContext) -> Iterable[str]:

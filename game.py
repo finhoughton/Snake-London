@@ -56,7 +56,6 @@ class Snake:
     # --- Powerups ---
     hand: list[str] = field(default_factory=list[str])  # powerup ids held; duplicates allowed, no limit
     free_vetoes: int = 0  # 1 while a free (Efficiency) veto is armed; never above 1
-    double_up_remaining: int = 0  # completions left with a doubled reward (0-2)
     blocked_station: str | None = None  # set by Retreat; the next request must differ
     pending_detour: str | None = None  # Detour played mid-challenge; overrides the next declared line
     held_curses: list[Curse] = field(default_factory=list[Curse])  # curses bought and not yet played
@@ -226,8 +225,7 @@ class GameState(GameContext):
         the Front (where the challenge was completed), else BONUS_CLAIMED.
 
         The *initial* challenge is the exception: it pays nothing at all (there is
-        only ever one challenge on offer, so ``hard`` is meaningless there), and it
-        leaves a Double up armed rather than spending a charge on a zero reward.
+        only ever one challenge on offer, so ``hard`` is meaningless there).
 
         Returns the list of newly claimed interchanges.
         """
@@ -276,16 +274,10 @@ class GameState(GameContext):
         # which crashes that snake.
         self._apply_neck_crashes(exclude=team)
 
-        # Award coins: the challenge reward (doubled while Double up is armed) plus
-        # any bonus interchanges just claimed. Bonus coins are never doubled. The
-        # initial challenge pays neither — it only unlocks the first line — and it
-        # spends no Double up charge, since there is no reward to double.
+        # Award coins: the challenge reward plus any bonus interchanges just claimed.
+        # The initial challenge pays neither — it only unlocks the first line.
         if not is_initial:
-            reward = HARDER_REWARD if hard else EASIER_REWARD
-            if snake.double_up_remaining > 0:
-                reward *= 2
-                snake.double_up_remaining -= 1
-            snake.coins += reward
+            snake.coins += HARDER_REWARD if hard else EASIER_REWARD
             for station_key in newly_claimed:
                 if station_key in self.bonus_interchanges:
                     snake.coins += BONUS_AT_FRONT if station_key == snake.front else BONUS_CLAIMED

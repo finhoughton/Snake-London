@@ -46,7 +46,6 @@ INITIAL_DIFFICULTY_MAX = 7.5
 POWERUP_COSTS = {
     "jump": 8,  # make one station permanently passable (for everyone)
     "efficiency": 4,  # next veto/failure is free (no veto period)
-    "double_up": 3,  # next two challenge rewards doubled (bonus coins unaffected)
     "retreat": 3,  # cancel current challenge request; next request must differ
     "detour": 2,  # switch declared line without a challenge (unannounced)
     "curse": 3,  # draw a random curse and play it on another team

@@ -92,11 +92,6 @@ def _handle_efficiency(game: GameState, team: Team) -> None:
     game.get_snake(team).free_vetoes = 1
 
 
-def _handle_double_up(game: GameState, team: Team) -> None:
-    """Arm two doubled challenge rewards. Sets (never adds) to 2 — never exceeds 2."""
-    game.get_snake(team).double_up_remaining = 2
-
-
 def _handle_retreat(game: GameState, team: Team) -> None:
     """Cancel the active request; the next request must go to a different station."""
     snake = game.get_snake(team)
@@ -193,7 +188,6 @@ POWERUP_ON_BUY: dict[str, Callable[[GameState, Team], Curse]] = {
 
 NORMAL_POWERUP_HANDLERS: dict[str, Callable[[GameState, Team], None]] = {
     "efficiency": _handle_efficiency,
-    "double_up": _handle_double_up,
     "retreat": _handle_retreat,
 }
 
@@ -203,7 +197,9 @@ NORMAL_POWERUP_HANDLERS: dict[str, Callable[[GameState, Team], None]] = {
 # happily and then fail with a bare KeyError when played — bypassing the ValueError
 # contract every other failure path honours. Checked at import so a half-added
 # powerup breaks loudly and immediately rather than mid-game.
-if set(NORMAL_POWERUP_HANDLERS) - set(POWERUP_COSTS): # anshul: changed to be a subset! avoiding using this messily-typed lookup table
+if set(NORMAL_POWERUP_HANDLERS) - set(
+    POWERUP_COSTS
+):  # anshul: changed to be a subset! avoiding using this messily-typed lookup table
     raise RuntimeError(
         "Powerup registry mismatch — every id in config.POWERUP_COSTS needs a handler and vice versa: "
         f"priced without a handler {sorted(set(POWERUP_COSTS) - set(NORMAL_POWERUP_HANDLERS))}, "

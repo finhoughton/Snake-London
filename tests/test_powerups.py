@@ -27,7 +27,7 @@ powerups = pytest.importorskip("powerups", reason="powerups.py not implemented y
 Curse = powerups.Curse
 CurseDeck = powerups.CurseDeck
 
-EXPECTED_COSTS = {"jump": 8, "efficiency": 4, "double_up": 3, "retreat": 3, "detour": 2, "curse": 3}
+EXPECTED_COSTS = {"jump": 8, "efficiency": 4, "retreat": 3, "detour": 2, "curse": 3}
 
 _CURSES_JSON = """{
   "curses": [
@@ -130,8 +130,8 @@ def test_hand_is_unlimited_and_allows_duplicates(tmp_path: Path):
     snake = game.get_snake(A)
     snake.coins = 50
     for _ in range(3):
-        game.buy_powerup(A.role_id, "double_up")
-    assert snake.hand.count("double_up") == 3
+        game.buy_powerup(A.role_id, "retreat")
+    assert snake.hand.count("retreat") == 3
 
 
 def test_eliminated_teams_cannot_buy_or_play(tmp_path: Path):
@@ -344,83 +344,6 @@ def test_efficiency_does_not_stack(tmp_path: Path):
 
     assert game.veto_challenges(A.role_id) is True
     assert game.veto_challenges(A.role_id) is False  # only ONE veto was free
-
-
-# --- double up ---------------------------------------------------------------
-
-
-def test_double_up_doubles_the_next_two_challenge_rewards(tmp_path: Path):
-    game = _game(tmp_path, teams={"A": "Baker Street"})
-    A = game.teams[0]
-    snake = game.get_snake(A)
-    snake.coins = 50
-    game.buy_powerup(A.role_id, "double_up")
-    game.play_normal_powerup(A.role_id, "double_up")
-    assert snake.double_up_remaining == 2
-    base = snake.coins
-
-    game.complete_challenge(A.role_id, "Jubilee")  # pays nothing, so no charge is spent
-    assert snake.double_up_remaining == 2
-    game.request_challenge(A.role_id, "Bond Street")
-    game.complete_challenge(A.role_id, "Jubilee")  # easier, doubled
-    game.request_challenge(A.role_id, "Green Park")
-    game.complete_challenge(A.role_id, "Jubilee", hard=True)  # harder, doubled
-    assert snake.double_up_remaining == 0
-    game.request_challenge(A.role_id, "Westminster")
-    game.complete_challenge(A.role_id, "Jubilee")  # back to normal
-
-    expected = base + 2 * config.EASIER_REWARD + 2 * config.HARDER_REWARD + config.EASIER_REWARD
-    assert snake.coins == expected
-
-
-def test_double_up_does_not_double_bonus_coins(tmp_path: Path):
-    game = _game(tmp_path, teams={"A": "Baker Street"}, bonus_interchanges={"Bond Street"})
-    A = game.teams[0]
-    snake = game.get_snake(A)
-    snake.coins = 50
-    game.buy_powerup(A.role_id, "double_up")
-    game.play_normal_powerup(A.role_id, "double_up")
-    base = snake.coins
-
-    game.complete_challenge(A.role_id, "Jubilee")  # initial: pays nothing, spends no charge
-    game.request_challenge(A.role_id, "Bond Street")
-    game.complete_challenge(A.role_id, "Jubilee", hard=True)  # doubled + UN-doubled front bonus
-
-    expected = base + 2 * config.HARDER_REWARD + config.BONUS_AT_FRONT
-    assert snake.coins == expected
-
-
-def test_double_up_does_not_stack(tmp_path: Path):
-    # The counter is SET to 2, never added to: a second play at the full 2 is
-    # wasted (consumed, no effect) — it does not become 4.
-    game = _game(tmp_path)
-    A = game.teams[0]
-    snake = game.get_snake(A)
-    snake.coins = 50
-    for _ in range(2):
-        game.buy_powerup(A.role_id, "double_up")
-        game.play_normal_powerup(A.role_id, "double_up")
-    assert snake.double_up_remaining == 2
-    assert snake.hand == []  # the wasted copy was still consumed
-
-
-def test_double_up_refreshes_from_one_back_to_two(tmp_path: Path):
-    game = _game(tmp_path, teams={"A": "Baker Street"})
-    A = game.teams[0]
-    snake = game.get_snake(A)
-    snake.coins = 50
-    game.buy_powerup(A.role_id, "double_up")
-    game.buy_powerup(A.role_id, "double_up")
-    game.play_normal_powerup(A.role_id, "double_up")
-    assert snake.double_up_remaining == 2
-
-    game.complete_challenge(A.role_id, "Jubilee")  # initial: unpaid, so still 2
-    game.request_challenge(A.role_id, "Bond Street")
-    game.complete_challenge(A.role_id, "Jubilee")  # one doubled completion used
-    assert snake.double_up_remaining == 1
-
-    game.play_normal_powerup(A.role_id, "double_up")  # tops back up to 2, does not add
-    assert snake.double_up_remaining == 2
 
 
 # --- retreat -----------------------------------------------------------------
