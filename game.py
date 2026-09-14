@@ -59,6 +59,10 @@ class Snake:
     pending_detour: str | None = None  # Detour played mid-challenge; overrides the next declared line
     held_curses: list[Curse] = field(default_factory=list[Curse])  # curses bought and not yet played
     curses: list[Curse] = field(default_factory=list[Curse])  # curses inflicted on this team by others
+    # Ids of every challenge ever offered to this team (both slots, vetoed offers and the
+    # shared initial challenge included). Offers skip these while alternatives exist.
+    # Rebuilt by replaying the event log, so it never needs saving.
+    seen_challenges: set[str] = field(default_factory=set[str])
 
     @property
     def eliminated(self) -> bool:
@@ -353,9 +357,16 @@ class GameState(GameContext):
 
         snake.vetoed = False
 
+    @staticmethod
+    def _mark_seen(snake: Snake) -> None:
+        """Record the current offer as shown to this team, so it isn't offered again."""
+        if snake.offer is not None:
+            snake.seen_challenges.update(c.id for c in snake.offer)
+
     def _sync_initial_offer(self, snake: Snake) -> None:
         """Set a snake's offer to the game's shared initial challenge (both slots identical)."""
         snake.offer = (self.initial_challenge, self.initial_challenge) if self.initial_challenge else None
+        self._mark_seen(snake)
 
     def _draw_new_initial_offer(self, snake: Snake) -> None:
         """Draw a fresh initial challenge for one team after a veto.
@@ -367,8 +378,11 @@ class GameState(GameContext):
         if self.challenges is None:
             snake.offer = None
             return
-        challenge = self.challenges.pick_in_range(INITIAL_DIFFICULTY_MIN, INITIAL_DIFFICULTY_MAX, rng=self.rng)
+        challenge = self.challenges.pick_in_range(
+            INITIAL_DIFFICULTY_MIN, INITIAL_DIFFICULTY_MAX, rng=self.rng, exclude=snake.seen_challenges
+        )
         snake.offer = (challenge, challenge)
+        self._mark_seen(snake)
 
     def _draw_offer(self, team: Team) -> None:
         """Draw the (easier, harder) pair for a team's current neck, sized by its difficulty.
@@ -376,14 +390,16 @@ class GameState(GameContext):
         Only used once a line has been declared (i.e. after the initial
         challenge) — there's a real neck to measure by then. Difficulty is a
         function of the neck's length and the weights (approx. number of lines)
-        of its interchanges (`get_difficulty` ∘ `neck_weights`). No-op if the game
+        of its interchanges (`get_difficulty` ∘ `neck_weights`). Challenges this team
+        has already been shown are skipped while alternatives exist. No-op if the game
         has no challenge pool.
         """
         if self.challenges is None:
             return
         snake = self.get_snake(team)
         weights = neck_weights(self.map, snake.travel_line or "", self.neck(team))
-        snake.offer = self.challenges.pair_for(get_difficulty(weights), rng=self.rng)
+        snake.offer = self.challenges.pair_for(get_difficulty(weights), rng=self.rng, exclude=snake.seen_challenges)
+        self._mark_seen(snake)
 
     # Powerups
 

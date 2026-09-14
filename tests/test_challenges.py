@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import json
 import random
+import statistics
 from pathlib import Path
 
 import pytest
 
-from challenges import Challenge, ChallengePool
+from challenges import Challenge, ChallengePool, get_difficulty, neck_weights
 from config import HARDER_REWARD, INITIAL_DIFFICULTY_MAX, INITIAL_DIFFICULTY_MIN, STARTING_COINS
 from game import GameState
+from map import Map
 from new_game import new_game
 
 
@@ -241,3 +243,146 @@ def test_veto_during_initial_does_not_disturb_a_team_past_the_initial_phase(tmp_
     game.veto_challenges(B.role_id)  # B is still mid-initial; must not touch A's unrelated offer
 
     assert game.current_challenges(A) == a_offer_before
+
+
+# --- no repeats: a team is never shown the same challenge twice --------------
+
+
+def _numbered_pool(tmp_path: Path, difficulties: list[float]) -> ChallengePool:
+    """Challenges c0, c1, ... with the given difficulties, in that order."""
+    data = {
+        "challenges": [
+            {"id": f"c{i}", "name": f"C{i}", "description": "x", "difficulty": d} for i, d in enumerate(difficulties)
+        ]
+    }
+    path = tmp_path / "numbered_challenges.json"
+    path.write_text(json.dumps(data))
+    return ChallengePool(str(path))
+
+
+def _pair_for_before_exclusion(pool: ChallengePool, target: float, rng: random.Random):
+    """ChallengePool.pair_for exactly as it was before ``exclude`` existed."""
+    everything = pool.all()
+    below = [c for c in everything if target - 1.5 <= c.difficulty <= target]
+    above = [c for c in everything if target < c.difficulty <= target + 1.5]
+    if not below:
+        below = [min(everything, key=lambda c: abs(c.difficulty - target))]
+    if not above:
+        above = [max(everything, key=lambda c: c.difficulty if c.difficulty > target else -1)]
+        if above[0].difficulty <= target:
+            above = [everything[-1]]
+    return rng.choice(below), rng.choice(above)
+
+
+def test_with_nothing_excluded_offers_are_unchanged(tmp_path: Path):
+    pool = _wide_pool(tmp_path)
+    for target in (0.5, 2.0, 3.7, 5.2, 6.9, 9.0):  # includes targets whose bands are empty
+        for seed in range(10):
+            assert pool.pair_for(target, rng=random.Random(seed)) == _pair_for_before_exclusion(
+                pool, target, random.Random(seed)
+            )
+
+
+def test_offers_skip_challenges_the_team_has_seen(tmp_path: Path):
+    pool = _numbered_pool(tmp_path, [2.0, 2.5, 3.0, 3.5, 4.0, 4.5])
+    # target 3.0: easier band [1.5, 3.0] is c0-c2, harder band (3.0, 4.5] is c3-c5
+    for seed in range(30):
+        easier, harder = pool.pair_for(3.0, rng=random.Random(seed), exclude={"c0", "c1", "c3", "c4"})
+        assert (easier.id, harder.id) == ("c2", "c5")
+
+
+def test_a_band_stretches_away_from_the_target_before_repeating(tmp_path: Path):
+    pool = _numbered_pool(tmp_path, [1.0, 3.0, 4.0, 6.5])
+    # Both bands' only challenges (c1, c2) have been seen: the easier band stretches
+    # down to c0, the harder band up to c3, rather than showing either again.
+    easier, harder = pool.pair_for(3.0, rng=random.Random(0), exclude={"c1", "c2"})
+    assert (easier.id, harder.id) == ("c0", "c3")
+
+
+def test_repeats_rather_than_failing_when_everything_has_been_seen(tmp_path: Path):
+    pool = _numbered_pool(tmp_path, [2.0, 4.0])
+    easier, harder = pool.pair_for(3.0, rng=random.Random(0), exclude={"c0", "c1"})
+    assert (easier.id, harder.id) == ("c0", "c1")
+    assert pool.pick_in_range(1.0, 5.0, rng=random.Random(0), exclude={"c0", "c1"}).id in {"c0", "c1"}
+
+
+def test_pick_in_range_skips_seen_challenges(tmp_path: Path):
+    pool = _wide_pool(tmp_path)
+    band = [c for c in pool.all() if INITIAL_DIFFICULTY_MIN <= c.difficulty <= INITIAL_DIFFICULTY_MAX]
+    assert len(band) > 1
+    seen = {c.id for c in band[:-1]}
+    for seed in range(20):
+        picked = pool.pick_in_range(
+            INITIAL_DIFFICULTY_MIN, INITIAL_DIFFICULTY_MAX, rng=random.Random(seed), exclude=seen
+        )
+        assert picked.id == band[-1].id
+
+
+def test_a_team_is_never_offered_the_same_challenge_twice(tmp_path: Path):
+    # 96 challenges from 1.0 to 10.5 and a one-stop hop, so there's room on both sides of
+    # the target: a long run of vetoes has to stretch its bands, but never repeats. (A
+    # five-stop route targets ~9, where only 15 challenges sit above it; once a team has
+    # seen all of those, repeating is the right answer — see the test above.)
+    pool = _numbered_pool(tmp_path, [1.0 + 0.1 * i for i in range(96)])
+    game = new_game({"A": "Wembley Park"}, bonus_interchanges=set(), challenge_pool=pool, rng=random.Random(0))
+    A = game.teams[0]
+    shown = [game.initial_challenge.id]
+    game.complete_challenge(A.role_id, "Jubilee")
+    game.request_challenge(A.role_id, "West Hampstead")
+    for _ in range(15):
+        shown += [c.id for c in game.current_challenges(A)]
+        game.veto_challenges(A.role_id)
+    shown += [c.id for c in game.current_challenges(A)]
+    assert len(shown) == len(set(shown)), "a challenge was offered to the same team twice"
+    assert set(shown) == game.get_snake(A).seen_challenges
+
+
+def test_the_shared_initial_challenge_counts_as_seen_but_only_per_team(tmp_path: Path):
+    game = new_game(
+        {"A": "Wembley Park", "B": "Stratford"},
+        bonus_interchanges=set(),
+        challenge_pool=_wide_pool(tmp_path),
+        rng=random.Random(3),
+    )
+    A, B = game.teams
+    shared = game.initial_challenge.id
+    game.veto_challenges(A.role_id)  # A draws its own replacement initial challenge
+    assert game.current_challenges(A)[0].id != shared  # never the one A has already been shown
+    assert game.get_snake(A).seen_challenges >= {shared, game.current_challenges(A)[0].id}
+    assert game.get_snake(B).seen_challenges == {shared}  # A's veto doesn't touch B
+
+
+# --- difficulty calibration --------------------------------------------------
+
+
+def test_typical_routes_are_sized_to_the_challenge_pool():
+    """Guards get_difficulty's calibration against drifting away from challenges.json.
+
+    Before it was recalibrated, real routes scored 2.1-6.3 against a pool centred on
+    6.0, and about a quarter of the pool could never be offered.
+    """
+    game_map = Map("map/connections.json")
+    pool = sorted(c.difficulty for c in ChallengePool("challenges.json").all())
+    short_hops, every_route = [], []
+    for line in game_map.line_keys():
+        stations = game_map.get_line(line).stations
+        for a in stations:
+            for b in stations:
+                if a == b:
+                    continue
+                path = game_map.path_between_on_line(line, a, b)
+                target = get_difficulty(neck_weights(game_map, line, path[1:]))
+                every_route.append(target)
+                if len(path) - 1 <= 2:
+                    short_hops.append(target)
+
+    assert abs(statistics.median(short_hops) - statistics.median(pool)) <= 1.5  # everyday hops sit mid-pool
+    assert max(every_route) + 1.5 >= pool[-1]  # the hardest challenge can still be offered...
+    assert min(every_route) - 1.5 <= pool[0]  # ...and so can the easiest
+    assert 0 <= min(every_route) and max(every_route) < 10
+
+
+def test_difficulty_rises_with_neck_length_and_station_importance():
+    assert get_difficulty([]) == 0.0
+    assert get_difficulty([2]) < get_difficulty([2, 2]) < get_difficulty([2, 2, 2])
+    assert get_difficulty([2, 2]) < get_difficulty([2, 8]) < get_difficulty([8, 8])

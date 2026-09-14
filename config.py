@@ -26,8 +26,10 @@ DEFAULT_BONUS_CHANCE = 0.15  # per-interchange chance of being a bonus (origins 
 # sized via get_difficulty(neck_weights(...)) like a normal one. Instead every team
 # gets the same challenge, drawn once with a difficulty picked uniformly from this
 # band (see GameState.initial_challenge).
-INITIAL_DIFFICULTY_MIN = 2.5
-INITIAL_DIFFICULTY_MAX = 5.5
+# Centred on a typical route's difficulty: about 6 since get_difficulty was recalibrated on
+# the 23 Aug 2026 playtest (the band was 2.5-5.5, around the old typical 4).
+INITIAL_DIFFICULTY_MIN = 4.5
+INITIAL_DIFFICULTY_MAX = 7.5
 
 # --- Powerups ---------------------------------------------------------------
 # The keys of POWERUP_COSTS define the set of known powerups; the value is the
