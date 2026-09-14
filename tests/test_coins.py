@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+from typing import Any
 
 from game import (
     BONUS_AT_FRONT,
@@ -9,54 +10,59 @@ from game import (
     HARDER_REWARD,
     STARTING_COINS,
 )
-from new_game import new_game
 from map import Map
+from new_game import new_game
 
 
 def test_teams_start_with_starting_coins():
     game = new_game({"A": "Wembley Park", "B": "Stratford"}, bonus_interchanges=set())
-    assert game.get_snake("A").coins == STARTING_COINS
-    assert game.get_snake("B").coins == STARTING_COINS
+    A, B = game.teams
+    assert game.get_snake(A).coins == STARTING_COINS
+    assert game.get_snake(B).coins == STARTING_COINS
 
 
-def _started(station: str = "Wembley Park", **kwargs):
-    """A one-team game past the (unpaid) initial challenge, declared onto the Jubilee."""
+def _started(station: str = "Wembley Park", **kwargs: Any):
+    """A one-team game past the (unpaid) initial challenge, declared onto the Jubilee.
+
+    ``new_game`` already runs Start, which arms every team's initial challenge, so
+    the challenge only needs completing here.
+    """
     game = new_game({"A": station}, bonus_interchanges=kwargs.pop("bonus_interchanges", set()), **kwargs)
-    game.initial_request_challenge("A")
-    game.complete_challenge("A", "Jubilee")
-    return game
+    A = game.teams[0]
+    game.complete_challenge(A.role_id, "Jubilee")
+    return game, A
 
 
 def test_initial_challenge_awards_no_coins():
     # The initial challenge only unlocks the first line — there is one challenge on
     # offer, not an easier/harder pair, so neither `hard` value pays anything.
     game = new_game({"A": "Wembley Park"}, bonus_interchanges=set())
-    game.initial_request_challenge("A")
-    game.complete_challenge("A", "Jubilee", hard=True)
-    assert game.get_snake("A").coins == STARTING_COINS
+    A = game.teams[0]
+    game.complete_challenge(A.role_id, "Jubilee", hard=True)
+    assert game.get_snake(A).coins == STARTING_COINS
 
 
 def test_easier_challenge_awards_easier_reward():
-    game = _started()
-    game.request_challenge("A", "Bond Street")
-    game.complete_challenge("A", "Jubilee")  # easier (default)
-    assert game.get_snake("A").coins == STARTING_COINS + EASIER_REWARD
+    game, A = _started()
+    game.request_challenge(A.role_id, "Bond Street")
+    game.complete_challenge(A.role_id, "Jubilee")  # easier (default)
+    assert game.get_snake(A).coins == STARTING_COINS + EASIER_REWARD
 
 
 def test_harder_challenge_awards_harder_reward():
-    game = _started()
-    game.request_challenge("A", "Bond Street")
-    game.complete_challenge("A", "Jubilee", hard=True)
-    assert game.get_snake("A").coins == STARTING_COINS + HARDER_REWARD
+    game, A = _started()
+    game.request_challenge(A.role_id, "Bond Street")
+    game.complete_challenge(A.role_id, "Jubilee", hard=True)
+    assert game.get_snake(A).coins == STARTING_COINS + HARDER_REWARD
 
 
 def test_completing_at_a_bonus_interchange_pays_front_bonus():
     # The Front of a non-initial challenge is a bonus interchange -> front bonus.
-    game = _started(bonus_interchanges={"Bond Street"})  # initial challenge pays nothing
-    game.request_challenge("A", "Bond Street")
-    game.complete_challenge("A", "Jubilee")  # Front = Bond Street (bonus): +EASIER_REWARD +BONUS_AT_FRONT
+    game, A = _started(bonus_interchanges={"Bond Street"})  # initial challenge pays nothing
+    game.request_challenge(A.role_id, "Bond Street")
+    game.complete_challenge(A.role_id, "Jubilee")  # Front = Bond Street (bonus): +EASIER_REWARD +BONUS_AT_FRONT
     expected = STARTING_COINS + EASIER_REWARD + BONUS_AT_FRONT
-    assert game.get_snake("A").coins == expected
+    assert game.get_snake(A).coins == expected
 
 
 def test_origins_are_never_bonus():
@@ -75,12 +81,12 @@ def test_claiming_a_bonus_interchange_from_elsewhere_pays_claim_bonus():
     intermediate = path[1]  # in the neck, but not the Front (Bond Street)
     assert intermediate != "Bond Street"
 
-    game = _started(bonus_interchanges={intermediate})  # initial challenge pays nothing
-    game.request_challenge("A", "Bond Street")
-    game.complete_challenge("A", "Jubilee")  # claims the neck incl. the bonus intermediate
+    game, A = _started(bonus_interchanges={intermediate})  # initial challenge pays nothing
+    game.request_challenge(A.role_id, "Bond Street")
+    game.complete_challenge(A.role_id, "Jubilee")  # claims the neck incl. the bonus intermediate
 
     expected = STARTING_COINS + EASIER_REWARD + BONUS_CLAIMED
-    assert game.get_snake("A").coins == expected
+    assert game.get_snake(A).coins == expected
 
 
 def test_bonus_chance_zero_selects_none():

@@ -2,16 +2,14 @@ from __future__ import annotations
 
 import json
 import random
+from pathlib import Path
 
 import pytest
 
-from game import GameState
-
 from challenges import Challenge, ChallengePool
 from config import HARDER_REWARD, INITIAL_DIFFICULTY_MAX, INITIAL_DIFFICULTY_MIN, STARTING_COINS
+from game import GameState
 from new_game import new_game
-
-from pathlib import Path
 
 
 def _pool(tmp_path: Path) -> ChallengePool:
@@ -56,7 +54,6 @@ def _game(tmp_path: Path):
 def test_requesting_a_challenge_offers_a_pair(tmp_path: Path):
     game = _game(tmp_path)
     A = game.teams[0]
-    game.initial_request_challenge(A)
     game.complete_challenge(A.role_id, "Jubilee")
     game.request_challenge(A.role_id, "Bond Street")
 
@@ -70,14 +67,12 @@ def test_requesting_a_challenge_offers_a_pair(tmp_path: Path):
 def test_initial_challenge_also_offers_a_pair(tmp_path: Path):
     game = _game(tmp_path)
     A = game.teams[0]
-    game.initial_request_challenge(A)
     assert game.current_challenges(A) is not None
 
 
 def test_completing_clears_the_offer_and_awards_role_coins(tmp_path: Path):
     game = _game(tmp_path)
     A = game.teams[0]
-    game.initial_request_challenge(A)
     game.complete_challenge(A.role_id, "Jubilee")  # the initial challenge pays nothing
     assert game.get_snake(A).coins == STARTING_COINS
 
@@ -90,7 +85,6 @@ def test_completing_clears_the_offer_and_awards_role_coins(tmp_path: Path):
 def test_veto_keeps_an_offer(tmp_path: Path):
     game = _game(tmp_path)
     A = game.teams[0]
-    game.initial_request_challenge(A)
     game.complete_challenge(A.role_id, "Jubilee")
     game.request_challenge(A.role_id, "Bond Street")
 
@@ -103,6 +97,8 @@ def test_veto_keeps_an_offer(tmp_path: Path):
 def test_veto_requires_an_active_challenge(tmp_path: Path):
     game = _game(tmp_path)
     A = game.teams[0]
+    # Start arms the initial challenge, so clear it before testing the guard.
+    game.complete_challenge(A.role_id, "Jubilee")
     with pytest.raises(ValueError, match="no active challenge"):
         game.veto_challenges(A.role_id)
 
@@ -116,9 +112,7 @@ def test_crashed_request_draws_no_offer(tmp_path: Path):
         rng=random.Random(0),
     )
     A, B = game.teams
-    game.initial_request_challenge(A)
     game.complete_challenge(A.role_id, "Jubilee")
-    game.initial_request_challenge(B)
     game.complete_challenge(B.role_id, "Jubilee")
 
     game.request_challenge(A.role_id, "Green Park")
@@ -148,7 +142,6 @@ def test_offers_are_reproducible_with_a_seeded_rng(tmp_path: Path):
             rng=random.Random(7),
         )
         A = g.teams[0]
-        g.initial_request_challenge(A)
         g.complete_challenge(A.role_id, "Jubilee")
         g.request_challenge(A.role_id, "Bond Street")
         return tuple(c.id for c in game_offer(g))
@@ -198,8 +191,6 @@ def test_all_teams_get_the_same_initial_challenge(tmp_path: Path):
         rng=random.Random(3),
     )
     A, B = game.teams
-    game.initial_request_challenge(A)
-    game.initial_request_challenge(B)
 
     offer_a = game.current_challenges(A)
     offer_b = game.current_challenges(B)
@@ -217,8 +208,6 @@ def test_veto_during_initial_only_changes_the_vetoing_team(tmp_path: Path):
         rng=random.Random(3),
     )
     A, B = game.teams
-    game.initial_request_challenge(A)
-    game.initial_request_challenge(B)
     shared_before = game.initial_challenge
     b_offer_before = game.current_challenges(B)
 
@@ -245,12 +234,10 @@ def test_veto_during_initial_does_not_disturb_a_team_past_the_initial_phase(tmp_
         rng=random.Random(3),
     )
     A, B = game.teams
-    game.initial_request_challenge(A)
     game.complete_challenge(A.role_id, "Jubilee")  # A is past the initial phase
     game.request_challenge(A.role_id, "Bond Street")
     a_offer_before = game.current_challenges(A)
 
-    game.initial_request_challenge(B)
     game.veto_challenges(B.role_id)  # B is still mid-initial; must not touch A's unrelated offer
 
     assert game.current_challenges(A) == a_offer_before

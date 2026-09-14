@@ -85,19 +85,16 @@ def handle_jump(game: GameState, team: Team, *, station: str | None = None) -> N
     if station is None or not game.map.has_station(station):
         raise ValueError(f"Unknown station for jump: {station!r}")
     game.jumped_stations.add(station)
-    return None
 
 
 def _handle_efficiency(game: GameState, team: Team) -> None:
     """Arm a free veto. No stacking — ``free_vetoes`` is set to 1, never above."""
     game.get_snake(team).free_vetoes = 1
-    return None
 
 
 def _handle_double_up(game: GameState, team: Team) -> None:
     """Arm two doubled challenge rewards. Sets (never adds) to 2 — never exceeds 2."""
     game.get_snake(team).double_up_remaining = 2
-    return None
 
 
 def _handle_retreat(game: GameState, team: Team) -> None:
@@ -115,7 +112,6 @@ def _handle_retreat(game: GameState, team: Team) -> None:
     # now walking back from, so it lapses rather than carrying to a station it may
     # not even serve. (The Front cannot move any other way while a neck is live.)
     snake.pending_detour = None
-    return None
 
 
 def handle_detour(game: GameState, team: Team, *, line: str | None = None) -> None:
@@ -145,7 +141,6 @@ def handle_detour(game: GameState, team: Team, *, line: str | None = None) -> No
         snake.pending_detour = line
     else:
         snake.travel_line = line
-    return None
 
 
 def handle_curse(game: GameState, team: Team, *, target_team: Team, curse_id: str | None = None) -> Curse:

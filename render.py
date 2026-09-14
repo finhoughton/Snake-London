@@ -3,14 +3,14 @@ from __future__ import annotations
 import json
 import math
 import re
-import time
 import subprocess
+import time
 import xml.etree.ElementTree as ET
 from collections.abc import Callable
 from pathlib import Path
+from shutil import which
 from typing import Literal, TypedDict
 
-from shutil import which
 RSVG_PATH = which("rsvg-convert")
 if RSVG_PATH is None:
     print("[render | warn] librsvg could not be found, falling back to resvg (8x slower)")
@@ -212,19 +212,22 @@ def svg_to_png(svg_path: str | Path, png_path: str | Path) -> Path:
     # Fin's solution uses resvg_py. This is a rather slow library. (2.33s on example.py @ 2000px width)
     # I have found rsvg-convert (GNOME, librsvg) to be the fastest (0.31s on example.py @ 2000px width, 7.5x faster than resvg)
     # but the best python bindings for it (cairosvg) are slower and a right pain to install on windows
-    
+
     # Here I invoke rsvg-convert if it is available (should always be on the VPS), and use resvg as a fallback.
 
     start = time.time()
-    
+
     dest = Path(png_path)
 
     if RSVG_PATH is not None:
-        proc = subprocess.run([RSVG_PATH, "-w", "2000", "-f", "png", "-o", dest, svg_path])
-        if proc.returncode != 0: raise
+        # check=True raises CalledProcessError naming the command and exit status.
+        # (A bare `raise` here had no active exception to re-raise, so a failed
+        # conversion reported "No active exception to re-raise" instead.)
+        subprocess.run([RSVG_PATH, "-w", "2000", "-f", "png", "-o", dest, svg_path], check=True)
 
     else:
-        import resvg_py # I would have put this in the RSVG_PATH conditional, but pyright got mad :/
+        import resvg_py  # I would have put this in the RSVG_PATH conditional, but pyright got mad :/
+
         svg_str = Path(svg_path).read_text(encoding="utf-8")
         png_bytes = resvg_py.svg_to_bytes(svg_str, width=2000)
         dest.write_bytes(png_bytes)
@@ -232,13 +235,16 @@ def svg_to_png(svg_path: str | Path, png_path: str | Path) -> Path:
     print(f"[render | info] conversion took {time.time() - start:.03} seconds")
     return dest
 
+
 # Segment highlighting
 
-Geometry = TypedDict("Geometry", {"station_centres": dict[str, list[float]], "line_segments": dict[str, list[list[str]]]})
+Geometry = TypedDict(
+    "Geometry", {"station_centres": dict[str, list[float]], "line_segments": dict[str, list[list[str]]]}
+)
 _geometry_cache: Geometry | None = None
 _line_paths_cache: dict[str, tuple[list[str], list[str]]] | None = None
-_svg_fork_geometry_cache: dict[tuple[str, str, str], "ForkGroup"] | None = None
-_station_markers_cache: dict[str, "StationMarker"] | None = None
+_svg_fork_geometry_cache: dict[tuple[str, str, str], ForkGroup] | None = None
+_station_markers_cache: dict[str, StationMarker] | None = None
 _label_anchors_cache: dict[str, tuple[float, float]] | None = None
 AffineTransform = tuple[float, float, float, float, float, float]
 ClipPolygon = list[tuple[float, float]]
@@ -1269,12 +1275,12 @@ def _build_segment_overlays(game: GameState, *, debug: bool = False) -> str:
 
         all_paths = colored_paths + white_paths
 
-        def style_fork_shapes(attrs: str) -> None:
+        def style_fork_shapes(attrs: str, *, fork_shapes: list[str] = fork_shapes) -> None:
             """Emit each fork shape with the given presentation attributes injected."""
             for shape in fork_shapes:
                 overlay_parts.append(re.sub(r"/>$", f" {attrs}/>", shape))
 
-        def style_clipped_line(d_attrs: list[str], style: str) -> None:
+        def style_clipped_line(d_attrs: list[str], style: str, *, clip_id: str | None = clip_id) -> None:
             """Emit the line's own paths restyled, clipped to the auto-rect polygons."""
             if clip_id is None:
                 return

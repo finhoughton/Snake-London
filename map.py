@@ -9,6 +9,7 @@ from jloxgame import Team
 
 LineDict = TypedDict("LineDict", {"display_name": str, "has_branches": bool, "stations": tuple[str, ...]})
 
+
 @dataclass(frozen=True)
 class Line:
     key: str
@@ -31,6 +32,7 @@ class Line:
 
 StationDict = TypedDict("StationDict", {"display_name": str, "weight": int})
 
+
 @dataclass(frozen=True)
 class Station:
     key: str
@@ -40,9 +42,14 @@ class Station:
 
     @classmethod
     def from_dict(cls, key: str, data: StationDict) -> Station:
-        adjacency = cast(dict[str, list[str]], {
-            line_key: neighbours for line_key, neighbours in data.items() if line_key not in ("display_name", "weight")
-        })
+        adjacency = cast(
+            dict[str, list[str]],
+            {
+                line_key: neighbours
+                for line_key, neighbours in data.items()
+                if line_key not in ("display_name", "weight")
+            },
+        )
         if "weight" in data:
             weight = data["weight"]
         else:
@@ -97,9 +104,28 @@ class Map:
     def all_claims(self) -> dict[str, Team]:
         return dict(self._claims)
 
+    @staticmethod
+    def _segment_key(line_key: str, station_a: str, station_b: str) -> tuple[str, str, str]:
+        """Segments are undirected — the two stations are stored in sorted order."""
+        return (line_key, min(station_a, station_b), max(station_a, station_b))
+
     def claim_segment(self, line_key: str, station_a: str, station_b: str, team: Team) -> None:
-        key = (line_key, min(station_a, station_b), max(station_a, station_b))
+        """Claim a line segment for a team. Raises ValueError if another team owns it.
+
+        Mirrors `claim`: the first claim wins and is permanent, and re-claiming your
+        own segment is a no-op. Two teams can only ever travel the same segment by
+        passing through a jumped interchange, and a jump grants passage, never
+        ownership — so the second traveller must not take the track off the first.
+        """
+        key = self._segment_key(line_key, station_a, station_b)
+        current = self._claimed_segments.get(key)
+        if current is not None and current != team:
+            raise ValueError(f"Segment {key!r} is already claimed by {current!r}")
         self._claimed_segments[key] = team
+
+    def get_segment_claim(self, line_key: str, station_a: str, station_b: str) -> Team | None:
+        """Return the team that has claimed a segment, or None."""
+        return self._claimed_segments.get(self._segment_key(line_key, station_a, station_b))
 
     def segments_claimed_by(self, team: Team) -> list[tuple[str, str, str]]:
         return [k for k, v in self._claimed_segments.items() if v == team]

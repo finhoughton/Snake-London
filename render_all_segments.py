@@ -63,7 +63,7 @@ def main() -> None:
             try:
                 render_segment(line, a, b)
                 print()
-            except Exception as exc:
+            except Exception as exc:  # noqa: BLE001 - a debug sweep reports every failure and continues
                 print(f"  ERROR: {exc}")
                 errors.append(f"{line} {a}→{b}: {exc}")
 
