@@ -8,9 +8,7 @@ from jloxgame.bot import JLOXBot
 from jloxgame.state import Status
 
 from game import GameState
-from map import Map
 from render import render_map, svg_to_png
-from events import BuyPowerup, Complete, PlayPowerup, Request, Unveto, Veto
 from config import POWERUP_COSTS
 
 from discord import ApplicationContext, AutocompleteContext, Embed, EmbedField, File, Member, Role, option # pyright: ignore[reportUnknownVariableType]
@@ -44,7 +42,7 @@ async def map(dctx: ApplicationContext, gctx: GameState):
     svg_to_png(render_map(gctx, map_svg_path), map_png_path)
 
     embed = map_embed.copy()
-    embed.set_footer(text=f"Time elapsed: {timedelta(seconds=gctx.game_time_now() // 1000000)}")
+    embed.set_footer(text=f"Time elapsed: {timedelta(seconds=gctx.game_time_now() // 1000)}")
     await dctx.respond(embed=embed, file=File(map_png_path, filename="map.png"))
 
 # Get Challenge
@@ -107,7 +105,11 @@ async def request(dctx: ApplicationContext, gctx: GameState, station: str):
         await dctx.respond(f"You just retreated from that station — go somewhere else!")
         return
     
-    gctx.add_event(Request(team.role_id, station))
+    if gctx.get_snake(team).vetoed:
+        await dctx.respond("Your team's veto period is active!", ephemeral=True)
+        return
+    
+    gctx.request_challenge(team.role_id, station)
 
     if gctx.thread: await gctx.thread.send(f"{team.name} has extended their neck to {station}!")
     challenges = gctx.current_challenges(team)
@@ -188,7 +190,11 @@ async def complete(dctx: ApplicationContext, gctx: GameState, next_line: str, ha
         await dctx.respond("Your team has no challenge active!", ephemeral=True)
         return
     
-    gctx.add_event(Complete(team.role_id, next_line, hard))
+    if gctx.get_snake(team).vetoed:
+        await dctx.respond("Your team's veto period is active!", ephemeral=True)
+        return
+    
+    gctx.complete_challenge(team.role_id, next_line, hard=hard)
 
     if gctx.thread: await gctx.thread.send(f"{team.name} has extended their body to {snake.anchor}, they are getting on the {next_line}!")
     await dctx.respond(f"Successfully completed {challenges[hard]}!")
@@ -221,13 +227,11 @@ async def veto(dctx: ApplicationContext, gctx: GameState):
         await dctx.respond("Your team's veto period is active!", ephemeral=True)
         return
     
-    gctx.add_event(Veto(team.role_id))
-    # if snake.vetoed: gctx.schedule_event(Unveto(team.role_id), 0, 1, 0)
+    was_free = gctx.veto_challenges(team.role_id)
+    if not was_free: gctx.schedule_event(0, 15, 0, gctx.unveto, team.role_id)
 
     if gctx.thread: await gctx.thread.send(f"{team.name} vetoed their challenge at {snake.front}!")
-    await dctx.respond("Successfully vetoed your team's challenges!" + (" Your veto period ends in 15 minutes!" if snake.vetoed else " Efficiency was consumed!"))
-
-    gctx.add_event(Unveto(team.role_id))
+    await dctx.respond("Successfully vetoed your team's challenges!" + (" Efficiency was consumed!" if was_free else " Your veto period ends in 15 minutes!"))
 
 @bot.game_command()
 async def winner(dctx: ApplicationContext, gctx: GameState):
@@ -272,7 +276,7 @@ async def buy(dctx: ApplicationContext, gctx: GameState, powerup: str):
         await dctx.respond("Your team cannot afford that powerup!", ephemeral=True)
         return
     
-    gctx.add_event(BuyPowerup(team.role_id, powerup))
+    gctx.buy_powerup(team.role_id, powerup)
 
     await dctx.respond("Successfully purchased that powerup! Use /powerup hand to see it.")
 
@@ -317,7 +321,7 @@ def normal(powerup: str):
             await dctx.respond("Your team is out of the game!", ephemeral=True)
             return
 
-        gctx.add_event(PlayPowerup(team.role_id, powerup))
+        gctx.play_normal_powerup(team.role_id, powerup)
     
         if gctx.thread: await gctx.thread.send(f"{team.name} has activated their {powerup}!")
         await dctx.respond(f"Successfully played {powerup}!")
@@ -328,10 +332,17 @@ normal("efficiency")
 normal("double_up")
 normal("retreat")
 
-stations = Map().station_keys()
+def jump_station_autocomplete(ctx: AutocompleteContext) -> Iterable[str]:
+    assert isinstance(ctx.interaction.user, Member)
+    bot = cast(JLOXBot[GameState], ctx.bot)
+    gctx = bot.get_game_ctx(ctx)
+    if gctx is None: return []
+    team = gctx.get_user_team(ctx.interaction.user)
+    if team is None: return []
+    return filter(lambda station: station.lower().startswith(ctx.value.lower()), gctx.map.station_keys())
 
 @powerup_play_group.game_command()
-@option("station", str, autocomplete=lambda ctx: filter(lambda station: station.lower().startswith(ctx.value.lower()), stations))
+@option("station", str, autocomplete=jump_station_autocomplete)
 async def jump(dctx: ApplicationContext, gctx: GameState, station: str):
     assert isinstance(dctx.user, Member)
     team = gctx.get_user_team(dctx.user)
@@ -353,7 +364,7 @@ async def jump(dctx: ApplicationContext, gctx: GameState, station: str):
         await dctx.respond("Invalid station entered!", ephemeral=True)
         return
 
-    gctx.add_event(PlayPowerup(team.role_id, "jump", target_station=station))
+    gctx.play_jump(team.role_id, station=station)
 
     if gctx.thread: await gctx.thread.send(f"{team.name} has activated jump on {station}!")
     await dctx.respond(f"Successfully played jump on {station}!")
@@ -394,7 +405,7 @@ async def detour(dctx: ApplicationContext, gctx: GameState, line: str):
         await dctx.respond("That line is not at your station or is not on the map!", ephemeral=True)
         return
 
-    gctx.add_event(PlayPowerup(team.role_id, "detour", target_line=line))
+    gctx.play_detour(team.role_id, line=line)
 
     await dctx.respond(f"Successfully played detour to {line}!")
 
@@ -436,7 +447,7 @@ async def curse(dctx: ApplicationContext, gctx: GameState, target_team: Role, cu
         await dctx.respond("You do not have that curse!", ephemeral=True)
         return
 
-    gctx.add_event(PlayPowerup(team.role_id, "curse", target_team_id=_target_team.role_id, curse=curse))
+    gctx.play_curse(team.role_id, target_team_id=_target_team.role_id, curse_id=curse)
 
     if gctx.thread: await gctx.thread.send(f"{team.name} has cursed {_target_team.name} with {curse}!")
     await dctx.respond(f"Successfully played curse!")

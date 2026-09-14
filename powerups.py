@@ -15,7 +15,7 @@ import json
 import random
 from collections.abc import Callable
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Concatenate
+from typing import TYPE_CHECKING
 
 from config import POWERUP_COSTS
 from jloxgame.state import Team
@@ -80,7 +80,7 @@ class CurseDeck:
 # returns None.
 
 
-def _handle_jump(game: GameState, team: Team, *, station: str | None = None) -> None:
+def handle_jump(game: GameState, team: Team, *, station: str | None = None) -> None:
     """Make a station permanently passable for everyone (does not steal it)."""
     if station is None or not game.map.has_station(station):
         raise ValueError(f"Unknown station for jump: {station!r}")
@@ -118,7 +118,7 @@ def _handle_retreat(game: GameState, team: Team) -> None:
     return None
 
 
-def _handle_detour(game: GameState, team: Team, *, line: str | None = None) -> None:
+def handle_detour(game: GameState, team: Team, *, line: str | None = None) -> None:
     """Board a different line from the one declared — playable at any time.
 
     The line swapped to is the one the team will *next* board, so it has to serve
@@ -148,7 +148,7 @@ def _handle_detour(game: GameState, team: Team, *, line: str | None = None) -> N
     return None
 
 
-def _handle_curse(game: GameState, team: Team, *, target_team: Team, curse_id: str | None = None) -> Curse:
+def handle_curse(game: GameState, team: Team, *, target_team: Team, curse_id: str | None = None) -> Curse:
     """Attach a curse the team already holds to another living team; return the Curse.
 
     The specific curse was drawn at *buy* time (see ``_on_buy_curse``), so this only
@@ -196,13 +196,10 @@ POWERUP_ON_BUY: dict[str, Callable[[GameState, Team], Curse]] = {
 }
 
 
-POWERUP_HANDLERS: dict[str, Callable[Concatenate[GameState, Team, ...], Curse | None]] = {
-    "jump": _handle_jump,
+NORMAL_POWERUP_HANDLERS: dict[str, Callable[[GameState, Team], None]] = {
     "efficiency": _handle_efficiency,
     "double_up": _handle_double_up,
     "retreat": _handle_retreat,
-    "detour": _handle_detour,
-    "curse": _handle_curse,
 }
 
 # The two tables must agree: `config.POWERUP_COSTS` defines which powerups exist
@@ -211,11 +208,11 @@ POWERUP_HANDLERS: dict[str, Callable[Concatenate[GameState, Team, ...], Curse | 
 # happily and then fail with a bare KeyError when played — bypassing the ValueError
 # contract every other failure path honours. Checked at import so a half-added
 # powerup breaks loudly and immediately rather than mid-game.
-if set(POWERUP_HANDLERS) != set(POWERUP_COSTS):
+if set(NORMAL_POWERUP_HANDLERS) - set(POWERUP_COSTS): # anshul: changed to be a subset! avoiding using this messily-typed lookup table
     raise RuntimeError(
         "Powerup registry mismatch — every id in config.POWERUP_COSTS needs a handler and vice versa: "
-        f"priced without a handler {sorted(set(POWERUP_COSTS) - set(POWERUP_HANDLERS))}, "
-        f"handled without a price {sorted(set(POWERUP_HANDLERS) - set(POWERUP_COSTS))}"
+        f"priced without a handler {sorted(set(POWERUP_COSTS) - set(NORMAL_POWERUP_HANDLERS))}, "
+        f"handled without a price {sorted(set(NORMAL_POWERUP_HANDLERS) - set(POWERUP_COSTS))}"
     )
 
 # Buy handlers are optional, so this table is a *subset* of the costs table rather

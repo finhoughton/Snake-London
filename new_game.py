@@ -3,7 +3,7 @@ from config import DEFAULT_BONUS_CHANCE, DEFAULT_TEAM_COLORS, POWERUP_COSTS
 from challenges import ChallengePool
 from jloxgame.state import Team
 from powerups import CurseDeck
-from game import Configure, GameState, Start
+from game import GameState
 
 # This function has been modified and moved to this file for use in local (offline) scripts.
 # It initialises a game using the events system, and fills in dummy thread and role ids to bypass all discord requirements
@@ -61,15 +61,14 @@ def new_game(
     default_color_iter = iter(DEFAULT_TEAM_COLORS)
 
     game.teams = [Team(name, int(colour[1:], 16), role_id=id) for name, colour, id in zip(start_positions.keys(), DEFAULT_TEAM_COLORS, range(len(DEFAULT_TEAM_COLORS)))]
-    game.add_event(Configure(
+    game.configured(
         list(start_positions.values()), 
         [colors.get(team) or next(default_color_iter) for team in start_positions], 
         bonus_chance, 
-        enabled_powerups or set(POWERUP_COSTS.keys())
-    ))
+        list(enabled_powerups or POWERUP_COSTS.keys())
+    )
 
-
-    game.add_event(Start())
+    game.started()
 
     # Origins are never bonus interchanges, whether chosen randomly or passed in.
     if bonus_interchanges is not None:
