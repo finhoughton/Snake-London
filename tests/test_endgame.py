@@ -4,14 +4,15 @@ import pytest
 
 from config import WINNING_THRESHOLD
 from new_game import new_game
+from game import GameState
+from jloxgame.state import Team
 
-
-def _claim(game, team, stations):
+def _claim(game: GameState, team: Team, stations: list[str]):
     for station in stations:
         game.map.claim(station, team)
 
 
-def _others(game, exclude, count):
+def _others(game: GameState, exclude: str, count: int):
     return [s for s in game.map.station_keys() if s != exclude][:count]
 
 

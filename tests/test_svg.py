@@ -248,7 +248,7 @@ def test_no_stale_station_markers(svg_ids: dict[str, ET.Element], tube_map: Map)
             if helper_id and helper_tag in MARKER_TAGS:
                 helper_marker_ids.add(helper_id)
 
-    stale = []
+    stale: list[str] = []
     for id_, el in svg_ids.items():
         tag = el.tag.split("}")[-1]
         unknown = id_ not in known_markers and id_ not in reserved_ids and id_ not in helper_marker_ids
@@ -307,7 +307,7 @@ def test_path_overrides_all_groups_recognised() -> None:
 def test_no_stale_labels(svg_ids: dict[str, ET.Element], tube_map: Map) -> None:
     """No label elements with ids that don't match '<known station> Label'."""
     known_labels = {f"{k} Label" for k in tube_map.station_keys()}
-    stale = []
+    stale: list[str] = []
     for id_, el in svg_ids.items():
         tag = el.tag.split("}")[-1]
         if tag in LABEL_TAGS and id_.endswith(" Label") and id_ not in known_labels:

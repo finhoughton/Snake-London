@@ -1,8 +1,10 @@
 import json
 from collections import deque
+from typing import Any
 
 import pytest
 
+from jloxgame.state import Team
 from map import Map
 
 # Fixtures
@@ -119,7 +121,7 @@ def test_no_empty_neighbour_lists(tube_map: Map):
 
 def test_line_stations_have_line_entry(tube_map: Map):
     """Every station listed on a line must have that line in its station entry."""
-    missing = []
+    missing: list[str] = []
     for line in tube_map.iter_lines():
         for station_key in line.stations:
             if not tube_map.has_station(station_key):
@@ -131,7 +133,7 @@ def test_line_stations_have_line_entry(tube_map: Map):
 
 def test_neighbours_are_on_their_line(tube_map: Map):
     """A station's neighbours on a line must all appear in that line's stations list."""
-    errors = []
+    errors: list[str] = []
     for station in tube_map.iter_stations():
         for line_key in station.line_keys():
             if not tube_map.has_line(line_key):
@@ -148,7 +150,7 @@ def test_neighbours_are_on_their_line(tube_map: Map):
 
 def test_no_dangling_neighbour_references(tube_map: Map):
     """Every neighbour reference must exist as a key in 'stations'."""
-    errors = []
+    errors: list[str] = []
     for station in tube_map.iter_stations():
         for line_key in station.line_keys():
             for neighbour in station.neighbours(line_key):
@@ -161,14 +163,14 @@ def test_no_dangling_neighbour_references(tube_map: Map):
 
 def test_neighbour_symmetry(tube_map: Map):
     """If A lists B as a neighbour on line L, B must list A back."""
-    errors = []
+    errors: list[str] = []
     for station in tube_map.iter_stations():
         for line_key in station.line_keys():
             for neighbour in station.neighbours(line_key):
                 if not tube_map.has_station(neighbour):
                     continue  # caught by test_no_dangling_neighbour_references
                 back = tube_map.get_station(neighbour).neighbours(line_key)
-                if back is None:
+                if back == []:
                     errors.append(
                         f"{station.key!r} -> {neighbour!r} on {line_key!r} but {neighbour!r} has no {line_key!r} entry"
                     )
@@ -182,7 +184,7 @@ def test_neighbour_symmetry(tube_map: Map):
 
 def test_no_duplicate_stations_in_lines(tube_map: Map):
     """Each line's stations list should contain no duplicates."""
-    errors = []
+    errors: list[str] = []
     for line in tube_map.iter_lines():
         seen: set[str] = set()
         for station_key in line.stations:
@@ -203,7 +205,7 @@ def test_no_unknown_lines(tube_map: Map):
     assert not errors, "\n".join(errors)
 
 
-def _connections() -> dict:
+def _connections() -> Any: # better than untyped dict
     with open("map/connections.json") as f:
         return json.load(f)
 
@@ -237,46 +239,54 @@ def test_network_is_connected(tube_map: Map):
 
 def test_claiming_a_station_records_the_owner():
     tube_map = Map("map/connections.json")
+    red = Team("red", 0, role_id=0)
 
-    tube_map.claim("Oxford Circus", "red")
+    tube_map.claim("Oxford Circus", red)
 
-    assert tube_map.get_claim("Oxford Circus") == "red"
+    assert tube_map.get_claim("Oxford Circus") == red
     assert tube_map.is_claimed("Oxford Circus")
     assert tube_map.get_claim("Baker Street") is None
-    assert tube_map.stations_claimed_by("red") == ["Oxford Circus"]
+    assert tube_map.stations_claimed_by(red) == ["Oxford Circus"]
 
 
 def test_claiming_another_teams_station_raises():
     tube_map = Map("map/connections.json")
-    tube_map.claim("Oxford Circus", "red")
+    red = Team("red", 0, role_id=0)
+    blue = Team("blue", 0, role_id=1)
+
+    tube_map.claim("Oxford Circus", red)
 
     with pytest.raises(ValueError, match="already claimed"):
-        tube_map.claim("Oxford Circus", "blue")
+        tube_map.claim("Oxford Circus", blue)
 
-    tube_map.claim("Oxford Circus", "red")  # re-claiming your own is a no-op
+    tube_map.claim("Oxford Circus", red)  # re-claiming your own is a no-op
 
 
 def test_claiming_a_segment_records_the_owner():
     tube_map = Map("map/connections.json")
+    red = Team("red", 0, role_id=0)
 
-    tube_map.claim_segment("Picc", "Ealing Common", "Acton Town", "red")
+    tube_map.claim_segment("Picc", "Ealing Common", "Acton Town", red)
 
-    assert tube_map.get_segment_claim("Picc", "Ealing Common", "Acton Town") == "red"
+    assert tube_map.get_segment_claim("Picc", "Ealing Common", "Acton Town") == red
     # Segments are undirected: either station order names the same segment.
-    assert tube_map.get_segment_claim("Picc", "Acton Town", "Ealing Common") == "red"
+    assert tube_map.get_segment_claim("Picc", "Acton Town", "Ealing Common") == red
     assert tube_map.get_segment_claim("Picc", "Acton Town", "Turnham Green") is None
-    assert tube_map.segments_claimed_by("red") == [("Picc", "Acton Town", "Ealing Common")]
+    assert tube_map.segments_claimed_by(red) == [("Picc", "Acton Town", "Ealing Common")]
 
 
 def test_claiming_another_teams_segment_raises():
     tube_map = Map("map/connections.json")
-    tube_map.claim_segment("Picc", "Ealing Common", "Acton Town", "red")
+    red = Team("red", 0, role_id=0)
+    blue = Team("blue", 0, role_id=1)
+
+    tube_map.claim_segment("Picc", "Ealing Common", "Acton Town", red)
 
     with pytest.raises(ValueError, match="already claimed"):
-        tube_map.claim_segment("Picc", "Ealing Common", "Acton Town", "blue")
+        tube_map.claim_segment("Picc", "Ealing Common", "Acton Town", blue)
     # Reversed order is the same segment, so it is protected just the same.
     with pytest.raises(ValueError, match="already claimed"):
-        tube_map.claim_segment("Picc", "Acton Town", "Ealing Common", "blue")
+        tube_map.claim_segment("Picc", "Acton Town", "Ealing Common", blue)
 
-    tube_map.claim_segment("Picc", "Acton Town", "Ealing Common", "red")  # re-claiming your own is a no-op
-    assert tube_map.get_segment_claim("Picc", "Ealing Common", "Acton Town") == "red"
+    tube_map.claim_segment("Picc", "Acton Town", "Ealing Common", red)  # re-claiming your own is a no-op
+    assert tube_map.get_segment_claim("Picc", "Ealing Common", "Acton Town") == red

@@ -1,14 +1,17 @@
 from __future__ import annotations
 
 import math
+from pathlib import Path
 import re
+from typing import cast
 
 import pytest
 
 import render
 from config import BONUS_AT_FRONT
 from new_game import new_game
-from render import _clip_shapes_for_segment, _extract_svg_fork_geometry, render_map
+from render import ClipPolygon, ForkGroup, _clip_shapes_for_segment, _extract_svg_fork_geometry, render_map
+from game import GameState
 
 
 @pytest.fixture
@@ -50,7 +53,7 @@ def test_straight_segment_without_fork_group_uses_auto_rect(centres: dict[str, l
 
 
 def test_fork_group_shapes_emitted_verbatim(centres: dict[str, list[float]]) -> None:
-    fork_groups = {
+    fork_groups: dict[tuple[str, str, str], ForkGroup] = {
         ("Elizabeth", "Canary Wharf", "Whitechapel"): {
             "shapes": ['<path d="M 0 0 L 10 0 L 0 10 Z"/>'],
             "tails": [],
@@ -71,7 +74,7 @@ def test_fork_group_shapes_emitted_verbatim(centres: dict[str, list[float]]) -> 
 
 
 def test_fork_group_matches_reversed_station_order(centres: dict[str, list[float]]) -> None:
-    fork_groups = {
+    fork_groups: dict[tuple[str, str, str], ForkGroup] =  {
         ("Elizabeth", "Stratford", "Whitechapel"): {
             "shapes": ['<path d="M 1 1 Z"/>'],
             "tails": [],
@@ -93,7 +96,7 @@ def test_fork_group_matches_reversed_station_order(centres: dict[str, list[float
 
 def test_fork_group_tail_emits_auto_rect_toward_station(centres: dict[str, list[float]]) -> None:
     tail_x, tail_y = 3050.0, 923.0
-    fork_groups = {
+    fork_groups: dict[tuple[str, str, str], ForkGroup] =  {
         ("Elizabeth", "Stratford", "Whitechapel"): {
             "shapes": ['<path d="M 1 1 Z"/>'],
             "tails": [("Whitechapel", tail_x, tail_y)],
@@ -224,7 +227,7 @@ def test_extract_svg_fork_geometry_rejects_tail_station_not_in_group(
 
 
 def test_waypoint_only_group_chains_rectangles(centres: dict[str, list[float]]) -> None:
-    fork_groups = {
+    fork_groups: dict[tuple[str, str, str], ForkGroup] =  {
         ("Elizabeth", "Liverpool Street", "Whitechapel"): {
             "shapes": [],
             "tails": [],
@@ -249,7 +252,7 @@ def test_waypoint_only_group_chains_rectangles(centres: dict[str, list[float]]) 
 
 
 def test_waypoint_chain_sorted_by_index(centres: dict[str, list[float]]) -> None:
-    fork_groups = {
+    fork_groups: dict[tuple[str, str, str], ForkGroup] =  {
         ("Elizabeth", "Liverpool Street", "Whitechapel"): {
             "shapes": [],
             "tails": [],
@@ -272,7 +275,7 @@ def test_waypoint_chain_sorted_by_index(centres: dict[str, list[float]]) -> None
     )
 
     lib_x, lib_y = centres["Liverpool Street"]
-    first_rect = shapes[0]
+    first_rect = cast(ClipPolygon, shapes[0])
     distances_from_lib = [math.hypot(x - lib_x, y - lib_y) for x, y in first_rect]
     assert min(distances_from_lib) < 120.0
 
@@ -323,27 +326,27 @@ def _game_with_active_neck():
     """A game whose snake has an active neck, so render_map produces overlays."""
     game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
     A = game.teams[0]
-    game.complete_challenge(A, "Jubilee")
-    game.request_challenge(A, "Bond Street")
+    game.complete_challenge(A.role_id, "Jubilee")
+    game.request_challenge(A.role_id, "Bond Street")
     return game
 
 
 @pytest.fixture(scope="module")
-def rendered_overlay(tmp_path_factory):
+def rendered_overlay(tmp_path_factory: pytest.TempPathFactory):
     """Render a game with an active neck once; shared across the overlay assertions."""
     out = tmp_path_factory.mktemp("render") / "map.svg"
     result = render_map(_game_with_active_neck(), out)
     return out, result, out.read_text(encoding="utf-8")
 
 
-def test_render_map_writes_file_and_returns_path(rendered_overlay) -> None:
+def test_render_map_writes_file_and_returns_path(rendered_overlay: tuple[Path, Path, str]) -> None:
     out, result, svg = rendered_overlay
 
     assert result == out
     assert svg.lstrip().startswith("<")
 
 
-def test_render_map_injects_overlays_before_first_label_group(rendered_overlay) -> None:
+def test_render_map_injects_overlays_before_first_label_group(rendered_overlay: tuple[Path, Path, str]) -> None:
     _, _, svg = rendered_overlay
 
     # Overlay clip groups are only emitted by the segment-overlay injection.
@@ -354,7 +357,7 @@ def test_render_map_injects_overlays_before_first_label_group(rendered_overlay) 
     assert overlay_idx < label_idx, "overlays must paint before (under) the station labels"
 
 
-def test_render_map_includes_team_legend(rendered_overlay) -> None:
+def test_render_map_includes_team_legend(rendered_overlay: tuple[Path, Path, str]) -> None:
     _, _, svg = rendered_overlay
 
     legend_idx = svg.find('<g id="Legend">')
@@ -374,7 +377,7 @@ def test_render_map_includes_team_legend(rendered_overlay) -> None:
         assert hidden not in svg, f"legend should not expose {hidden!r}"
 
 
-def test_render_map_raises_when_no_label_anchor(tmp_path, monkeypatch) -> None:
+def test_render_map_raises_when_no_label_anchor(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     # Simulate the anchor disappearing (e.g. labels renamed/removed): the renderer
     # must fail loudly rather than silently dropping the overlays.
     monkeypatch.setattr(render, "_LABEL_GROUP_RE", re.compile(r'id="__missing__ Label"'))
@@ -383,7 +386,7 @@ def test_render_map_raises_when_no_label_anchor(tmp_path, monkeypatch) -> None:
         render_map(_game_with_active_neck(), tmp_path / "map.svg")
 
 
-def test_render_map_draws_bonus_badges(tmp_path) -> None:
+def test_render_map_draws_bonus_badges(tmp_path: Path) -> None:
     game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges={"Stratford"})
     svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
 
@@ -391,24 +394,24 @@ def test_render_map_draws_bonus_badges(tmp_path) -> None:
     assert f"+{BONUS_AT_FRONT}" in svg
 
 
-def test_render_map_skips_badge_on_claimed_bonus(tmp_path) -> None:
+def test_render_map_skips_badge_on_claimed_bonus(tmp_path: Path) -> None:
     # The only bonus interchange gets claimed, so its bonus is spent — no badge.
     game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges={"Bond Street"})
     A = game.teams[0]
-    game.complete_challenge(A, "Jubilee")
-    game.request_challenge(A, "Bond Street")
-    game.complete_challenge(A, "Jubilee")  # claims Bond Street (the bonus)
+    game.complete_challenge(A.role_id, "Jubilee")
+    game.request_challenge(A.role_id, "Bond Street")
+    game.complete_challenge(A.role_id, "Jubilee")  # claims Bond Street (the bonus)
     svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
 
     assert '<g id="Bonus Coins">' not in svg
 
 
-def _first_line_group_index(svg: str, game) -> int:
+def _first_line_group_index(svg: str, game: GameState) -> int:
     line_keys = set(game.map.line_keys())
     return next(m.start() for m in render._ANY_GROUP_RE.finditer(svg) if m.group(1) in line_keys)
 
 
-def test_render_map_draws_jump_halos_under_the_line_network(tmp_path) -> None:
+def test_render_map_draws_jump_halos_under_the_line_network(tmp_path: Path) -> None:
     # The halo must paint beneath every line, so the network runs over it untouched.
     game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
     game.jumped_stations.add("Stratford")
@@ -420,21 +423,21 @@ def test_render_map_draws_jump_halos_under_the_line_network(tmp_path) -> None:
     assert render._JUMP_HALO_FILL in svg
 
 
-def test_render_map_draws_no_halo_group_without_jumps(tmp_path) -> None:
+def test_render_map_draws_no_halo_group_without_jumps(tmp_path: Path) -> None:
     game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
     svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
 
     assert '<g id="Jumped Stations">' not in svg
 
 
-def test_jump_halo_survives_the_station_being_claimed(tmp_path) -> None:
+def test_jump_halo_survives_the_station_being_claimed(tmp_path: Path) -> None:
     # Unlike a bonus badge (spent on claim), a jump is permanent — the halo stays.
     game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
     A = game.teams[0]
     game.jumped_stations.add("Bond Street")
-    game.complete_challenge(A, "Jubilee")
-    game.request_challenge(A, "Bond Street")
-    game.complete_challenge(A, "Jubilee")  # claims Bond Street
+    game.complete_challenge(A.role_id, "Jubilee")
+    game.request_challenge(A.role_id, "Bond Street")
+    game.complete_challenge(A.role_id, "Jubilee")  # claims Bond Street
     assert game.map.get_claim("Bond Street") == A
 
     svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
@@ -463,7 +466,7 @@ def test_jump_halo_encloses_the_marker_for_every_shape() -> None:
             )
 
 
-def test_render_map_raises_when_no_line_group_anchor(tmp_path, monkeypatch) -> None:
+def test_render_map_raises_when_no_line_group_anchor(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     # Same contract as the label anchor: if the base SVG is restructured so the
     # network can't be found, fail loudly rather than silently dropping the halos.
     game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
@@ -485,15 +488,15 @@ def _legend_group(svg: str) -> str:
     return svg[svg.index('<g id="Legend">') : svg.index('<g id="Symbol Key">')]
 
 
-def test_legend_shows_the_announced_line_never_the_detoured_one(tmp_path) -> None:
+def test_legend_shows_the_announced_line_never_the_detoured_one(tmp_path: Path) -> None:
     # The map is public and Detour is explicitly unannounced, so the legend must print
     # the line the team declared — printing the line they actually boarded would leak it.
     game = new_game(start_positions={"A": "Baker Street"}, bonus_interchanges=set())
     A = game.teams[0]
-    game.complete_challenge(A, "Jubilee")  # announced Jubilee
+    game.complete_challenge(A.role_id, "Jubilee")  # announced Jubilee
     game.get_snake(A).coins = 50
-    game.buy_powerup(A, "detour")
-    game.play_powerup(A, "detour", line="Bakerloo")  # secretly boards the Bakerloo
+    game.buy_powerup(A.role_id, "detour")
+    game.play_detour(A.role_id, line="Bakerloo")  # secretly boards the Bakerloo
     assert game.get_snake(A).travel_line == "Bakerloo"
 
     legend = _legend_group(render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8"))
@@ -502,7 +505,7 @@ def test_legend_shows_the_announced_line_never_the_detoured_one(tmp_path) -> Non
     assert game.map.get_line("Bakerloo").display_name not in legend, "the legend leaked the Detour"
 
 
-def test_symbol_key_is_bottom_right_and_paints_on_top(tmp_path) -> None:
+def test_symbol_key_is_bottom_right_and_paints_on_top(tmp_path: Path) -> None:
     game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
     svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
 
@@ -519,7 +522,7 @@ def test_symbol_key_is_bottom_right_and_paints_on_top(tmp_path) -> None:
     assert min(xs) > width / 2, "the key belongs in the bottom-right"
 
 
-def test_symbol_key_always_explains_body_and_neck(tmp_path) -> None:
+def test_symbol_key_always_explains_body_and_neck(tmp_path: Path) -> None:
     game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
     key = _key_group(render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8"))
 
@@ -528,7 +531,7 @@ def test_symbol_key_always_explains_body_and_neck(tmp_path) -> None:
         assert needle in key
 
 
-def test_symbol_key_body_and_neck_use_a_real_team_colour(tmp_path) -> None:
+def test_symbol_key_body_and_neck_use_a_real_team_colour(tmp_path: Path) -> None:
     game = new_game({"A": "Wembley Park", "B": "Stratford"}, bonus_interchanges=set())
     A = game.teams[0]
     first = game.get_snake(A).color
@@ -540,7 +543,7 @@ def test_symbol_key_body_and_neck_use_a_real_team_colour(tmp_path) -> None:
     assert render.NECK_STROKE_DASHARRAY in key
 
 
-def test_symbol_key_prefers_a_living_teams_colour(tmp_path) -> None:
+def test_symbol_key_prefers_a_living_teams_colour(tmp_path: Path) -> None:
     # An eliminated snake renders grey, so its colour appears nowhere on the map — the
     # key must borrow from a team still in the game instead.
     game = new_game({"A": "Wembley Park", "B": "Stratford"}, bonus_interchanges=set())
@@ -554,7 +557,7 @@ def test_symbol_key_prefers_a_living_teams_colour(tmp_path) -> None:
     assert dead not in key
 
 
-def test_symbol_key_omits_rows_for_symbols_not_on_the_map(tmp_path) -> None:
+def test_symbol_key_omits_rows_for_symbols_not_on_the_map(tmp_path: Path) -> None:
     # No bonuses, no jumps, nobody out -> only the always-on Body/Neck rows.
     game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
     key = _key_group(render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8"))
@@ -563,7 +566,7 @@ def test_symbol_key_omits_rows_for_symbols_not_on_the_map(tmp_path) -> None:
         assert absent not in key, f"key should not explain {absent!r} when none is drawn"
 
 
-def test_symbol_key_adds_rows_for_symbols_that_are_on_the_map(tmp_path) -> None:
+def test_symbol_key_adds_rows_for_symbols_that_are_on_the_map(tmp_path: Path) -> None:
     game = new_game({"A": "Baker Street", "B": "Bond Street"}, bonus_interchanges={"Stratford"})
     B = game.teams[1]
     game.jumped_stations.add("Holborn")
@@ -574,27 +577,27 @@ def test_symbol_key_adds_rows_for_symbols_that_are_on_the_map(tmp_path) -> None:
         assert needle in key
 
 
-def test_symbol_key_drops_the_bonus_row_once_every_bonus_is_claimed(tmp_path) -> None:
+def test_symbol_key_drops_the_bonus_row_once_every_bonus_is_claimed(tmp_path: Path) -> None:
     # Mirrors _build_bonus_badges: a claimed bonus is spent, so nothing is drawn.
     game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges={"Bond Street"})
     A = game.teams[0]
-    game.complete_challenge(A, "Jubilee")
-    game.request_challenge(A, "Bond Street")
-    game.complete_challenge(A, "Jubilee")
+    game.complete_challenge(A.role_id, "Jubilee")
+    game.request_challenge(A.role_id, "Bond Street")
+    game.complete_challenge(A.role_id, "Jubilee")
     svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
 
     assert '<g id="Bonus Coins">' not in svg
     assert "Bonus" not in _key_group(svg)
 
 
-def test_render_greys_out_eliminated_snakes(tmp_path) -> None:
+def test_render_greys_out_eliminated_snakes(tmp_path: Path) -> None:
     # A requests through B's claimed Bond Street and crashes; its body is greyed.
     game = new_game({"A": "Baker Street", "B": "Bond Street"}, bonus_interchanges=set())
     A = game.teams[0]
     B = game.teams[1]
-    game.complete_challenge(A, "Jubilee")
-    game.complete_challenge(B, "Jubilee")
-    game.request_challenge(A, "Green Park")
+    game.complete_challenge(A.role_id, "Jubilee")
+    game.complete_challenge(B.role_id, "Jubilee")
+    game.request_challenge(A.role_id, "Green Park")
     assert game.get_snake(A).crashed
 
     svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
@@ -602,15 +605,15 @@ def test_render_greys_out_eliminated_snakes(tmp_path) -> None:
     assert "(crashed)" in svg  # and marked in the legend
 
 
-def test_eliminated_ghost_neck_yields_to_a_live_claim(tmp_path) -> None:
+def test_eliminated_ghost_neck_yields_to_a_live_claim(tmp_path: Path) -> None:
     # A crashes with a neck running through B's claimed Bond Street. A's grey ghost
     # neck must NOT recolour Bond Street — B owns it, so it stays B's colour.
     game = new_game({"A": "Baker Street", "B": "Bond Street"}, bonus_interchanges=set())
     A = game.teams[0]
     B = game.teams[1]
-    game.complete_challenge(A, "Jubilee")
-    game.complete_challenge(B, "Jubilee")
-    game.request_challenge(A, "Green Park")  # A's neck = [Bond Street (B's), Green Park]
+    game.complete_challenge(A.role_id, "Jubilee")
+    game.complete_challenge(B.role_id, "Jubilee")
+    game.request_challenge(A.role_id, "Green Park")  # A's neck = [Bond Street (B's), Green Park]
     assert game.get_snake(A).crashed
 
     svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")

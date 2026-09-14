@@ -32,102 +32,103 @@ Alpha, Beta, Gamma, Delta, Epsilon = game.teams
 # coins, so everyone is still on STARTING_COINS after this.
 
 game.initial_request_challenge(Alpha)
-game.complete_challenge(Alpha, "Jubilee")
+game.complete_challenge(Alpha.role_id, "Jubilee")
 
 game.initial_request_challenge(Beta)
-game.complete_challenge(Beta, "Elizabeth")
+game.complete_challenge(Beta.role_id, "Elizabeth")
 
 game.initial_request_challenge(Gamma)
-game.complete_challenge(Gamma, "Bank Branch")
+game.complete_challenge(Gamma.role_id, "Bank Branch")
 
 game.initial_request_challenge(Delta)
-game.complete_challenge(Delta, "Met")
+game.complete_challenge(Delta.role_id, "Met")
 
 game.initial_request_challenge(Epsilon)
-game.complete_challenge(Epsilon, "Central")
+game.complete_challenge(Epsilon.role_id, "Central")
 
 # Alpha — opens with Double up, so the next two challenges pay 6 instead of 3.
 
-game.buy_powerup(Alpha, "double_up")
-game.play_powerup(Alpha, "double_up")
+game.buy_powerup(Alpha.role_id, "double_up")
+game.play_normal_powerup(Alpha.role_id, "double_up")
 
-game.request_challenge(Alpha, "Bond Street")
-game.complete_challenge(Alpha, "Jubilee", hard=True)
+game.request_challenge(Alpha.role_id, "Bond Street")
+game.complete_challenge(Alpha.role_id, "Jubilee", hard=True)
 
-game.request_challenge(Alpha, "Westminster")
-game.complete_challenge(Alpha, "S Circle", hard=True)
+game.request_challenge(Alpha.role_id, "Westminster")
+game.complete_challenge(Alpha.role_id, "S Circle", hard=True)
 
 # Beta — plays Detour *during* a challenge. It is validated against the Front
 # (Charing Cross, where Beta boards next), parks on Snake.pending_detour, and
 # then silently overrides the line declared on completion: Beta announces the
 # CX Branch and actually boards the Bakerloo.
 
-game.request_challenge(Beta, "Tottenham Court Road")
-game.complete_challenge(Beta, "CX Branch", hard=True)
+game.request_challenge(Beta.role_id, "Tottenham Court Road")
+game.complete_challenge(Beta.role_id, "CX Branch", hard=True)
 
-game.request_challenge(Beta, "Charing Cross")
-game.buy_powerup(Beta, "detour")
-game.play_powerup(Beta, "detour", line="Bakerloo")
-game.complete_challenge(Beta, "CX Branch", hard=True)
+game.request_challenge(Beta.role_id, "Charing Cross")
+game.buy_powerup(Beta.role_id, "detour")
+game.play_detour(Beta.role_id, line="Bakerloo")
+game.complete_challenge(Beta.role_id, "CX Branch", hard=True)
 
 # Oxford Circus is not on the CX Branch at all — only the detour makes this legal.
-game.request_challenge(Beta, "Oxford Circus")
+game.request_challenge(Beta.role_id, "Oxford Circus")
 
 # Gamma — builds the southern arc, then buys Efficiency so its veto is free.
 
-game.request_challenge(Gamma, "Elephant and Castle")
-game.complete_challenge(Gamma, "Thameslink", hard=True)
+game.request_challenge(Gamma.role_id, "Elephant and Castle")
+game.complete_challenge(Gamma.role_id, "Thameslink", hard=True)
 
-game.request_challenge(Gamma, "Blackfriars")
-game.complete_challenge(Gamma, "Thameslink", hard=True)
+game.request_challenge(Gamma.role_id, "Blackfriars")
+game.complete_challenge(Gamma.role_id, "Thameslink", hard=True)
 
-game.request_challenge(Gamma, "London Bridge")
-game.complete_challenge(Gamma, "Thameslink", hard=True)
+game.request_challenge(Gamma.role_id, "London Bridge")
+game.complete_challenge(Gamma.role_id, "Thameslink", hard=True)
 
-game.buy_powerup(Gamma, "efficiency")
-game.play_powerup(Gamma, "efficiency")
+game.buy_powerup(Gamma.role_id, "efficiency")
+game.play_normal_powerup(Gamma.role_id, "efficiency")
 
-game.request_challenge(Gamma, "Woolwich Arsenal")
-gamma_veto_was_free = game.veto_challenges(Gamma)  # True -> no 15-minute wait
+game.request_challenge(Gamma.role_id, "Woolwich Arsenal")
+gamma_veto_was_free = game.veto_challenges(Gamma.role_id)  # True -> no 15-minute wait
 
 # Delta — buys a Curse (drawn at buy time) and
 # plays it on Alpha before heading down the Bakerloo.
 
-game.request_challenge(Delta, "Kenton")
-game.complete_challenge(Delta, "Bakerloo", hard=True)
+game.request_challenge(Delta.role_id, "Kenton")
+game.complete_challenge(Delta.role_id, "Bakerloo", hard=True)
 
-delta_curse = game.buy_powerup(Delta, "curse")
-game.play_powerup(Delta, "curse", target_team=Alpha)
+delta_curse = game.buy_powerup(Delta.role_id, "curse")
+assert delta_curse
+game.play_curse(Delta.role_id, target_team_id=Alpha.role_id, curse_id=delta_curse.id)
 
-game.buy_powerup(Delta, "curse")  # a second one, kept in hand for later
-game.request_challenge(Delta, "Paddington")
+game.buy_powerup(Delta.role_id, "curse")  # a second one, kept in hand for later
+game.request_challenge(Delta.role_id, "Paddington")
 
 # Epsilon — requests a challenge, thinks better of it and Retreats, which blocks
 # only its *next* request. It then walks into Alpha's Green Park and crashes.
 
-game.request_challenge(Epsilon, "Notting Hill Gate")
-game.complete_challenge(Epsilon, "S Circle", hard=True)
+game.request_challenge(Epsilon.role_id, "Notting Hill Gate")
+game.complete_challenge(Epsilon.role_id, "S Circle", hard=True)
 
-game.request_challenge(Epsilon, "Gloucester Road")
-game.buy_powerup(Epsilon, "retreat")
-game.play_powerup(Epsilon, "retreat")
+game.request_challenge(Epsilon.role_id, "Gloucester Road")
+game.buy_powerup(Epsilon.role_id, "retreat")
+game.play_normal_powerup(Epsilon.role_id, "retreat")
 epsilon_blocked = game.get_snake(Epsilon).blocked_station  # cleared by the next request
 
-game.request_challenge(Epsilon, "South Kensington")  # a different interchange: allowed
-game.complete_challenge(Epsilon, "Picc")
+game.request_challenge(Epsilon.role_id, "South Kensington")  # a different interchange: allowed
+game.complete_challenge(Epsilon.role_id, "Picc")
 
-game.request_challenge(Epsilon, "Piccadilly Circus")  # path via Alpha's Green Park → crash
+game.request_challenge(Epsilon.role_id, "Piccadilly Circus")  # path via Alpha's Green Park → crash
 
 # Later — Alpha spends its Double up winnings on a Jump. Blackfriars is
 # Gamma's, so the S Circle run Westminster → Embankment → Blackfriars → Bank
 # would normally crash Alpha; jumping it makes the interchange passable for
 # everyone, permanently, without taking it off Gamma.
 
-game.buy_powerup(Alpha, "jump")
-game.play_powerup(Alpha, "jump", station="Blackfriars")
+game.buy_powerup(Alpha.role_id, "jump")
+game.play_jump(Alpha.role_id, station="Blackfriars")
 
-game.request_challenge(Alpha, "Bank")
-game.complete_challenge(Alpha, "Central", hard=True)
+game.request_challenge(Alpha.role_id, "Bank")
+game.complete_challenge(Alpha.role_id, "Central", hard=True)
 
 # state summary
 

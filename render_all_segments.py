@@ -23,9 +23,9 @@ def render_segment(line: str, a: str, b: str) -> None:
     game = new_game(start_positions={TEAM: a}, team_colors={TEAM: COLOR})
     team = game.teams[0]
     game.initial_request_challenge(team)
-    game.complete_challenge(team, line)
-    game.request_challenge(team, b)
-    game.complete_challenge(team, line)
+    game.complete_challenge(team.role_id, line)
+    game.request_challenge(team.role_id, b)
+    game.complete_challenge(team.role_id, line)
 
     stem = os.path.join(OUTPUT_DIR, _label(line, a, b))
     render_map(game, f"{stem}.svg", debug=True)
