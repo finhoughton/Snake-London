@@ -7,9 +7,18 @@ game logic (game.py) or the renderer (render.py).
 from __future__ import annotations
 
 # --- Win condition ---------------------------------------------------------
-# A team wins early if its claimed stations (Body) lead every opponent's Body +
-# Neck by MORE than this.
+# A team can win early if its claimed stations (Body) lead every opponent's Body +
+# Neck by MORE than this — but only by declaring it (see below).
 WINNING_THRESHOLD = 10
+
+# --- Declaring a win ---------------------------------------------------------
+# The lead win is never automatic. A team pays to declare it, everyone is told, and
+# the lead is checked this long afterwards, giving rivals a last chance to respond.
+# A failed declaration stops that team declaring again for the cooldown. The last
+# team standing still wins immediately.
+DECLARE_WIN_COST = 2
+DECLARE_WIN_WINDOW_MINUTES = 20
+DECLARE_WIN_COOLDOWN_MINUTES = 30
 
 # --- Coins -----------------------------------------------------------------
 STARTING_COINS = 5  # coins each team starts the game with

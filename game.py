@@ -14,6 +14,9 @@ from config import (
     BONUS_CLAIMED,
     CHALLENGES_PATH,
     CURSES_PATH,
+    DECLARE_WIN_COOLDOWN_MINUTES,
+    DECLARE_WIN_COST,
+    DECLARE_WIN_WINDOW_MINUTES,
     DEFAULT_BONUS_CHANCE,
     DEFAULT_TEAM_COLORS,
     EASIER_REWARD,
@@ -24,9 +27,8 @@ from config import (
     STARTING_COINS,
     WINNING_THRESHOLD,
 )
-from jloxgame.state import Status, event
 from jloxgame import GameContext, Team
-from jloxgame.state import Status
+from jloxgame.state import Status, event
 from map import Map
 from powerups import NORMAL_POWERUP_HANDLERS, POWERUP_ON_BUY, Curse, CurseDeck, handle_curse, handle_detour, handle_jump
 
@@ -63,6 +65,9 @@ class Snake:
     # shared initial challenge included). Offers skip these while alternatives exist.
     # Rebuilt by replaying the event log, so it never needs saving.
     seen_challenges: set[str] = field(default_factory=set[str])
+    # --- Declaring a win ---
+    win_declared: bool = False  # a declaration is waiting for its check (see GameState.declare_win)
+    declare_cooldown: bool = False  # a declaration failed recently; can't declare again yet
 
     @property
     def eliminated(self) -> bool:
@@ -85,6 +90,8 @@ class GameState(GameContext):
         self.enabled_powerups: set[str] = set(POWERUP_COSTS.keys())  # powerup ids buyable this game
         self.jumped_stations: set[str] = set()  # globally, permanently passable (all players)
         self.curse_deck: CurseDeck | None = None  # deck the curse powerup draws from (None = curse unavailable)
+        # --- Winning ---
+        self.declared_winner: Team | None = None  # set when a win declaration passes its check
 
         self.latest_generated_map = 0  # not synced
 
@@ -343,10 +350,11 @@ class GameState(GameContext):
         else:
             self._draw_offer(team)
         return free
-    
+
     async def unveto_callback(self, team_id: int):
         team = self.get_team(team_id)
-        if team.thread: await team.thread.send("Your veto period has expired!")
+        if team.thread:
+            await team.thread.send("Your veto period has expired!")
 
     @event(callback=unveto_callback)
     def unveto(self, team_id: int) -> None:
@@ -451,7 +459,7 @@ class GameState(GameContext):
 
         NORMAL_POWERUP_HANDLERS[powerup_id](self, team)
         snake.hand.remove(powerup_id)
-    
+
     @event()
     def play_curse(self, team_id: int, target_team_id: int, curse_id: str) -> Curse:
         """Play a curse from the team's hand, dispatching to its handler.
@@ -468,11 +476,11 @@ class GameState(GameContext):
             raise
         if "curse" not in snake.hand:
             raise ValueError(f"curse is not in {team!r}'s hand")
-            
+
         result = handle_curse(self, team, target_team=target_team, curse_id=curse_id)
         snake.hand.remove("curse")
         return result
-    
+
     @event()
     def play_jump(self, team_id: int, station: str) -> None:
         """Play a jump from the team's hand, dispatching to its handler.
@@ -484,10 +492,10 @@ class GameState(GameContext):
             raise
         if "jump" not in snake.hand:
             raise ValueError(f"curse is not in {team!r}'s hand")
-            
+
         handle_jump(self, team, station=station)
         snake.hand.remove("jump")
-    
+
     @event()
     def play_detour(self, team_id: int, line: str) -> None:
         """Play a detour from the team's hand, dispatching to its handler.
@@ -503,7 +511,7 @@ class GameState(GameContext):
             raise
         if "detour" not in snake.hand:
             raise ValueError(f"detour is not in {team!r}'s hand")
-        
+
         handle_detour(self, team, line=line)
         snake.hand.remove("detour")
 
@@ -556,23 +564,26 @@ class GameState(GameContext):
             if not self.is_neck_safe(other_team):
                 self.crash(other_team)
 
+    def has_winning_lead(self, team: Team) -> bool:
+        """Whether a team's claimed stations (Body) lead every other active team's Body +
+        Neck by more than WINNING_THRESHOLD. A lead alone never wins — see declare_win."""
+        others = [t for t in self.active_teams() if t != team]
+        ours = len(self.body_stations(team))
+        return all(ours > self.total_controlled(o) + WINNING_THRESHOLD for o in others)
+
     def winner(self) -> Team | None:
-        """Return the winning team if a win condition is met, otherwise None.
+        """Return the winning team if the game has been won, otherwise None.
 
         Win conditions:
-          1. All opponents are out (crashed or conceded).
-          2. A team's claimed stations (Body) lead every opponent's Body + Neck by
-             more than WINNING_THRESHOLD.
+          1. All opponents are out (crashed or conceded) — wins immediately.
+          2. A win declaration that passed its check (see declare_win). Having the
+             lead is not enough: it has to be declared, and still hold
+             DECLARE_WIN_WINDOW_MINUTES later.
         """
         active = self.active_teams()
         if len(active) == 1:
             return active[0]
-        for team in active:
-            others = [t for t in active if t != team]
-            ours = len(self.body_stations(team))
-            if all(ours > self.total_controlled(o) + WINNING_THRESHOLD for o in others):
-                return team
-        return None
+        return self.declared_winner
 
     def tiebreak_winner(self) -> Team | None:
         """End-of-game tiebreaker: the active team with the most claimed stations (Body).
@@ -588,15 +599,70 @@ class GameState(GameContext):
         best = max(counts.values())
         leaders = [t for t, count in counts.items() if count == best]
         return leaders[0] if len(leaders) == 1 else None
-    
+
+    # Declaring a win
+
+    @event()
+    def declare_win(self, team_id: int) -> None:
+        """Pay DECLARE_WIN_COST to claim the lead win; it's checked DECLARE_WIN_WINDOW_MINUTES later.
+
+        Announcing it is the bot's job. The check is scheduled here so it can't be
+        forgotten — but not while a saved game is reloading, because the pending check
+        is already in the save and would otherwise run twice.
+        """
+        team = self.get_team(team_id)
+        snake = self._acting_snake(team)
+        if self.status != Status.RUNNING:
+            raise ValueError("The game is not running")
+        if snake.win_declared:
+            raise ValueError(f"{team!r} has already declared a win")
+        if snake.declare_cooldown:
+            raise ValueError(f"{team!r} declared recently and failed; wait for the cooldown to end")
+        if snake.coins < DECLARE_WIN_COST:
+            raise ValueError(f"Not enough coins to declare a win: need {DECLARE_WIN_COST}, have {snake.coins}")
+        snake.coins -= DECLARE_WIN_COST
+        snake.win_declared = True
+        if not self.loading:
+            self.schedule_event(0, DECLARE_WIN_WINDOW_MINUTES, 0, self.resolve_win_declaration, team_id)
+
+    @event()
+    def resolve_win_declaration(self, team_id: int) -> bool:
+        """Check a declaration once its window has passed. Returns True if the team won.
+
+        On success the game ends. On failure (no longer leading, or out of the game)
+        the team can't declare again for DECLARE_WIN_COOLDOWN_MINUTES. Never raises for
+        a crashed declarer or an already-ended game, because this runs from the scheduler.
+        """
+        team = self.get_team(team_id)
+        snake = self.get_snake(team)
+        if not snake.win_declared:
+            return False
+        snake.win_declared = False
+        if self.status != Status.RUNNING:
+            return False  # the game already ended some other way
+        if not snake.eliminated and self.has_winning_lead(team):
+            self.declared_winner = team
+            self.status = Status.END
+            return True
+        snake.declare_cooldown = True
+        if not self.loading:
+            self.schedule_event(0, DECLARE_WIN_COOLDOWN_MINUTES, 0, self.end_declare_cooldown, team_id)
+        return False
+
+    @event()
+    def end_declare_cooldown(self, team_id: int) -> None:
+        """Let a team declare again once the cooldown after a failed declaration is over."""
+        self.get_snake(self.get_team(team_id)).declare_cooldown = False
+
     @event()
     def time_limit(self) -> None:
-        if self.status != Status.RUNNING: return
+        if self.status != Status.RUNNING:
+            return
 
         winner = self.tiebreak_winner()
         print(f"[{self.thread_id} | time_limit | info] tiebreak winner {winner}")
         self.status = Status.END
-    
+
     # jloxgame functions
 
     async def configure(self, dctx: ApplicationContext) -> bool:
@@ -655,7 +721,11 @@ class GameState(GameContext):
             ]
 
             if self.status == Status.INIT:
-                self.initial_events.append(self.configured.get_instance(self.game_time_now(), team_positions, team_colors, bonus_chance, enabled_powerups))
+                self.initial_events.append(
+                    self.configured.get_instance(
+                        self.game_time_now(), team_positions, team_colors, bonus_chance, enabled_powerups
+                    )
+                )
             else:
                 self.configured(team_positions, team_colors, bonus_chance, enabled_powerups)
 
@@ -671,11 +741,14 @@ class GameState(GameContext):
             await dctx.respond(f"Something went wrong: {message}", ephemeral=True)
             print(traceback.format_exc())
             return False
-        
+
     @event()
-    def configured(self, team_positions: list[str], team_colors: list[str], bonus_chance: float, enabled_powerups: list[str]) -> None:
+    def configured(
+        self, team_positions: list[str], team_colors: list[str], bonus_chance: float, enabled_powerups: list[str]
+    ) -> None:
         self.enabled_powerups = set(enabled_powerups)
-        if self.curse_deck is None: self.enabled_powerups.discard("curse") # if there are no curses, this powerup is not playable
+        if self.curse_deck is None:
+            self.enabled_powerups.discard("curse")  # if there are no curses, this powerup is not playable
 
         if self.status in [Status.INIT, Status.SETUP]:
             print(f"[{self.thread_id} | configure | info] resetting snakes")
@@ -696,22 +769,27 @@ class GameState(GameContext):
             print(f"[{self.thread_id} | configure | info] game running, only changing colours/powerups")
             for team, colour in zip(self.teams, team_colors):
                 self.snakes[team].color = colour
-    
+
     async def start(self, dctx: ApplicationContext) -> None:
         self.started()
-    
+
     @event()
     def started(self) -> None:
-        if self.status != Status.SETUP: return
+        if self.status != Status.SETUP:
+            return
 
         print(f"[{self.thread_id} | start | info] randomising interchanges")
         # Origins are never bonus interchanges
         origins = set(snake.origin for snake in self.snakes.values())
-        self.bonus_interchanges = {s for s in self.map.station_keys() if s not in origins and self.rng.random() < self.bonus_chance}
-        
+        self.bonus_interchanges = {
+            s for s in self.map.station_keys() if s not in origins and self.rng.random() < self.bonus_chance
+        }
+
         print(f"[{self.thread_id} | start | info] picking initial challenge")
         if self.challenges is not None:
-            self.initial_challenge = self.challenges.pick_in_range(INITIAL_DIFFICULTY_MIN, INITIAL_DIFFICULTY_MAX, rng=self.rng)
+            self.initial_challenge = self.challenges.pick_in_range(
+                INITIAL_DIFFICULTY_MIN, INITIAL_DIFFICULTY_MAX, rng=self.rng
+            )
 
         for team in self.teams:
             self.initial_request_challenge(team)

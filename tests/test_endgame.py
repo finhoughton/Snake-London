@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+import asyncio
+from pathlib import Path
+
 import pytest
 
-from config import WINNING_THRESHOLD
-from new_game import new_game
+from config import DECLARE_WIN_COOLDOWN_MINUTES, DECLARE_WIN_COST, DECLARE_WIN_WINDOW_MINUTES, WINNING_THRESHOLD
 from game import GameState
-from jloxgame.state import Team
+from jloxgame.state import Status, Team
+from new_game import new_game
+
 
 def _claim(game: GameState, team: Team, stations: list[str]):
     for station in stations:
@@ -82,13 +86,12 @@ def test_win_lead_counts_your_body_only_not_your_neck():
     _claim(game, B, ["Stratford"])  # opponent total_controlled = 1
 
     # A's body equals opponent-total + threshold — a tie on the boundary, NOT a
-    # strict lead by more than the threshold, so no win yet.
+    # strict lead by more than the threshold.
     not_enough = 1 + WINNING_THRESHOLD
     _claim(game, A, _others(game, "Stratford", not_enough))
-    assert game.winner() is None
+    assert not game.has_winning_lead(A)
 
-    # Give A a (large) active neck: under the old body+neck rule this would win,
-    # but the neck must NOT count toward A's own total — still no win.
+    # Give A a (large) active neck: the neck must NOT count toward A's own total.
     snake = game.get_snake(A)
     snake.travel_line = "Jubilee"
     snake.anchor = "Wembley Park"
@@ -96,9 +99,131 @@ def test_win_lead_counts_your_body_only_not_your_neck():
     snake.neck_active = True
     assert len(game.neck(A)) > 0
     assert game.total_controlled(A) > not_enough  # body + neck would clear the bar
-    assert game.winner() is None  # ...but body alone does not
+    assert not game.has_winning_lead(A)  # ...but body alone does not
 
-    # One more claimed station tips A's *body* over the threshold -> win.
+    # One more claimed station tips A's *body* over the threshold.
     extra = next(s for s in game.map.station_keys() if not game.map.is_claimed(s))
     game.map.claim(extra, A)
+    assert game.has_winning_lead(A)
+
+
+# --- declaring a win -------------------------------------------------------
+
+
+def _game_with_lead(margin: int):
+    """A's Body is `margin` stations past the bare threshold over B's one station.
+
+    margin=1 is a winning lead; margin=0 sits exactly on the bar, which isn't enough.
+    """
+    game = new_game({"A": "Baker Street", "B": "Stratford"}, bonus_interchanges=set())
+    A, B = game.teams
+    _claim(game, B, ["Stratford"])
+    _claim(game, A, _others(game, "Stratford", 1 + WINNING_THRESHOLD + margin))
+    return game, A, B
+
+
+def _scheduled(game: GameState, event_type: str) -> list:
+    return [e for e in game.scheduled_events if e.__type__ == event_type]
+
+
+def _minutes_away(game: GameState, scheduled) -> float:
+    return (scheduled.__time__ - game.game_time_now()) / 60_000
+
+
+def test_a_lead_alone_never_wins():
+    game, A, _B = _game_with_lead(margin=1)
+    assert game.has_winning_lead(A)
+    assert game.winner() is None
+    assert game.status == Status.RUNNING
+
+
+def test_declaring_costs_coins_and_schedules_the_check():
+    game, A, _B = _game_with_lead(margin=1)
+    coins = game.get_snake(A).coins
+    game.declare_win(A.role_id)
+    assert game.get_snake(A).coins == coins - DECLARE_WIN_COST
+    assert game.get_snake(A).win_declared
+    [check] = _scheduled(game, "resolve_win_declaration")
+    assert list(check.args) == [A.role_id]
+    assert _minutes_away(game, check) == pytest.approx(DECLARE_WIN_WINDOW_MINUTES, abs=0.1)
+
+
+def test_a_declaration_that_still_leads_wins_and_ends_the_game():
+    game, A, _B = _game_with_lead(margin=1)
+    game.declare_win(A.role_id)
+    assert game.resolve_win_declaration(A.role_id) is True
     assert game.winner() == A
+    assert game.status == Status.END
+
+
+def test_a_rival_can_deny_a_declaration_by_growing_a_neck():
+    # The check compares A's Body with B's Body + Neck, so B pushing out a neck while
+    # the declaration is pending can take away a narrow lead.
+    game, A, B = _game_with_lead(margin=1)
+    game.declare_win(A.role_id)
+    nxt = game.map.get_station("Stratford").neighbours("Jubilee")[0]
+    assert not game.map.is_claimed(nxt)
+    b = game.get_snake(B)
+    b.travel_line, b.front, b.neck_active = "Jubilee", nxt, True  # anchor is still Stratford
+    assert game.resolve_win_declaration(A.role_id) is False
+    assert game.winner() is None
+
+
+def test_a_failed_declaration_blocks_declaring_again_until_the_cooldown_ends():
+    game, A, _B = _game_with_lead(margin=0)  # level with the bar, not over it
+    game.declare_win(A.role_id)
+    assert game.resolve_win_declaration(A.role_id) is False
+    snake = game.get_snake(A)
+    assert snake.declare_cooldown and not snake.win_declared
+    [cooldown] = _scheduled(game, "end_declare_cooldown")
+    assert _minutes_away(game, cooldown) == pytest.approx(DECLARE_WIN_COOLDOWN_MINUTES, abs=0.1)
+    with pytest.raises(ValueError, match="cooldown"):
+        game.declare_win(A.role_id)
+    game.end_declare_cooldown(A.role_id)
+    game.declare_win(A.role_id)  # allowed again
+
+
+def test_declaring_needs_the_coins_and_only_one_at_a_time():
+    game, A, _B = _game_with_lead(margin=1)
+    game.get_snake(A).coins = DECLARE_WIN_COST - 1
+    with pytest.raises(ValueError, match="coins"):
+        game.declare_win(A.role_id)
+    game.get_snake(A).coins = 2 * DECLARE_WIN_COST
+    game.declare_win(A.role_id)
+    with pytest.raises(ValueError, match="already declared"):
+        game.declare_win(A.role_id)
+
+
+def test_a_declarer_who_crashes_during_the_window_does_not_win():
+    game, A, B = _game_with_lead(margin=1)
+    game.declare_win(A.role_id)
+    game.crash(A)
+    assert game.resolve_win_declaration(A.role_id) is False  # runs from the scheduler, so never raises
+    assert game.declared_winner is None
+    assert game.winner() == B  # last team standing instead
+
+
+def test_the_schedulers_tick_runs_the_check_when_the_window_ends():
+    # In a real game nothing calls resolve_win_declaration directly: the bot's once-a-
+    # second tick fires it when its time comes. Skip ahead to that moment.
+    game, A, _B = _game_with_lead(margin=1)
+    game.declare_win(A.role_id)
+    [check] = _scheduled(game, "resolve_win_declaration")
+    check.__time__ = game.game_time_now() - 1
+    asyncio.run(game.schedule_tick())
+    assert not _scheduled(game, "resolve_win_declaration")
+    assert game.winner() == A
+    assert game.status == Status.END
+
+
+def test_a_pending_declaration_survives_a_restart_without_doubling_the_check(tmp_path: Path):
+    game, A, _B = _game_with_lead(margin=1)
+    game.declare_win(A.role_id)
+    asyncio.run(game.schedule_tick())  # the bot's once-a-second tick, bringing last_update up to date
+    asyncio.run(game.save(tmp_path))
+
+    reloaded = GameState.load(tmp_path, game.thread_id)  # what the bot does on restart
+    snake = reloaded.get_snake(reloaded.get_team(A.role_id))
+    assert snake.win_declared
+    assert snake.coins == game.get_snake(A).coins  # charged once, not twice
+    assert len(_scheduled(reloaded, "resolve_win_declaration")) == 1
