@@ -8,7 +8,7 @@ from typing import cast
 import pytest
 
 import render
-from config import BONUS_AT_FRONT
+from config import BONUS_AT_FRONT, OBJECTIVE_STATIONS
 from new_game import new_game
 from render import ClipPolygon, ForkGroup, _clip_shapes_for_segment, _extract_svg_fork_geometry, render_map
 from game import GameState
@@ -505,6 +505,42 @@ def test_legend_shows_the_announced_line_never_the_detoured_one(tmp_path: Path) 
     assert game.map.get_line("Bakerloo").display_name not in legend, "the legend leaked the Detour"
 
 
+def test_legend_score_counts_objectives_won(tmp_path: Path) -> None:
+    game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
+    A = game.teams[0]
+    game.complete_challenge(A.role_id, "Jubilee")  # claims Wembley Park
+    game.get_snake(A).objectives_won = 1
+
+    legend = _legend_group(render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8"))
+
+    assert f"Score: {1 + OBJECTIVE_STATIONS}" in legend
+    assert "Objectives: 1" in legend
+
+
+def test_render_map_marks_live_objectives_under_the_labels(tmp_path: Path) -> None:
+    game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
+    game.objectives.append("Stratford")
+    svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
+
+    marks_idx = svg.find('<g id="Objectives">')
+    assert marks_idx != -1, "expected a live objective to be marked"
+    assert marks_idx < render._LABEL_GROUP_RE.search(svg).start()
+
+    group = svg[marks_idx : svg.index("</g>", marks_idx)]
+    assert render._OBJECTIVE_COLOR in group
+    assert group.count("stroke-opacity") == len(render._OBJECTIVE_RIPPLES)
+
+
+def test_legend_text_keeps_its_spacing() -> None:
+    # librsvg strips a tspan's leading spaces unless the text preserves whitespace,
+    # which ran the name and its description together ("Bodyclaimed").
+    pair = render._legend_pair(0, 0, "Body", "  claimed", 28)
+    assert pair.count('xml:space="preserve"') == 2  # the white halo pass and the fill pass
+    assert "  claimed" in pair
+
+    assert 'xml:space="preserve"' in render._legend_text(0, 0, "Score: 1   ·   Neck: 0", 28)
+
+
 def test_symbol_key_is_bottom_right_and_paints_on_top(tmp_path: Path) -> None:
     game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
     svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
@@ -558,11 +594,13 @@ def test_symbol_key_prefers_a_living_teams_colour(tmp_path: Path) -> None:
 
 
 def test_symbol_key_omits_rows_for_symbols_not_on_the_map(tmp_path: Path) -> None:
-    # No bonuses, no jumps, nobody out -> only the always-on Body/Neck rows.
+    # No bonuses, no jumps, nobody out, no objectives -> only the always-on Body/Neck rows.
     game = new_game(start_positions={"A": "Wembley Park"}, bonus_interchanges=set())
-    key = _key_group(render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8"))
+    svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
+    key = _key_group(svg)
 
-    for absent in ("Out", "Bonus", "Jumped"):
+    assert '<g id="Objectives">' not in svg
+    for absent in ("Out", "Bonus", "Jumped", "Objective"):
         assert absent not in key, f"key should not explain {absent!r} when none is drawn"
 
 
@@ -570,10 +608,11 @@ def test_symbol_key_adds_rows_for_symbols_that_are_on_the_map(tmp_path: Path) ->
     game = new_game({"A": "Baker Street", "B": "Bond Street"}, bonus_interchanges={"Stratford"})
     B = game.teams[1]
     game.jumped_stations.add("Holborn")
+    game.objectives.append("Green Park")
     game.concede(B)
     key = _key_group(render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8"))
 
-    for needle in ("Out", "Bonus", "Jumped"):
+    for needle in ("Out", "Bonus", "Jumped", "Objective"):
         assert needle in key
 
 

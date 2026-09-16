@@ -20,6 +20,12 @@ DECLARE_WIN_COST = 2
 DECLARE_WIN_WINDOW_MINUTES = 20
 DECLARE_WIN_COOLDOWN_MINUTES = 30
 
+# --- Contested objectives ------------------------------------------------------
+OBJECTIVE_INTERVAL_MINUTES = 60  # a new one this often; unclaimed ones stay live
+OBJECTIVE_COINS = 5  # for completing a challenge AT it
+OBJECTIVE_STATIONS = 3  # it also counts as this many extra stations in the score
+OBJECTIVE_PASS_COINS = 2  # for claiming it in passing, which ends it
+
 # --- Coins -----------------------------------------------------------------
 STARTING_COINS = 5  # coins each team starts the game with
 EASIER_REWARD = 1  # coins for completing the easier of the two offered challenges

@@ -23,6 +23,10 @@ from config import (
     HARDER_REWARD,
     INITIAL_DIFFICULTY_MAX,
     INITIAL_DIFFICULTY_MIN,
+    OBJECTIVE_COINS,
+    OBJECTIVE_INTERVAL_MINUTES,
+    OBJECTIVE_PASS_COINS,
+    OBJECTIVE_STATIONS,
     POWERUP_COSTS,
     STARTING_COINS,
     WINNING_THRESHOLD,
@@ -30,6 +34,7 @@ from config import (
 from jloxgame import GameContext, Team
 from jloxgame.state import Status, event
 from map import Map
+from objectives import choose_objective
 from powerups import NORMAL_POWERUP_HANDLERS, POWERUP_ON_BUY, Curse, CurseDeck, handle_curse, handle_detour, handle_jump
 
 
@@ -67,6 +72,8 @@ class Snake:
     # --- Declaring a win ---
     win_declared: bool = False  # a declaration is waiting for its check (see GameState.declare_win)
     declare_cooldown: bool = False  # a declaration failed recently; can't declare again yet
+    # --- Objectives ---
+    objectives_won: int = 0  # each adds OBJECTIVE_STATIONS to the score
 
     @property
     def eliminated(self) -> bool:
@@ -91,6 +98,7 @@ class GameState(GameContext):
         self.curse_deck: CurseDeck | None = None  # deck the curse powerup draws from (None = curse unavailable)
         # --- Winning ---
         self.declared_winner: Team | None = None  # set when a win declaration passes its check
+        self.objectives: list[str] = []  # live objectives, oldest first
 
         self.latest_generated_map = 0  # not synced
 
@@ -139,9 +147,13 @@ class GameState(GameContext):
         """All interchanges currently in the snake's Body (claimed stations)."""
         return self.map.stations_claimed_by(team)
 
+    def score(self, team: Team) -> int:
+        """Claimed stations plus OBJECTIVE_STATIONS per objective won."""
+        return len(self.body_stations(team)) + OBJECTIVE_STATIONS * self.get_snake(team).objectives_won
+
     def total_controlled(self, team: Team) -> int:
-        """Body + active Neck — the opponent-side total in the win-lead comparison (see `winner`)."""
-        return len(self.body_stations(team)) + len(self.neck(team))
+        """Score + active Neck — the opponent-side total in the win-lead comparison (see `has_winning_lead`)."""
+        return self.score(team) + len(self.neck(team))
 
     # Game events
 
@@ -274,13 +286,20 @@ class GameState(GameContext):
         # which crashes that snake.
         self._apply_neck_crashes(exclude=team)
 
-        # Award coins: the challenge reward plus any bonus interchanges just claimed.
-        # The initial challenge pays neither — it only unlocks the first line.
+        # Award coins: the challenge reward plus any bonus interchanges and objectives
+        # just claimed. The initial challenge pays nothing — it only unlocks the first line.
         if not is_initial:
             snake.coins += HARDER_REWARD if hard else EASIER_REWARD
             for station_key in newly_claimed:
                 if station_key in self.bonus_interchanges:
                     snake.coins += BONUS_AT_FRONT if station_key == snake.front else BONUS_CLAIMED
+                if station_key in self.objectives:
+                    self.objectives.remove(station_key)
+                    if station_key == snake.front:
+                        snake.coins += OBJECTIVE_COINS
+                        snake.objectives_won += 1
+                    else:
+                        snake.coins += OBJECTIVE_PASS_COINS
 
         snake.anchor = snake.front
         snake.neck_active = False
@@ -557,10 +576,10 @@ class GameState(GameContext):
                 self.crash(other_team)
 
     def has_winning_lead(self, team: Team) -> bool:
-        """Whether a team's claimed stations (Body) lead every other active team's Body +
+        """Whether a team's score (see `score`) leads every other active team's score +
         Neck by more than WINNING_THRESHOLD. A lead alone never wins — see declare_win."""
         others = [t for t in self.active_teams() if t != team]
-        ours = len(self.body_stations(team))
+        ours = self.score(team)
         return all(ours > self.total_controlled(o) + WINNING_THRESHOLD for o in others)
 
     def winner(self) -> Team | None:
@@ -578,19 +597,33 @@ class GameState(GameContext):
         return self.declared_winner
 
     def tiebreak_winner(self) -> Team | None:
-        """End-of-game tiebreaker: the active team with the most claimed stations (Body).
+        """End-of-game tiebreaker: the active team with the highest score (see `score`).
 
         For use when the time limit is reached (the clock itself is the bot's job).
-        Only claimed stations count — necks don't. Returns None on an exact tie for
-        the lead, or if no teams remain.
+        Necks don't count. Returns None on an exact tie for the lead, or if no teams
+        remain.
         """
         active = self.active_teams()
         if not active:
             return None
-        counts = {t: len(self.body_stations(t)) for t in active}
+        counts = {t: self.score(t) for t in active}
         best = max(counts.values())
         leaders = [t for t, count in counts.items() if count == best]
         return leaders[0] if len(leaders) == 1 else None
+
+    # Contested objectives
+
+    @event()
+    def new_objective(self) -> str | None:
+        """Place a new objective and schedule the next (not on reload: it's already in the save)."""
+        if self.status != Status.RUNNING:
+            return None
+        station = choose_objective(self)
+        if station is not None:
+            self.objectives.append(station)
+        if not self.loading:
+            self.schedule_event(0, OBJECTIVE_INTERVAL_MINUTES, 0, self.new_objective)
+        return station
 
     # Declaring a win
 
@@ -788,6 +821,9 @@ class GameState(GameContext):
 
         self.status = Status.RUNNING
         self.unpause()
+        # Not on reload: it's already in the save.
+        if not self.loading:
+            self.schedule_event(0, OBJECTIVE_INTERVAL_MINUTES, 0, self.new_objective)
 
 
 class ConfigModal(DesignerModal):

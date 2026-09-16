@@ -15,7 +15,7 @@ RSVG_PATH = which("rsvg-convert")
 if RSVG_PATH is None:
     print("[render | warn] librsvg could not be found, falling back to resvg (8x slower)")
 
-from config import BONUS_AT_FRONT
+from config import BONUS_AT_FRONT, OBJECTIVE_COINS, OBJECTIVE_STATIONS
 from game import GameState
 
 SVG_SOURCE = Path("map/snake map.svg")
@@ -93,6 +93,10 @@ _JUMP_HALO_OPACITY = 0.22
 _JUMP_HALO_PAD = 20.0  # SVG units the halo extends beyond the marker silhouette
 _JUMP_HALO_RAYS = 24  # directions sampled to size the halo around any marker shape
 
+_OBJECTIVE_COLOR = "#111111"
+_OBJECTIVE_RING_W = 5.0
+_OBJECTIVE_RIPPLES = ((12.0, 1.0), (28.0, 0.55), (44.0, 0.25))  # (SVG units beyond the marker, opacity)
+
 # Overlays are injected immediately before the first station label group so they
 # paint above the line segments but below the labels. Label groups are the <g>
 # elements whose id ends in " Label" (inner text uses " Label_h"/" Label_c").
@@ -136,8 +140,8 @@ def render_map(game: GameState, output_path: str | Path, *, debug: bool = False)
     # lines run straight over them and nothing is ever obscured or broken.
     svg = _insert_under_line_network(svg, _build_jump_halos(game), game)
 
-    # Inject segment highlight overlays just before the first label group.
-    overlay_svg = _build_segment_overlays(game, debug=debug)
+    # Inject segment highlight overlays and objective rings just before the first label group.
+    overlay_svg = _build_segment_overlays(game, debug=debug) + _build_objective_rings(game)
     if overlay_svg:
         match = _LABEL_GROUP_RE.search(svg)
         if match is None:
@@ -552,7 +556,12 @@ def _legend_text(x: float, y: float, text: str, size: int, *, fill: str = "#1111
     # Two passes: a white outline behind a solid fill, so text stays legible over
     # map lines without a background panel. (Avoids relying on paint-order support.)
     halo = max(4.0, size * 0.18)
-    common = f'x="{x:.1f}" y="{y:.1f}" font-family="{_LEGEND_FONT}" font-size="{size}" text-anchor="{anchor}"'
+    # xml:space: rasterising otherwise strips a tspan's leading spaces ("Bodyclaimed")
+    # and squashes the "   ·   " separators to one space.
+    common = (
+        f'x="{x:.1f}" y="{y:.1f}" font-family="{_LEGEND_FONT}" font-size="{size}"'
+        f' text-anchor="{anchor}" xml:space="preserve"'
+    )
     esc = _escape_text(text)
     return (
         f'<text {common} fill="none" stroke="#ffffff" stroke-width="{halo:.1f}" stroke-linejoin="round">{esc}</text>'
@@ -571,7 +580,12 @@ def _legend_pair(x: float, y: float, primary: str, secondary: str, size: int, *,
     p = _escape_text(primary)
     s = _escape_text(secondary)
     halo = max(4.0, size * 0.18)
-    common = f'x="{x:.1f}" y="{y:.1f}" font-family="{_LEGEND_FONT}" font-size="{size}" text-anchor="{anchor}"'
+    # xml:space: rasterising otherwise strips a tspan's leading spaces ("Bodyclaimed")
+    # and squashes the "   ·   " separators to one space.
+    common = (
+        f'x="{x:.1f}" y="{y:.1f}" font-family="{_LEGEND_FONT}" font-size="{size}"'
+        f' text-anchor="{anchor}" xml:space="preserve"'
+    )
     spans_halo = f'<tspan font-weight="bold">{p}</tspan><tspan font-weight="normal">{s}</tspan>'
     spans_fill = (
         f'<tspan font-weight="bold" fill="#111111">{p}</tspan><tspan font-weight="normal" fill="#555555">{s}</tspan>'
@@ -683,6 +697,29 @@ def _build_jump_halos(game: GameState) -> str:
     return '<g id="Jumped Stations">' + "".join(parts) + "</g>" if parts else ""
 
 
+def _ripples(cx: float, cy: float, outer: float, scale: float = 1.0) -> str:
+    """Rings fading outwards from a marker, the way a live objective is marked."""
+    return "".join(
+        f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{outer + gap * scale:.1f}" fill="none"'
+        f' stroke="{_OBJECTIVE_COLOR}" stroke-width="{_OBJECTIVE_RING_W * scale:.1f}" stroke-opacity="{opacity}"/>'
+        for gap, opacity in _OBJECTIVE_RIPPLES
+    )
+
+
+def _build_objective_rings(game: GameState) -> str:
+    if not game.objectives:
+        return ""
+    centres = load_geometry()["station_centres"]
+    markers = _get_station_markers()
+    parts: list[str] = []
+    for station in game.objectives:
+        if station not in centres:
+            continue
+        cx, cy = centres[station]
+        parts.append(_ripples(cx, cy, _marker_outer_radius(station, cx, cy, markers)))
+    return '<g id="Objectives">' + "".join(parts) + "</g>" if parts else ""
+
+
 def _insert_under_line_network(svg: str, fragment: str, game: GameState) -> str:
     """Insert a fragment just before the first line group, i.e. beneath the whole network."""
     if not fragment:
@@ -746,6 +783,13 @@ def _key_swatch_jumped(cx: float, cy: float) -> str:
     )
 
 
+def _key_swatch_objective(cx: float, cy: float) -> str:
+    return (
+        f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{_KEY_MARKER_R}" fill="#ffffff" stroke="#000000" stroke-width="3.75"/>'
+        + _ripples(cx, cy, _KEY_MARKER_R, scale=0.4)
+    )
+
+
 def _build_symbol_key(game: GameState, canvas_w: float, canvas_h: float) -> str:
     """Bottom-right HUD: what the map's non-team symbols mean.
 
@@ -773,6 +817,10 @@ def _build_symbol_key(game: GameState, canvas_w: float, canvas_h: float) -> str:
         rows.append(("Bonus", f"  +{BONUS_AT_FRONT} for a challenge here", _key_swatch_bonus))
     if game.jumped_stations:
         rows.append(("Jumped", "  passable by everyone", _key_swatch_jumped))
+    if game.objectives:
+        rows.append(
+            ("Objective", f"  +{OBJECTIVE_COINS} coins, worth {OBJECTIVE_STATIONS} stations", _key_swatch_objective)
+        )
 
     title_h = _KEY_TITLE_FONT + 6
     content_h = title_h + _KEY_TITLE_GAP + len(rows) * _KEY_ROW_H
@@ -797,7 +845,7 @@ def _build_legend(game: GameState, canvas_h: float) -> str:
     """Build the bottom-left HUD: a time-elapsed header above a per-team legend.
 
     Each team row shows its colour, name + (current line, or the Front station
-    while a challenge is active), then body score and neck length. Coins and cards
+    while a challenge is active), then score and neck length. Coins and cards
     in hand are private information and deliberately not shown.
     """
     teams = list(game.snakes.items())
@@ -826,7 +874,7 @@ def _build_legend(game: GameState, canvas_h: float) -> str:
 
     for i, (team, snake) in enumerate(teams):
         block_top = y
-        body = len(game.body_stations(team))
+        score = game.score(team)
         neck = len(game.neck(team))
         # The *announced* line, never the one actually being travelled: the map is public,
         # and Detour is explicitly unannounced. (The neck's segments below are drawn on the
@@ -843,7 +891,9 @@ def _build_legend(game: GameState, canvas_h: float) -> str:
         else:
             beside_name = "   ·   No line"
 
-        stat_text = f"Score: {body}   ·   Neck: {neck}"
+        stat_text = f"Score: {score}   ·   Neck: {neck}"
+        if snake.objectives_won:
+            stat_text += f"   ·   Objectives: {snake.objectives_won}"
         if snake.crashed:
             name = f"{team} (crashed)"
         elif snake.conceded:

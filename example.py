@@ -1,8 +1,9 @@
 import random
 
 from challenges import get_difficulty, neck_weights
-from config import EASIER_REWARD, HARDER_REWARD
+from config import EASIER_REWARD, HARDER_REWARD, OBJECTIVE_COINS, OBJECTIVE_STATIONS
 from new_game import new_game
+from objectives import team_costs
 from render import render_map, svg_to_png
 
 # Five-team game exercising all five powerups — colours assigned automatically
@@ -118,6 +119,12 @@ game.play_jump(Alpha.role_id, station="Blackfriars")
 game.request_challenge(Alpha.role_id, "Bank")
 game.complete_challenge(Alpha.role_id, "Central", hard=True)
 
+# A contested objective goes up, at an interchange every living team needs the same
+# number of legs to reach. Delta is walled in, so its route costs it a Jump.
+
+objective = game.new_objective()
+assert objective
+
 # state summary
 
 for team in game.snakes:
@@ -140,6 +147,10 @@ print(f"  Delta drew and played: {delta_curse.name if delta_curse else '-'}")
 beta = game.get_snake(Beta)
 print(f"  Beta announced {beta.announced_line!r} but is really on {beta.travel_line!r}")
 print(f"  Epsilon retreated from {epsilon_blocked!r}, blocking only its next request")
+print(f"  Objective ({OBJECTIVE_COINS} coins, worth {OBJECTIVE_STATIONS} stations): {objective}")
+for team, costs in team_costs(game).items():
+    _, legs, jumps, stops = costs[objective]
+    print(f"    {team.name:8} {legs} legs, {stops} stops" + (f", {jumps} Jump" if jumps else ""))
 
 # challenges currently on offer (teams mid-challenge)
 
