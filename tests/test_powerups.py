@@ -16,7 +16,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import random
-from typing import Any, cast
+from typing import Any
 
 import pytest
 
@@ -47,13 +47,20 @@ def _curses_path(tmp_path: Path) -> str:
     return str(path)
 
 
-def _game(tmp_path: Path, teams: dict[str, str] | None =None, **kwargs: Any):
+def _game(tmp_path: Path, teams: dict[str, str] | None = None, **kwargs: Any):
     """A hermetic game: no challenge pool, no bonuses, a 3-curse deck, seeded rng."""
     teams = teams or {"A": "Baker Street", "B": "Stratford"}
     kwargs.setdefault("bonus_interchanges", set())
     kwargs.setdefault("curse_deck", CurseDeck(_curses_path(tmp_path)))
     kwargs.setdefault("rng", random.Random(0))
     return new_game(teams, **kwargs)
+
+
+def _buy_curse(game: Any, team: Any, index: int = 0):
+    """Buy a curse and keep one of the options drawn (the first, unless told otherwise)."""
+    options = game.buy_powerup(team.role_id, "curse")
+    assert options is not None
+    return game.choose_curse(team.role_id, options[index].id)
 
 
 # --- costs and configuration -------------------------------------------------
@@ -545,22 +552,84 @@ def test_curse_deck_draws_without_replacement_and_resets_when_empty(tmp_path: Pa
     assert len(deck.all()) == 2  # refilled to 3, then one drawn
 
 
-def test_buying_a_curse_draws_a_concrete_curse_into_the_hand(tmp_path: Path):
+def test_buying_a_curse_draws_two_to_choose_between(tmp_path: Path):
     game = _game(tmp_path)
     A = game.teams[0]
     B = game.teams[1]
     snake = game.get_snake(A)
     snake.coins = 20
 
-    curse = game.buy_powerup(A.role_id, "curse")
+    options = game.buy_powerup(A.role_id, "curse")
 
-    # The buyer knows exactly which curse they hold, before picking a target.
-    assert isinstance(curse, Curse)
-    assert curse is not None
-    assert curse.id in {"get_a_melon", "egg_partner", "pub"}
-    assert snake.held_curses == [curse]
+    assert options is not None
+    assert len(options) == config.CURSE_OPTIONS
+    assert len({c.id for c in options}) == len(options)  # never the same curse twice
+    assert snake.curse_choice == options  # nothing is held until the team keeps one
+    assert snake.held_curses == []
     assert snake.hand == ["curse"]
-    assert game.get_snake(B).curses == []  # nothing inflicted until it is played
+    assert game.get_snake(B).curses == []
+
+
+def test_keeping_one_curse_puts_the_other_back(tmp_path: Path):
+    game = _game(tmp_path)
+    A = game.teams[0]
+    assert game.curse_deck is not None
+    snake = game.get_snake(A)
+    snake.coins = 20
+
+    options = game.buy_powerup(A.role_id, "curse")
+    assert options is not None
+    assert len(game.curse_deck.all()) == 1  # both drawn out of a three-curse deck
+
+    kept = game.choose_curse(A.role_id, options[1].id)
+
+    assert kept == options[1]
+    assert snake.held_curses == [kept]
+    assert snake.curse_choice == []
+    assert options[0] in game.curse_deck.all()  # the one not kept is back in the deck
+    assert kept not in game.curse_deck.all()
+
+
+def test_a_second_curse_cannot_be_bought_until_one_is_kept(tmp_path: Path):
+    game = _game(tmp_path)
+    A = game.teams[0]
+    snake = game.get_snake(A)
+    snake.coins = 20
+    before = snake.coins
+
+    game.buy_powerup(A.role_id, "curse")
+    with pytest.raises(ValueError, match="keep one"):
+        game.buy_powerup(A.role_id, "curse")
+
+    assert snake.coins == before - config.POWERUP_COSTS["curse"]  # the rejected buy cost nothing
+
+
+def test_keeping_a_curse_that_was_not_offered_raises(tmp_path: Path):
+    game = _game(tmp_path)
+    A = game.teams[0]
+    assert game.curse_deck is not None
+    game.get_snake(A).coins = 20
+
+    options = game.buy_powerup(A.role_id, "curse")
+    assert options is not None
+    not_offered = game.curse_deck.all()[0]  # the one left in the deck
+
+    with pytest.raises(ValueError, match="not offered"):
+        game.choose_curse(A.role_id, not_offered.id)
+    assert game.get_snake(A).held_curses == []
+    assert game.get_snake(A).curse_choice == options  # still waiting to be decided
+
+
+def test_drawing_options_never_offers_the_same_curse_twice(tmp_path: Path):
+    # The cycle empties part-way through the second draw, so the refill must exclude
+    # what that draw already took.
+    deck = CurseDeck(_curses_path(tmp_path))
+    rng = random.Random(3)
+
+    deck.draw_options(2, rng=rng)
+    options = deck.draw_options(2, rng=rng)
+
+    assert len({c.id for c in options}) == 2
 
 
 def test_curse_leaves_the_deck_at_buy_time_not_play_time(tmp_path: Path):
@@ -570,12 +639,13 @@ def test_curse_leaves_the_deck_at_buy_time_not_play_time(tmp_path: Path):
     assert game.curse_deck is not None
     game.get_snake(A).coins = 20
 
-    curse = game.buy_powerup(A.role_id, "curse")
+    options = game.buy_powerup(A.role_id, "curse")
+    assert options is not None
+    curse = game.choose_curse(A.role_id, options[0].id)
 
     # Already gone from the deck, even though it has not been played yet.
-    assert curse is not None
     assert curse not in game.curse_deck.all()
-    assert len(game.curse_deck.all()) == 2
+    assert len(game.curse_deck.all()) == 2  # three, less the one kept
 
     game.play_curse(A.role_id, target_team_id=B.role_id, curse_id=curse.id)
     assert len(game.curse_deck.all()) == 2  # playing a held curse never touches the deck
@@ -602,17 +672,18 @@ def test_curses_stay_available_after_the_deck_cycles(tmp_path: Path):
     B = game.teams[1]
     snake = game.get_snake(A)
     snake.coins = 50
-    drawn = [game.buy_powerup(A.role_id, "curse") for _ in range(4)]
 
-    drawn = cast(list[Curse], drawn)
+    kept = []
+    for _ in range(4):  # more buys than the deck has curses
+        options = game.buy_powerup(A.role_id, "curse")
+        assert options is not None
+        kept.append(game.choose_curse(A.role_id, options[0].id))
 
-    assert {c.id for c in drawn[:3]} == {"get_a_melon", "egg_partner", "pub"}  # first cycle
-    assert drawn[3].id in {"get_a_melon", "egg_partner", "pub"}  # from the reset deck
+    assert snake.held_curses == kept
+    played = [game.play_curse(A.role_id, target_team_id=B.role_id, curse_id=c.id) for c in kept]
 
-    played = [game.play_curse(A.role_id, target_team_id=B.role_id, curse_id=drawn[i].id) for i in range(4)]
-
-    assert played == drawn  # no curse_id given: played oldest-first, in buy order
-    assert game.get_snake(B).curses == drawn
+    assert played == kept
+    assert game.get_snake(B).curses == kept
     assert snake.hand == []
     assert snake.held_curses == []
     game.buy_powerup(A.role_id, "curse")  # still purchasable — the deck never runs dry
@@ -623,8 +694,7 @@ def test_playing_a_held_curse_attaches_it_to_the_target(tmp_path: Path):
     A = game.teams[0]
     B = game.teams[1]
     game.get_snake(A).coins = 20
-    c = game.buy_powerup(A.role_id, "curse")  # the concrete curse is drawn here, at buy time
-    assert c is not None
+    c = _buy_curse(game, A)  # two are drawn at buy time; this is the one kept
 
     curse = game.play_curse(A.role_id, target_team_id=B.role_id, curse_id=c.id)
 
@@ -640,11 +710,9 @@ def test_playing_a_chosen_curse_by_id_leaves_the_others_held(tmp_path: Path):
     B = game.teams[1]
     snake = game.get_snake(A)
     snake.coins = 50
-    first = game.buy_powerup(A.role_id, "curse")
-    second = game.buy_powerup(A.role_id, "curse")
-    assert isinstance(first, Curse) and isinstance(second, Curse)
-    assert first is not None and second is not None
-    assert first.id != second.id  # distinct within a single deck cycle
+    first = _buy_curse(game, A)
+    second = _buy_curse(game, A)
+    assert first.id != second.id  # a kept curse never goes back, so a later buy can't repeat it
 
     played = game.play_curse(A.role_id, target_team_id=B.role_id, curse_id=second.id)
 
@@ -660,7 +728,7 @@ def test_playing_a_curse_id_you_do_not_hold_raises(tmp_path: Path):
     B = game.teams[1]
     snake = game.get_snake(A)
     snake.coins = 50
-    held = game.buy_powerup(A.role_id, "curse")
+    held = _buy_curse(game, A)
 
     with pytest.raises(ValueError, match="does not hold"):
         game.play_curse(A.role_id, target_team_id=B.role_id, curse_id="nonexistent")
@@ -676,8 +744,7 @@ def test_curse_requires_a_valid_living_opponent(tmp_path: Path):
     B = game.teams[1]
     snake = game.get_snake(A)
     snake.coins = 50
-    c = game.buy_powerup(A.role_id, "curse")
-    assert c is not None
+    c = _buy_curse(game, A)
 
     with pytest.raises(ValueError, match="another"):
         game.play_curse(A.role_id, target_team_id=A.role_id, curse_id=c.id)  # not yourself
@@ -712,8 +779,7 @@ def test_curse_draw_is_reproducible_with_a_seeded_rng(tmp_path: Path):
         A = game.teams[0]
         B = game.teams[1]
         game.get_snake(A).coins = 20
-        c = game.buy_powerup(A.role_id, "curse")
-        assert c is not None
+        c = _buy_curse(game, A)
         return game.play_curse(A.role_id, target_team_id=B.role_id, curse_id=c.id).id
 
     assert drawn_curse(9) == drawn_curse(9)

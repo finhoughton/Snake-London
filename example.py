@@ -79,17 +79,20 @@ game.play_normal_powerup(Gamma.role_id, "efficiency")
 game.request_challenge(Gamma.role_id, "Woolwich Arsenal")
 gamma_veto_was_free = game.veto_challenges(Gamma.role_id)  # True -> no 15-minute wait
 
-# Delta — buys a Curse (drawn at buy time) and
+# Delta — buys a Curse (two are drawn at buy time, it keeps one) and
 # plays it on Alpha before heading down the Bakerloo.
 
 game.request_challenge(Delta.role_id, "Kenton")
 game.complete_challenge(Delta.role_id, "Bakerloo", hard=True)
 
-delta_curse = game.buy_powerup(Delta.role_id, "curse")
-assert delta_curse
+delta_options = game.buy_powerup(Delta.role_id, "curse")
+assert delta_options
+delta_curse = game.choose_curse(Delta.role_id, delta_options[0].id)  # the other goes back in the deck
 game.play_curse(Delta.role_id, target_team_id=Alpha.role_id, curse_id=delta_curse.id)
 
-game.buy_powerup(Delta.role_id, "curse")  # a second one, kept in hand for later
+second_options = game.buy_powerup(Delta.role_id, "curse")  # a second one, kept in hand for later
+assert second_options
+game.choose_curse(Delta.role_id, second_options[-1].id)
 game.request_challenge(Delta.role_id, "Paddington")
 
 # Epsilon — requests a challenge, thinks better of it and Retreats, which blocks

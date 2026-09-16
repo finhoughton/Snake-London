@@ -64,6 +64,7 @@ class Snake:
     blocked_station: str | None = None  # set by Retreat; the next request must differ
     pending_detour: str | None = None  # Detour played mid-challenge; overrides the next declared line
     held_curses: list[Curse] = field(default_factory=list[Curse])  # curses bought and not yet played
+    curse_choice: list[Curse] = field(default_factory=list[Curse])  # drawn on buy, waiting to be kept
     curses: list[Curse] = field(default_factory=list[Curse])  # curses inflicted on this team by others
     # Ids of every challenge ever offered to this team (both slots, vetoed offers and the
     # shared initial challenge included). Offers skip these while alternatives exist.
@@ -423,7 +424,7 @@ class GameState(GameContext):
     # Powerups
 
     @event()
-    def buy_powerup(self, team_id: int, powerup_id: str) -> Curse | None:
+    def buy_powerup(self, team_id: int, powerup_id: str) -> list[Curse] | None:
         """Buy a powerup into the team's hand, deducting its coin cost.
 
         Raises ValueError if the team is out of the game, the id is unknown, the
@@ -432,8 +433,8 @@ class GameState(GameContext):
         ``new_game``, so no separate deck check is needed here.)
 
         Returns whatever the powerup's buy-time effect produced — for ``"curse"``
-        that's the concrete ``Curse`` drawn into ``Snake.held_curses``, so the buyer
-        knows what they're holding before they play it; None for everything else.
+        that's the CURSE_OPTIONS curses drawn to choose between, one of which the team
+        keeps with ``choose_curse``; None for everything else.
         """
         team = self.get_team(team_id)
         snake = self._acting_snake(team)
@@ -470,6 +471,23 @@ class GameState(GameContext):
 
         NORMAL_POWERUP_HANDLERS[powerup_id](self, team)
         snake.hand.remove(powerup_id)
+
+    @event()
+    def choose_curse(self, team_id: int, curse_id: str) -> Curse:
+        """Keep one of the curses drawn when a curse was bought; the rest go back in the deck."""
+        team = self.get_team(team_id)
+        snake = self._acting_snake(team)
+        if self.status != Status.RUNNING:
+            raise ValueError("The game is not running")
+        kept = next((c for c in snake.curse_choice if c.id == curse_id), None)
+        if kept is None:
+            raise ValueError(f"{team!r} was not offered a curse with id {curse_id!r}")
+        for curse in snake.curse_choice:
+            if curse is not kept and self.curse_deck is not None:
+                self.curse_deck.put_back(curse)
+        snake.curse_choice = []
+        snake.held_curses.append(kept)
+        return kept
 
     @event()
     def play_curse(self, team_id: int, target_team_id: int, curse_id: str) -> Curse:

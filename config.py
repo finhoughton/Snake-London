@@ -54,8 +54,10 @@ POWERUP_COSTS = {
     "efficiency": 4,  # next veto/failure is free (no veto period)
     "retreat": 3,  # cancel current challenge request; next request must differ
     "detour": 2,  # switch declared line without a challenge (unannounced)
-    "curse": 3,  # draw a random curse and play it on another team
+    "curse": 3,  # draw CURSE_OPTIONS curses, keep one to play on another team
 }
+
+CURSE_OPTIONS = 2  # curses drawn when you buy one; you keep one, the rest go back
 
 # --- Team colours ----------------------------------------------------------
 # Ordered by priority (first N used for N teams), boldest first. Chosen by

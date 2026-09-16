@@ -17,7 +17,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from config import POWERUP_COSTS
+from config import CURSE_OPTIONS, POWERUP_COSTS
 from jloxgame.state import Team
 
 if TYPE_CHECKING:
@@ -64,12 +64,27 @@ class CurseDeck:
 
     def draw(self, rng: random.Random | None = None) -> Curse:
         """Draw one curse uniformly without replacement, refilling the deck when empty."""
+        return self.draw_options(1, rng=rng)[0]
+
+    def draw_options(self, count: int, rng: random.Random | None = None) -> list[Curse]:
+        """Draw up to ``count`` *distinct* curses to choose between.
+
+        Fewer only when the deck knows fewer. A cycle that empties part-way through
+        refills without what this draw already took, so one draw never offers a pair.
+        """
         picker = rng if rng is not None else random
         if not self._catalog:
             raise ValueError("Cannot draw from a curse deck with no curses")
-        if not self._remaining:
-            self._remaining = list(self._catalog)
-        return self._remaining.pop(picker.randrange(len(self._remaining)))
+        drawn: list[Curse] = []
+        for _ in range(min(count, len(self._catalog))):
+            if not self._remaining:
+                self._remaining = [c for c in self._catalog if c not in drawn]
+            drawn.append(self._remaining.pop(picker.randrange(len(self._remaining))))
+        return drawn
+
+    def put_back(self, curse: Curse) -> None:
+        """Return a curse that wasn't kept to the current cycle."""
+        self._remaining.append(curse)
 
 
 # --- Play handlers -----------------------------------------------------------
@@ -172,16 +187,26 @@ def handle_curse(game: GameState, team: Team, *, target_team: Team, curse_id: st
 # them only after every check passes, so a rejected buy consumes nothing.
 
 
-def _on_buy_curse(game: GameState, team: Team) -> Curse:
-    """Draw a concrete curse into the buyer's hand; the deck loses it now, not at play."""
+def _on_buy_curse(game: GameState, team: Team) -> list[Curse]:
+    """Draw the curses the buyer chooses between; the deck loses them now, not at play.
+
+    The team keeps one with ``GameState.choose_curse`` and the rest go back. A deck
+    that knows only one curse offers no choice, so that one is kept immediately.
+    """
     if game.curse_deck is None:
         raise ValueError("No curse deck available")
-    curse = game.curse_deck.draw(rng=game.rng)
-    game.get_snake(team).held_curses.append(curse)
-    return curse
+    snake = game.get_snake(team)
+    if snake.curse_choice:
+        raise ValueError(f"{team!r} must keep one of the curses already drawn first")
+    drawn = game.curse_deck.draw_options(CURSE_OPTIONS, rng=game.rng)
+    if len(drawn) == 1:
+        snake.held_curses.append(drawn[0])
+    else:
+        snake.curse_choice = drawn
+    return drawn
 
 
-POWERUP_ON_BUY: dict[str, Callable[[GameState, Team], Curse]] = {
+POWERUP_ON_BUY: dict[str, Callable[[GameState, Team], list[Curse]]] = {
     "curse": _on_buy_curse,
 }
 
