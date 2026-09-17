@@ -1,7 +1,7 @@
 __pycache__/
 .pytest_cache/
 .vscode/
-.DS_STORE
+.DS_Store
 other resources/
 .ruff_cache/
 .github/
@@ -27,3 +27,6 @@ build/
 TOKEN
 save
 generated_maps
+
+/segment_bleed/
+tools/segment_bleed/target/

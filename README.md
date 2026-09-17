@@ -67,3 +67,6 @@ See `example.py` for a full three-team game.
 
 Python ≥ 3.12, `resvg-py`, `py-cord`. Tests: `pytest`. The bot lives in the `jloxgame`
 submodule, so clone with `--recurse-submodules`.
+
+Optional: a Rust toolchain (`rustup`). `check_segment_bleed.py` builds a faster rasteriser
+with it on first run; without one it uses `rsvg-convert` and takes about twice as long.
