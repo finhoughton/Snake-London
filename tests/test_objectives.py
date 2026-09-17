@@ -214,6 +214,56 @@ def test_claiming_the_objective_in_passing_pays_less_and_ends_it():
     assert game.objectives == []
 
 
+def test_a_won_objective_cannot_be_taken_again_with_a_jump():
+    # A wins Bond Street, so the objective is spent and the station is A's. B jumps it and
+    # completes a challenge there: the station stays A's, and there is no prize left to win.
+    game = _game({"A": "Baker Street", "B": "Green Park"})
+    A, B = game.teams
+    game.complete_challenge(A.role_id, "Jubilee")
+    game.complete_challenge(B.role_id, "Jubilee")
+    game.objectives.append("Bond Street")
+
+    game.request_challenge(A.role_id, "Bond Street")
+    game.complete_challenge(A.role_id, "Jubilee")  # A wins it
+    assert game.objectives == []
+
+    b = game.get_snake(B)
+    b.coins = 50
+    game.buy_powerup(B.role_id, "jump")
+    game.play_jump(B.role_id, station="Bond Street")  # passable, but still A's
+    coins, score = b.coins, game.score(B)
+
+    game.request_challenge(B.role_id, "Bond Street")
+    game.complete_challenge(B.role_id, "Jubilee")
+
+    assert b.coins == coins + EASIER_REWARD  # the challenge reward only, no objective prize
+    assert b.objectives_won == 0
+    assert game.score(B) == score  # Bond Street stays in A's Body
+    assert game.map.get_claim("Bond Street") == A
+
+
+def test_an_objective_on_someone_elses_claim_pays_nothing():
+    # Placement never does this (choose_objective skips claims), but the payout must follow the
+    # claim: fronting at a jumped station another team owns wins no prize and spends no objective.
+    game = _game({"A": "Baker Street", "B": "Green Park"})
+    A, B = game.teams
+    game.complete_challenge(A.role_id, "Jubilee")
+    game.complete_challenge(B.role_id, "Jubilee")
+    game.map.claim("Bond Street", A)
+    game.jumped_stations.add("Bond Street")
+    game.objectives.append("Bond Street")  # live, but A owns it
+
+    b = game.get_snake(B)
+    coins, score = b.coins, game.score(B)
+    game.request_challenge(B.role_id, "Bond Street")
+    game.complete_challenge(B.role_id, "Jubilee")
+
+    assert b.coins == coins + EASIER_REWARD  # the challenge reward only
+    assert b.objectives_won == 0
+    assert game.score(B) == score  # Bond Street stays in A's Body
+    assert game.objectives == ["Bond Street"]  # nothing was claimed, so nothing was spent
+
+
 def test_objectives_count_toward_the_lead():
     game = _game()
     A, B = game.teams
