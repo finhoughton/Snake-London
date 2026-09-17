@@ -1,11 +1,22 @@
 from __future__ import annotations
 
+import contextlib
 import os
 import re
 import sys
+from concurrent.futures import ProcessPoolExecutor
 
-from new_game import new_game
-from render import load_geometry, render_map, svg_to_png
+
+@contextlib.contextmanager
+def quiet():
+    """The engine and renderer print on every call, which buries the progress line."""
+    with open(os.devnull, "w") as null, contextlib.redirect_stdout(null):
+        yield
+
+
+with quiet():
+    from new_game import new_game
+    from render import load_geometry, render_map, svg_to_png
 
 TEAM = "test"
 COLOR = "#FF1493"  # deep pink — distinct from all line colours
@@ -19,18 +30,28 @@ def _label(line: str, a: str, b: str) -> str:
     return _UNSAFE.sub("_", f"{line}__{a}__{b}")
 
 
-def render_segment(line: str, a: str, b: str) -> None:
-    game = new_game(start_positions={TEAM: a}, team_colors={TEAM: COLOR})
-    team = game.teams[0]
-    game.initial_request_challenge(team)
-    game.complete_challenge(team.role_id, line)
-    game.request_challenge(team.role_id, b)
-    game.complete_challenge(team.role_id, line)
+def render_segment(segment: tuple[str, str, str]) -> str | None:
+    """Render one segment; returns an error description, or None if it worked.
 
+    A whole-map render takes a couple of seconds, so the sweep runs these across every
+    core — that is the only thing that makes rendering all 249 bearable.
+    """
+    line, a, b = segment
     stem = os.path.join(OUTPUT_DIR, _label(line, a, b))
-    render_map(game, f"{stem}.svg", debug=True)
-    svg_to_png(f"{stem}.svg", f"{stem}.png")
-    os.unlink(f"{stem}.svg")
+    try:
+        with quiet():
+            game = new_game(start_positions={TEAM: a}, team_colors={TEAM: COLOR})
+            team = game.teams[0]
+            game.complete_challenge(team.role_id, line)
+            game.request_challenge(team.role_id, b)
+            game.complete_challenge(team.role_id, line)
+
+            render_map(game, f"{stem}.svg", debug=True)
+            svg_to_png(f"{stem}.svg", f"{stem}.png")
+        os.unlink(f"{stem}.svg")
+    except Exception as exc:  # noqa: BLE001 - a debug sweep reports every failure and continues
+        return f"{line} {a}→{b}: {exc}"
+    return None
 
 
 def main() -> None:
@@ -48,26 +69,22 @@ def main() -> None:
     else:
         work = line_segments
 
-    total = sum(len(segs) for segs in work.values())
+    todo = [(line, seg[0], seg[1]) for line, segments in sorted(work.items()) for seg in segments]
+    total = len(todo)
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    print(f"Rendering {total} segment(s) to {OUTPUT_DIR}/")
+    print(f"Rendering {total} segment(s) to {OUTPUT_DIR}/ across {os.cpu_count()} cores")
 
     done = 0
     errors: list[str] = []
-    for line, segments in sorted(work.items()):
-        for seg in segments:
-            a, b = seg[0], seg[1]
+    with ProcessPoolExecutor(max_workers=os.cpu_count()) as pool:
+        for segment, error in zip(todo, pool.map(render_segment, todo)):
             done += 1
-            label = _label(line, a, b)
-            print(f"  [{done}/{total}] {label}", end="", flush=True)
-            try:
-                render_segment(line, a, b)
-                print()
-            except Exception as exc:  # noqa: BLE001 - a debug sweep reports every failure and continues
-                print(f"  ERROR: {exc}")
-                errors.append(f"{line} {a}→{b}: {exc}")
+            print(f"\r  [{done}/{total}] {_label(*segment)}".ljust(76), end="", flush=True)
+            if error:
+                print(f"\n  ERROR: {error}")
+                errors.append(error)
 
-    print(f"\n{done - len(errors)} rendered, {len(errors)} error(s)")
+    print(f"\r{done - len(errors)} rendered, {len(errors)} error(s)".ljust(76))
     if errors:
         for e in errors:
             print(f"  {e}")
