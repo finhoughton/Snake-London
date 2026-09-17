@@ -24,15 +24,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="1.3824308"
-     inkscape:cx="2101.7326"
-     inkscape:cy="798.23161"
-     inkscape:window-width="1680"
-     inkscape:window-height="1050"
+     inkscape:zoom="2.7648616"
+     inkscape:cx="1533.7115"
+     inkscape:cy="745.24526"
+     inkscape:window-width="3840"
+     inkscape:window-height="2132"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="0"
-     inkscape:current-layer="svg743" />
+     inkscape:current-layer="Path Overrides" />
   <defs
      id="defs231">
     <clipPath
@@ -1872,10 +1872,10 @@
        id="Kenton Label_h"><tspan
          x="1553.127"
          y="1317.9913"
-         id="tspan5">Kenton / </tspan><tspan
+         id="tspan1">Kenton / </tspan><tspan
          x="1553.127"
          y="1346.3247"
-         id="tspan6">Northwick Park</tspan></text>
+         id="tspan2">Northwick Park</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:400;font-stretch:normal;font-size:22.6667px;font-family:Arial;-inkscape-font-specification:Arial;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#fz);display:inline;fill:#000000;fill-opacity:1;stroke-width:0;stroke-dasharray:none"
@@ -1883,10 +1883,10 @@
        id="Kenton Label_c"><tspan
          x="1553.127"
          y="1317.9913"
-         id="tspan7">Kenton / </tspan><tspan
+         id="tspan3">Kenton / </tspan><tspan
          x="1553.127"
          y="1346.3247"
-         id="tspan8">Northwick Park</tspan></text>
+         id="tspan4">Northwick Park</tspan></text>
   </g>
   <g
      id="Ealing Broadway Label">
@@ -6037,8 +6037,8 @@
       <circle
          style="fill:#000000;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.75"
          id="Bakerloo:Baker Street:Edgware Road:waypoint:0"
-         cx="1472.2668"
-         cy="700.52478"
+         cx="1513.5"
+         cy="624.93317"
          r="1.9967452" />
     </g>
     <g
@@ -6068,6 +6068,14 @@
          style="display:inline;fill:#000000;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.75"
          d="m 2635.5169,1607.3224 9.9753,7.7088 -8.2827,12.6523 -8.8074,12.7311 -8.3336,10.7564 -9.0025,10.6037 -10.8149,11.4934 -13.8476,12.9547 -14.9589,12.0252 -15.9386,10.8125 -17.0897,9.5359 -24.0258,10.176 -25.0078,6.9849 -26.978,3.8081 -24.0417,0.5666 h -18.6378 -124.1051 l 0.1079,-12.568 h 24.934 105.3714 l 27.328,-0.1029 6.0755,-0.2877 7.2864,-0.5942 7.9545,-0.9669 7.7832,-1.2764 11.0991,-2.405 7.9479,-2.1602 8.5675,-2.7544 7.3479,-2.7273 7.9838,-3.3605 9.1548,-4.3846 10.6962,-5.8799 9.2963,-5.8131 9.7855,-6.8729 5.6466,-4.339 7.2746,-6.0167 5.2562,-4.6618 6.6531,-6.3013 4.5617,-4.5928 7.2702,-7.8077 5.2443,-6.0279 5.9385,-7.2569 5.6986,-7.4262 4.914,-6.7962 z"
          id="path273" />
+    </g>
+    <g
+       id="Central:Bank:St Paul's"
+       style="display:none">
+      <path
+         style="fill:#8f8f8f;stroke:#ffffff;stroke-width:0;stroke-linejoin:round;stroke-opacity:0.65"
+         d="m 2536.7607,1385.717 v 12.569 h -20.4598 -28.7716 -21.7386 -17.263 -13.1816 l -6.2245,-0.3726 -7.2414,-1.3358 -6.4283,-1.9534 -7.3059,-3.0432 -9.0734,-4.9165 -9.2767,-6.2272 -8.8142,-6.9445 -8.508,-7.569 -8.7757,-8.6166 -11.9952,-12.9632 -9.3743,-10.9695 -19.4037,-24.6315 -24.0751,-33.2319 -16.2146,-23.4237 11.9942,-5.6625 10.1544,14.7649 11.1021,15.8538 17.237,23.7041 12.4253,16.1334 10.4065,12.7151 11.1045,12.5992 7.7413,8.0973 7.0554,6.8255 9.1509,7.9768 10.5789,7.8405 5.8695,3.6415 5.6623,2.9905 5.4584,2.3645 5.5478,1.8481 3.7266,0.9097 2.8043,0.5007 3.8268,0.4189 3.1187,0.1076 h 6.8358 z"
+         id="path278" />
     </g>
   </g>
 </svg>
