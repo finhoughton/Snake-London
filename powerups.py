@@ -5,7 +5,7 @@ module owns the powerup *content* (the curse deck) and the registry of play
 handlers. The game state (game.py) imports from here; this module never imports
 game.py — handlers receive the game object as their first argument — so there is
 no import cycle. Adding a future powerup is one entry in ``config.POWERUP_COSTS``
-plus one handler in ``POWERUP_HANDLERS`` — and, if it does something at purchase
+plus one handler in ``NORMAL_POWERUP_HANDLERS`` — and, if it does something at purchase
 time rather than when played, an optional entry in ``POWERUP_ON_BUY``.
 """
 
@@ -90,9 +90,9 @@ class CurseDeck:
 # --- Play handlers -----------------------------------------------------------
 # Each handler is ``handler(game, team, **kwargs)``. Handlers validate *before*
 # mutating anything and raise ValueError on bad input, so a failed play never
-# consumes the card (GameState.play_powerup removes the card only after the
-# handler returns). Curse returns the Curse it played; every other handler
-# returns None.
+# consumes the card (`play_normal_powerup`/`play_jump`/`play_detour`/`play_curse` remove
+# the card only after the handler returns). Curse returns the Curse it played; every
+# other handler returns None.
 
 
 def handle_jump(game: GameState, team: Team, *, station: str | None = None) -> None:
@@ -216,18 +216,17 @@ NORMAL_POWERUP_HANDLERS: dict[str, Callable[[GameState, Team], None]] = {
     "retreat": _handle_retreat,
 }
 
-# The two tables must agree: `config.POWERUP_COSTS` defines which powerups exist
-# (and so which are buyable and enabled by default), while POWERUP_HANDLERS defines
-# what playing one does. An id in the costs table with no handler here would be sold
-# happily and then fail with a bare KeyError when played — bypassing the ValueError
-# contract every other failure path honours. Checked at import so a half-added
+# `config.POWERUP_COSTS` defines which powerups exist (and so which are buyable and
+# enabled by default); NORMAL_POWERUP_HANDLERS defines what playing a parameterless one
+# does. This is a *subset* check, not a match: jump, detour and curse are priced here but
+# played through their own events, so they have no entry above. What it does catch is a
+# handler with no price — unbuyable, so unplayable. Checked at import so a half-added
 # powerup breaks loudly and immediately rather than mid-game.
 if set(NORMAL_POWERUP_HANDLERS) - set(
     POWERUP_COSTS
 ):  # anshul: changed to be a subset! avoiding using this messily-typed lookup table
     raise RuntimeError(
-        "Powerup registry mismatch — every id in config.POWERUP_COSTS needs a handler and vice versa: "
-        f"priced without a handler {sorted(set(POWERUP_COSTS) - set(NORMAL_POWERUP_HANDLERS))}, "
+        "Powerup registry mismatch — every handler needs a price in config.POWERUP_COSTS: "
         f"handled without a price {sorted(set(NORMAL_POWERUP_HANDLERS) - set(POWERUP_COSTS))}"
     )
 

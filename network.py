@@ -5,6 +5,7 @@ from collections import deque
 from dataclasses import dataclass
 from typing import TypedDict, cast
 
+from config import CONNECTIONS_PATH
 from jloxgame import Team
 
 LineDict = TypedDict("LineDict", {"display_name": str, "has_branches": bool, "stations": tuple[str, ...]})
@@ -72,7 +73,7 @@ class Station:
 
 
 class Map:
-    def __init__(self, path: str = "map/connections.json"):
+    def __init__(self, path: str = CONNECTIONS_PATH):
         with open(path, "r") as f:
             data = json.load(f)
         self._lines: dict[str, Line] = {key: Line.from_dict(key, line_data) for key, line_data in data["lines"].items()}

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from random import Random
 
 from challenges import ChallengePool
@@ -5,7 +7,6 @@ from config import DEFAULT_BONUS_CHANCE, DEFAULT_TEAM_COLORS, POWERUP_COSTS
 from game import GameState
 from jloxgame.state import Team
 from powerups import CurseDeck
-from game import GameState
 
 # This function has been modified and moved to this file for use in local (offline) scripts.
 # It initialises a game using the events system, and fills in dummy thread and role ids to bypass all discord requirements
@@ -37,9 +38,12 @@ def new_game(
     ``bonus_interchanges`` to override, or a seeded ``rng`` for reproducibility.
     Origins are never bonus interchanges (excluded from both paths).
 
-    Challenges are drawn from ``challenge_pool`` (or loaded from ``challenges_path``,
-    default ``challenges.json``); a missing file just means no offers. ``rng`` seeds
-    bonus selection and all challenge draws.
+    Challenges are drawn from ``challenge_pool``, defaulting to ``config.CHALLENGES_PATH``;
+    a missing file just means no offers. ``rng`` seeds bonus selection and all challenge
+    draws — but only for a game that is played through in one process. `GameContext.load`
+    reseeds from the save's ``init_time``, so a game created with an explicit ``rng``
+    replays a *different* sequence of draws and will not reload faithfully. Pass one in
+    tests and scripts; never in something whose save has to survive a restart.
 
     All teams share one **initial challenge** (`GameState.initial_challenge`), drawn
     once here — since there's no neck yet to size a difficulty from — with a

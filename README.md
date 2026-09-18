@@ -28,17 +28,20 @@ map/
 jloxgame/            shared Jet Lag: Oxford bot framework (git submodule)
 
 main.py              Discord bot — slash commands for challenges, powerups and the map
-events.py            the game events the bot records and replays
 game.py              game state machine — challenge flow, crash detection, win conditions
 new_game.py          offline game setup, for local scripts and the tests
 network.py           graph model of the tube network
 render.py            SVG/PNG renderer — overlays team colours onto the base map
 challenges.py        challenge pool and difficulty scaling
 powerups.py          curse deck and powerup handlers
+objectives.py        picks where the next contested objective goes
 config.py            tunable game constants — rewards, thresholds, costs, colours
 build_geometry.py    extracts station positions from the SVG into geometry.json
+check_segment_bleed.py  finds segment highlights that paint the wrong track
+render_all_segments.py  renders every segment on its own, for eyeballing
 example.py           example game script
 tests/               pytest suite
+out/                 generated maps and debug pictures (gitignored)
 ```
 
 ## Usage
@@ -50,18 +53,19 @@ from render import render_map, svg_to_png
 game = new_game({"Alpha": "Baker Street", "Beta": "Stratford"})
 alpha, beta = game.teams
 
+# Events take a team *id*, not a Team — they have to be serialisable to replay.
 # Each team's initial challenge is already armed; completing it claims the
 # Origin and declares the first line.
-game.complete_challenge(alpha, "Jubilee")
+game.complete_challenge(alpha.role_id, "Jubilee")
 
-game.request_challenge(alpha, "Bond Street")
+game.request_challenge(alpha.role_id, "Bond Street")
 # ... etc
 
 render_map(game, "out/current_map.svg")
 svg_to_png("out/current_map.svg", "out/current_map.png")
 ```
 
-See `example.py` for a full three-team game.
+See `example.py` for a full five-team game.
 
 ## Requirements
 
@@ -69,4 +73,5 @@ Python ≥ 3.12, `resvg-py`, `py-cord`. Tests: `pytest`. The bot lives in the `j
 submodule, so clone with `--recurse-submodules`.
 
 Optional: a Rust toolchain (`rustup`). `check_segment_bleed.py` builds a faster rasteriser
-with it on first run; without one it uses `rsvg-convert` and takes about twice as long.
+with it on first run; without one it uses `rsvg-convert` and takes roughly four times as
+long (~5s vs ~13s for the full sweep). Both backends report the same findings.
