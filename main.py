@@ -13,12 +13,13 @@ from discord import (
     EmbedField,
     File,
     Member,
+    OptionChoice,
     Role,
     option, # pyright: ignore[reportUnknownVariableType]
 )
 
 import jloxgame
-from config import POWERUP_COSTS
+from config import POWERUP_COSTS, POWERUP_NAMES
 from game import GameState
 from jloxgame.bot import JLOXBot
 from jloxgame.state import Status
@@ -269,7 +270,7 @@ async def veto(dctx: ApplicationContext, gctx: GameState):
     if gctx.thread: await gctx.thread.send(f"{team.name} vetoed their challenge at {snake.front}!")
     await dctx.respond(
         "Successfully vetoed your team's challenges!" 
-        + (" Efficiency was consumed!" if was_free else " Your veto period ends in 15 minutes!")
+        + (f" {POWERUP_NAMES['efficiency']} was consumed!" if was_free else " Your veto period ends in 15 minutes!")
     )
 
 
@@ -281,7 +282,7 @@ async def winner(dctx: ApplicationContext, gctx: GameState):
 powerup_group = bot.create_group("powerup")
 
 
-def powerup_autocomplete(ctx: AutocompleteContext) -> Iterable[str]:
+def powerup_autocomplete(ctx: AutocompleteContext) -> Iterable[OptionChoice]:
     assert isinstance(ctx.interaction.user, Member)
     bot = cast(JLOXBot[GameState], ctx.bot)
     gctx = bot.get_game_ctx(ctx)
@@ -290,7 +291,12 @@ def powerup_autocomplete(ctx: AutocompleteContext) -> Iterable[str]:
     team = gctx.get_user_team(ctx.interaction.user)
     if team is None:
         return []
-    return filter(lambda powerup: powerup.lower().startswith(ctx.value.lower()), gctx.enabled_powerups)
+    typed = ctx.value.lower()
+    return [
+        OptionChoice(POWERUP_NAMES[powerup], powerup)
+        for powerup in sorted(gctx.enabled_powerups, key=lambda p: POWERUP_NAMES[p])
+        if typed in POWERUP_NAMES[powerup].lower() or typed in powerup
+    ]
 
 
 @powerup_group.game_command()
@@ -344,7 +350,9 @@ async def hand(dctx: ApplicationContext, gctx: GameState):
         await dctx.respond("Your team is out of the game!", ephemeral=True)
         return
 
-    await dctx.respond(f"coins: {snake.coins}\nhand: {snake.hand}\ncurses: {snake.held_curses}")
+    hand = ", ".join(POWERUP_NAMES[powerup] for powerup in snake.hand) or "-"
+    curses = ", ".join(curse.name for curse in snake.held_curses) or "-"
+    await dctx.respond(f"coins: {snake.coins}\nhand: {hand}\ncurses: {curses}")
 
 
 powerup_play_group = powerup_group.create_subgroup("play")
@@ -371,8 +379,8 @@ def normal(powerup: str):
 
         gctx.play_normal_powerup(team.role_id, powerup)
     
-        if gctx.thread: await gctx.thread.send(f"{team.name} has activated their {powerup}!")
-        await dctx.respond(f"Successfully played {powerup}!")
+        if gctx.thread: await gctx.thread.send(f"{team.name} has activated their {POWERUP_NAMES[powerup]}!")
+        await dctx.respond(f"Successfully played {POWERUP_NAMES[powerup]}!")
 
     return command
 
@@ -417,8 +425,8 @@ async def jump(dctx: ApplicationContext, gctx: GameState, station: str):
     gctx.play_jump(team.role_id, station=station)
 
     if gctx.thread:
-        await gctx.thread.send(f"{team.name} has activated jump on {station}!")
-    await dctx.respond(f"Successfully played jump on {station}!")
+        await gctx.thread.send(f"{team.name} has activated {POWERUP_NAMES['jump']} on {station}!")
+    await dctx.respond(f"Successfully played {POWERUP_NAMES['jump']} on {station}!")
 
 
 def detour_autocomplete(ctx: AutocompleteContext) -> Iterable[str]:
@@ -462,10 +470,10 @@ async def detour(dctx: ApplicationContext, gctx: GameState, line: str):
 
     gctx.play_detour(team.role_id, line=line)
 
-    await dctx.respond(f"Successfully played detour to {line}!")
+    await dctx.respond(f"Successfully played {POWERUP_NAMES['detour']} to {line}!")
 
 
-def curse_autocomplete(ctx: AutocompleteContext) -> Iterable[str]:
+def curse_autocomplete(ctx: AutocompleteContext) -> Iterable[OptionChoice]:
     assert isinstance(ctx.interaction.user, Member)
     bot = cast(JLOXBot[GameState], ctx.bot)
     gctx = bot.get_game_ctx(ctx)
@@ -475,7 +483,8 @@ def curse_autocomplete(ctx: AutocompleteContext) -> Iterable[str]:
     if team is None:
         return []
     snake = gctx.get_snake(team)
-    return filter(lambda curse: curse.lower().startswith(ctx.value.lower()), [curse.id for curse in snake.held_curses])
+    typed = ctx.value.lower()
+    return [OptionChoice(curse.name, curse.id) for curse in snake.held_curses if typed in curse.name.lower()]
 
 
 @powerup_play_group.game_command()
@@ -502,15 +511,16 @@ async def curse(dctx: ApplicationContext, gctx: GameState, target_team: Role, cu
         await dctx.respond("Invalid team entered!", ephemeral=True)
         return
 
-    if curse not in [curse.id for curse in snake.held_curses]:
+    _curse = next((_c for _c in snake.held_curses if _c.id == curse), None)
+    if _curse is None:
         await dctx.respond("You do not have that curse!", ephemeral=True)
         return
 
     gctx.play_curse(team.role_id, target_team_id=_target_team.role_id, curse_id=curse)
 
     if gctx.thread:
-        await gctx.thread.send(f"{team.name} has cursed {_target_team.name} with {curse}!")
-    await dctx.respond("Successfully played curse!")
+        await gctx.thread.send(f"{team.name} has cursed {_target_team.name} with {_curse.name}!")
+    await dctx.respond(f"Successfully played {POWERUP_NAMES['curse']}!")
 
 
 bot.run(TOKEN)
