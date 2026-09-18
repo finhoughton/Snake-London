@@ -13,8 +13,12 @@ SVG_PATH = "map/snake map.svg"
 CONNECTIONS_PATH = "map/connections.json"
 OUTPUT_PATH = "map/geometry.json"
 
+# Only what a marker in the base map actually carries. render.py has the general
+# parser (full affine, composed ops); these two must agree on what the SVG may contain,
+# so anything added there that a marker could wear belongs here too.
 ParsedTransform = (
     tuple[Literal["unknown"], str]
+    | tuple[Literal["translate"], float, float]
     | tuple[Literal["scale"], float, float]
     | tuple[Literal["rotate"], float, float, float]
 )
@@ -202,6 +206,10 @@ def _parse_transform(t: str) -> ParsedTransform | None:
         sx = parts[0]
         sy = parts[1] if len(parts) > 1 else sx
         return ("scale", sx, sy)
+    m = re.match(r"translate\(([^)]+)\)", t)
+    if m:
+        parts = [float(v) for v in m.group(1).replace(",", " ").split()]
+        return ("translate", parts[0], parts[1] if len(parts) > 1 else 0.0)
     return ("unknown", t)
 
 
@@ -214,6 +222,9 @@ def _apply_transform(cx: float, cy: float, parsed: ParsedTransform) -> tuple[flo
     if parsed[0] == "scale":
         _, sx, sy = parsed
         return (cx * sx, cy * sy)
+    if parsed[0] == "translate":
+        _, tx, ty = parsed
+        return (cx + tx, cy + ty)
     raise ValueError(f"Unknown transform: {parsed}")
 
 

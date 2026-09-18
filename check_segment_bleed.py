@@ -57,6 +57,7 @@ CRATE_DIR = Path(__file__).resolve().parent / "tools/segment_bleed"
 RUST_HELPER = CRATE_DIR / "target/release/segment_bleed"
 PROBE_COLOR = "#FF1493"  # deep pink; every other pink on the map is >150 away in RGB
 COLOR_TOLERANCE = 70
+GROW = 200  # how far a crop is widened when the paint reaches its edge
 SCALE = 0.5  # raster pixels per SVG unit; the paint we hunt is tens of units long
 MARGIN = 24.0  # slack around the clip shapes, in SVG units; the clip bounds the paint
 FORK_EXTRA = 180.0  # hand-drawn overrides aren't parsed, so their reach is allowed for; the
@@ -233,6 +234,12 @@ def touches_edge(mask: set, box: Box) -> bool:
     )
 
 
+def grow(box: Box) -> Box:
+    """Widen a crop that cut the paint off, so the retry can see the whole ribbon."""
+    x0, y0, w, h = box
+    return (x0 - GROW, y0 - GROW, w + 2 * GROW, h + 2 * GROW)
+
+
 def painted_all(segments: list[Segment], boxes: dict[Segment, Box], helper: Path) -> list[set[tuple[int, int]]]:
     """Every segment's paint, rasterised by the Rust helper in one pass."""
     todo = list(segments)
@@ -257,8 +264,7 @@ def painted_all(segments: list[Segment], boxes: dict[Segment, Box], helper: Path
             pos += count * 8
             mask = set(zip(points[0::2], points[1::2]))
             if touches_edge(mask, boxes[segment]):
-                x0, y0, w, h = boxes[segment]
-                boxes[segment] = (x0 - 200, y0 - 200, w + 400, h + 400)
+                boxes[segment] = grow(boxes[segment])
                 grew.append(segment)
             else:
                 masks[segment] = mask
@@ -277,8 +283,7 @@ def painted(segment: Segment, box: Box, work: Path, _retries: int = 2) -> set[tu
     drawn here, so without that the paint would run straight through a station and a
     bleed on the far side would read as part of the route.
     """
-    _line, a, b = segment
-    x0, y0, w, h = box
+    x0, y0, w, _h = box
     width, _height, bpp, px = rasterise(overlay_svg(segment, box), max(1, int(w * SCALE)), work)
     step = round(1 / SCALE)
 
@@ -292,22 +297,11 @@ def painted(segment: Segment, box: Box, work: Path, _retries: int = 2) -> set[tu
             mask.add((x0 + (idx % width) * step, y0 + (idx // width) * step))
         idx = candidates.find(1, idx + 1)
 
-    # Paint against the edge means the crop cut it off, which would read as a broken ribbon.
-    if _retries and mask:
-        edge = max(step, 2)
-        if (
-            min(p[0] for p in mask) <= x0 + edge
-            or max(p[0] for p in mask) >= x0 + w - edge
-            or min(p[1] for p in mask) <= y0 + edge
-            or max(p[1] for p in mask) >= y0 + h - edge
-        ):
-            grown = (x0 - 200, y0 - 200, w + 400, h + 400)
-            return painted(segment, grown, work, _retries - 1)
-
-    for station in (a, b):
-        cx, cy = centres[station]
-        reach = outer_radius[station] + 10
+    for cx, cy, reach in marker_cuts(segment):
         mask -= {p for p in mask if math.hypot(p[0] - cx, p[1] - cy) <= reach}
+
+    if _retries and touches_edge(mask, box):
+        return painted(segment, grow(box), work, _retries - 1)
     return mask
 
 

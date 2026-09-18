@@ -31,6 +31,8 @@ _NECK_DASH = "14 8"  # segment neck casing dash — longer so it reads as dashed
 # slightly past the original ribbon's true edge so it fully overdraws that sliver.
 _FILL_OVERDRAW = 2.0
 _BORDER_W = 4.5  # visible border width in SVG units — controls body outline and neck dashed stroke
+_MARKER_BORDER = "#000000"  # station marker outline — shared by the map and the symbol key
+_MARKER_BORDER_W = 3.75
 NECK_TINT_FACTOR = 0.55  # 0 = team color, 1 = white
 
 _DOT_PERIOD = 8.0  # SVG units — nearest-neighbour distance in hex dot grid
@@ -132,9 +134,7 @@ def render_map(game: GameState, output_path: str | Path, *, debug: bool = False)
         for station in game.body_stations(team):
             overrides[station] = (color, "body")
 
-    for station, (color, mode) in overrides.items():
-        marker_id = f"{station} Marker"
-        svg = _set_marker_style(svg, marker_id, color, mode)
+    svg = _set_marker_styles(svg, overrides)
 
     # Bottom layer: halos under jumped interchanges, beneath the line network so the
     # lines run straight over them and nothing is ever obscured or broken.
@@ -188,28 +188,42 @@ def _tint_color(hex_color: str, factor: float) -> str:
     return f"#{r:02x}{g:02x}{b:02x}"
 
 
-def _set_marker_style(svg: str, marker_id: str, color: str, mode: str) -> str:
-    pattern = re.compile(
-        r'(<(?:circle|rect)\b[^>]*\bid="' + re.escape(marker_id) + r'"[^>]*>)',
-        re.DOTALL,
-    )
+_MARKER_TAG_RE = re.compile(r'<(?:circle|rect)\b[^>]*\bid="([^"]*) Marker"[^>]*>')
+_STYLE_ATTR_RE = re.compile(r'style="[^"]*"')
 
+
+def _marker_style(color: str, mode: str) -> str:
+    """The style of a station marker: solid for a Body, tinted with a dashed border for a Neck.
+
+    The symbol key's swatches go through here too, so the key cannot drift from the map.
+    """
     if mode == "body":
-        new_style = f"fill:{color};stroke:#000000;stroke-width:3.75"
-    else:  # neck
-        tint = _tint_color(color, NECK_TINT_FACTOR)
-        new_style = f"fill:{tint};stroke:{color};stroke-width:{_BORDER_W};stroke-dasharray:{NECK_STROKE_DASHARRAY}"
+        return f"fill:{color};stroke:{_MARKER_BORDER};stroke-width:{_MARKER_BORDER_W}"
+    tint = _tint_color(color, NECK_TINT_FACTOR)
+    return f"fill:{tint};stroke:{color};stroke-width:{_BORDER_W};stroke-dasharray:{NECK_STROKE_DASHARRAY}"
 
-    def replace_tag(m: re.Match[str]) -> str:
-        tag = m.group(1)
+
+_UNCLAIMED_MARKER_STYLE = _marker_style("#ffffff", "body")  # how the base map draws an unclaimed marker
+
+
+def _set_marker_styles(svg: str, overrides: dict[str, tuple[str, str]]) -> str:
+    """Restyle every claimed station's marker, in a single pass over the document.
+
+    One pass, not one per station: the base map is ~300KB and a full board claims
+    every one of the 97 stations.
+    """
+
+    def restyle(match: re.Match[str]) -> str:
+        override = overrides.get(match.group(1))
+        if override is None:
+            return match.group(0)
+        style = _marker_style(*override)
+        tag = match.group(0)
         if 'style="' in tag:
-            # Replace the entire style value
-            tag = re.sub(r'style="[^"]*"', f'style="{new_style}"', tag)
-        else:
-            tag = tag[:-1] + f' style="{new_style}">'
-        return tag
+            return _STYLE_ATTR_RE.sub(f'style="{style}"', tag)
+        return tag[:-1] + f' style="{style}">'
 
-    return pattern.sub(replace_tag, svg)
+    return _MARKER_TAG_RE.sub(restyle, svg)
 
 
 def svg_to_png(svg_path: str | Path, png_path: str | Path) -> Path:
@@ -735,26 +749,17 @@ def _insert_under_line_network(svg: str, fragment: str, game: GameState) -> str:
 
 
 def _key_swatch_body(cx: float, cy: float, color: str) -> str:
-    """A claimed marker: solid fill, black border (mirrors _set_marker_style "body")."""
-    return (
-        f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{_KEY_MARKER_R}" fill="{color}" stroke="#000000" stroke-width="3.75"/>'
-    )
+    """A claimed marker: solid fill, black border."""
+    return f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{_KEY_MARKER_R}" style="{_marker_style(color, "body")}"/>'
 
 
 def _key_swatch_neck(cx: float, cy: float, color: str) -> str:
-    """A neck marker: tinted fill, dashed team-coloured border (mirrors "neck")."""
-    return (
-        f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{_KEY_MARKER_R}"'
-        f' fill="{_tint_color(color, NECK_TINT_FACTOR)}" stroke="{color}"'
-        f' stroke-width="{_BORDER_W}" stroke-dasharray="{NECK_STROKE_DASHARRAY}"/>'
-    )
+    """A neck marker: tinted fill, dashed team-coloured border."""
+    return f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{_KEY_MARKER_R}" style="{_marker_style(color, "neck")}"/>'
 
 
 def _key_swatch_eliminated(cx: float, cy: float) -> str:
-    return (
-        f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{_KEY_MARKER_R}"'
-        f' fill="{_CRASHED_COLOR}" stroke="#000000" stroke-width="3.75"/>'
-    )
+    return f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{_KEY_MARKER_R}" style="{_marker_style(_CRASHED_COLOR, "body")}"/>'
 
 
 def _key_swatch_bonus(cx: float, cy: float) -> str:
@@ -778,15 +783,13 @@ def _key_swatch_jumped(cx: float, cy: float) -> str:
     return (
         f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{_KEY_MARKER_R * _KEY_HALO_RATIO:.1f}"'
         f' fill="{_JUMP_HALO_FILL}" fill-opacity="{_JUMP_HALO_OPACITY}"/>'
-        f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{_KEY_MARKER_R}"'
-        f' fill="#ffffff" stroke="#000000" stroke-width="3.75"/>'
+        f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{_KEY_MARKER_R}" style="{_UNCLAIMED_MARKER_STYLE}"/>'
     )
 
 
 def _key_swatch_objective(cx: float, cy: float) -> str:
-    return (
-        f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{_KEY_MARKER_R}" fill="#ffffff" stroke="#000000" stroke-width="3.75"/>'
-        + _ripples(cx, cy, _KEY_MARKER_R, scale=0.4)
+    return f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="{_KEY_MARKER_R}" style="{_UNCLAIMED_MARKER_STYLE}"/>' + _ripples(
+        cx, cy, _KEY_MARKER_R, scale=0.4
     )
 
 
@@ -842,7 +845,7 @@ def _build_symbol_key(game: GameState, canvas_w: float, canvas_h: float) -> str:
 
 
 def _build_legend(game: GameState, canvas_h: float) -> str:
-    """Build the bottom-left HUD: a time-elapsed header above a per-team legend.
+    """Build the bottom-left HUD: a per-team legend, under a band left for the clock.
 
     Each team row shows its colour, name + (current line, or the Front station
     while a challenge is active), then score and neck length. Coins and cards
@@ -866,8 +869,10 @@ def _build_legend(game: GameState, canvas_h: float) -> str:
 
     y = panel_top + _LEGEND_PAD
 
-    # Time-elapsed header (placeholder — clock not yet implemented). The clock sits
-    # right after the label rather than spanning to the panel edge.
+    # Space for the time-elapsed header, still blank: the game clock is off-engine, so
+    # nothing here knows the time yet. The band is held open so turning the clock on
+    # doesn't move every team row. The clock sits right after the label rather than
+    # spanning to the panel edge:
     # timer_baseline = y + _LEGEND_TIMER_FONT * 0.8
     # parts.append(_legend_pair(content_left, timer_baseline, "Time elapsed", "   00:00:00", _LEGEND_TIMER_FONT))
     y += header_h + _LEGEND_SEP_GAP
