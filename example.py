@@ -2,7 +2,7 @@ import random
 from pathlib import Path
 
 from challenges import get_difficulty, neck_weights
-from config import EASIER_REWARD, HARDER_REWARD, OBJECTIVE_COINS, OBJECTIVE_STATIONS
+from config import EASIER_REWARD, HARDER_REWARD, OBJECTIVE_COINS, OBJECTIVE_STATIONS, POWERUP_NAMES
 from new_game import new_game
 from objectives import team_costs
 from render import render_map, svg_to_png
@@ -91,6 +91,10 @@ assert delta_options
 delta_curse = game.choose_curse(Delta.role_id, delta_options[0].id)  # the other goes back in the deck
 game.play_curse(Delta.role_id, target_team_id=Alpha.role_id, curse_id=delta_curse.id)
 
+# A curse costs more than a hard challenge pays, so Delta has to earn the second one.
+game.request_challenge(Delta.role_id, "Willesden Junction")
+game.complete_challenge(Delta.role_id, "Bakerloo", hard=True)
+
 second_options = game.buy_powerup(Delta.role_id, "curse")  # a second one, kept in hand for later
 assert second_options
 game.choose_curse(Delta.role_id, second_options[-1].id)
@@ -112,10 +116,14 @@ game.complete_challenge(Epsilon.role_id, "Picc")
 
 game.request_challenge(Epsilon.role_id, "Piccadilly Circus")  # path via Alpha's Green Park → crash
 
-# Later — Alpha spends its winnings on a Jump. Blackfriars is
-# Gamma's, so the S Circle run Westminster → Embankment → Blackfriars → Bank
-# would normally crash Alpha; jumping it makes the interchange passable for
-# everyone, permanently, without taking it off Gamma.
+# Alpha works its way round to Embankment, then spends its winnings on a Jump —
+# at 13 coins it takes most of a game's earnings. Blackfriars is Gamma's, so the
+# S Circle run Embankment → Blackfriars → Bank would normally crash Alpha; jumping
+# it makes the interchange passable for everyone, permanently, without taking it
+# off Gamma.
+
+game.request_challenge(Alpha.role_id, "Embankment")
+game.complete_challenge(Alpha.role_id, "S Circle", hard=True)
 
 game.buy_powerup(Alpha.role_id, "jump")
 game.play_jump(Alpha.role_id, station="Blackfriars")
@@ -146,7 +154,7 @@ for team, snake in game.snakes.items():
 print()
 print("  Jumped (passable for everyone, forever):", sorted(game.jumped_stations))
 print("  Blackfriars is still owned by:", game.map.get_claim("Blackfriars"))
-print(f"  Gamma's veto was free (Efficiency): {gamma_veto_was_free}")
+print(f"  Gamma's veto was free ({POWERUP_NAMES['efficiency']}): {gamma_veto_was_free}")
 print(f"  Delta drew and played: {delta_curse.name if delta_curse else '-'}")
 beta = game.get_snake(Beta)
 print(f"  Beta announced {beta.announced_line!r} but is really on {beta.travel_line!r}")

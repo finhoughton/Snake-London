@@ -29,6 +29,7 @@ from config import (
     OBJECTIVE_PASS_COINS,
     OBJECTIVE_STATIONS,
     POWERUP_COSTS,
+    POWERUP_NAMES,
     STARTING_COINS,
     WINNING_THRESHOLD,
 )
@@ -899,7 +900,10 @@ class ConfigModal(DesignerModal):
 
         self.enabled_powerups_input = StringSelect(
             max_values=len(POWERUP_COSTS),
-            options=[SelectOption(label=key, default=enabled_powerups.get(key, True)) for key in POWERUP_COSTS],
+            options=[
+                SelectOption(label=POWERUP_NAMES[key], value=key, default=enabled_powerups.get(key, True))
+                for key in POWERUP_COSTS
+            ],
         )
         self.add_item(Label("Enabled powerups", self.enabled_powerups_input))  # pyright: ignore[reportUnknownMemberType]
 

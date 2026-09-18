@@ -17,7 +17,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from config import CURSE_OPTIONS, POWERUP_COSTS
+from config import CURSE_OPTIONS, POWERUP_COSTS, POWERUP_NAMES
 from jloxgame.state import Team
 
 if TYPE_CHECKING:
@@ -232,5 +232,9 @@ if set(NORMAL_POWERUP_HANDLERS) - set(
 
 # Buy handlers are optional, so this table is a *subset* of the costs table rather
 # than a match — but a buy handler for an id nobody can buy is still a mistake.
+# Every powerup needs a player-facing name, or the bot falls back to showing a raw id.
+if set(POWERUP_COSTS) - set(POWERUP_NAMES):
+    raise RuntimeError(f"Powerups with no display name: {sorted(set(POWERUP_COSTS) - set(POWERUP_NAMES))}")
+
 if set(POWERUP_ON_BUY) - set(POWERUP_COSTS):
     raise RuntimeError(f"Buy handlers for unpriced powerups: {sorted(set(POWERUP_ON_BUY) - set(POWERUP_COSTS))}")

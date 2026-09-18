@@ -50,14 +50,25 @@ INITIAL_DIFFICULTY_MAX = 7.5
 # The keys of POWERUP_COSTS define the set of known powerups; the value is the
 # coin cost to buy one into the hand. Each can be enabled/disabled per game.
 POWERUP_COSTS = {
-    "jump": 8,  # make one station permanently passable (for everyone)
-    "efficiency": 4,  # next veto/failure is free (no veto period)
-    "retreat": 3,  # cancel current challenge request; next request must differ
-    "detour": 2,  # switch declared line without a challenge (unannounced)
-    "curse": 3,  # draw CURSE_OPTIONS curses, keep one to play on another team
+    "jump": 13,  # make one station permanently passable (for everyone)
+    "efficiency": 8,  # next veto/failure is free (no veto period)
+    "retreat": 5,  # cancel current challenge request; next request must differ
+    "detour": 4,  # switch declared line without a challenge (unannounced)
+    "curse": 5,  # draw CURSE_OPTIONS curses, keep one to play on another team
 }
 
 CURSE_OPTIONS = 2  # curses drawn when you buy one; you keep one, the rest go back
+
+# What players are shown. The keys of POWERUP_COSTS are internal ids: they travel in the
+# event log and name the bot's slash commands, so renaming one breaks saves and commands.
+# Change a name here instead — nothing but presentation depends on it.
+POWERUP_NAMES = {
+    "jump": "Jump",
+    "efficiency": "Good Service",
+    "retreat": "Retreat",
+    "detour": "Detour",
+    "curse": "Curse",
+}
 
 # --- Team colours ----------------------------------------------------------
 # Ordered by priority (first N used for N teams), boldest first. Chosen by

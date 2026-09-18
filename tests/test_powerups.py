@@ -19,7 +19,7 @@ import config
 from new_game import new_game
 from powerups import Curse, CurseDeck
 
-EXPECTED_COSTS = {"jump": 8, "efficiency": 4, "retreat": 3, "detour": 2, "curse": 3}
+EXPECTED_COSTS = {"jump": 13, "efficiency": 8, "retreat": 5, "detour": 4, "curse": 5}
 
 _CURSES_JSON = """{
   "curses": [
@@ -61,6 +61,12 @@ def _buy_curse(game: Any, team: Any, index: int = 0):
 def test_powerup_costs_defined():
     for pid, cost in EXPECTED_COSTS.items():
         assert config.POWERUP_COSTS[pid] == cost
+
+
+def test_every_powerup_has_a_display_name():
+    # The ids are internal (event log, slash commands); this is what players are shown.
+    assert set(config.POWERUP_NAMES) == set(config.POWERUP_COSTS)
+    assert config.POWERUP_NAMES["efficiency"] == "Good Service"
 
 
 def test_all_powerups_enabled_by_default(tmp_path: Path):
@@ -312,7 +318,7 @@ def test_jumping_through_a_claim_does_not_steal_its_segments(tmp_path: Path):
     assert game.map.get_segment_claim("Picc", "Ealing Common", "Acton Town") == A
 
     # B jumps both of A's interchanges, then re-travels the track between them.
-    game.get_snake(B).coins = 20
+    game.get_snake(B).coins = 50
     for station in ("Acton Town", "Ealing Common"):
         game.buy_powerup(B.role_id, "jump")
         game.play_jump(B.role_id, station=station)
