@@ -166,7 +166,7 @@ for team in game.snakes:
         continue
     easier, harder = offer
     snake = game.get_snake(team)
-    target = get_difficulty(neck_weights(game.map, snake.travel_line or "", game.neck(team)))
+    target = get_difficulty(neck_weights(game.map, game.neck(team)))
     print(f"  {team} @ {snake.front}  (target difficulty {target:.2f}):")
     print(f"    easier ({EASIER_REWARD} coin,  diff {easier.difficulty}): {easier.name} — {easier.description}")
     print(f"    harder ({HARDER_REWARD} coins, diff {harder.difficulty}): {harder.name} — {harder.description}")

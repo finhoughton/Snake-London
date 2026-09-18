@@ -4,6 +4,7 @@ import asyncio
 from pathlib import Path
 
 import pytest
+from conftest import minutes_away, scheduled
 
 from config import DECLARE_WIN_COOLDOWN_MINUTES, DECLARE_WIN_COST, DECLARE_WIN_WINDOW_MINUTES, WINNING_THRESHOLD
 from game import GameState
@@ -77,6 +78,73 @@ def test_tiebreak_excludes_eliminated_teams():
     assert game.tiebreak_winner() == A
 
 
+# --- the time limit ---------------------------------------------------------
+
+
+def test_the_time_limit_ends_the_game_and_records_the_tiebreak_winner():
+    game = new_game({"A": "Wembley Park", "B": "Stratford"}, bonus_interchanges=set())
+    A, B = game.teams
+    _claim(game, A, _others(game, "Stratford", 3))
+    _claim(game, B, ["Stratford"])
+
+    game.time_limit()
+
+    assert game.status == Status.END
+    assert game.declared_winner == A
+    assert game.winner() == A  # the result is in state, not just printed
+
+
+def test_the_time_limit_leaves_an_exact_tie_unwon():
+    game = new_game({"A": "Wembley Park", "B": "Stratford"}, bonus_interchanges=set())
+    A, B = game.teams
+    _claim(game, A, ["Wembley Park"])
+    _claim(game, B, ["Stratford"])
+
+    game.time_limit()
+
+    assert game.status == Status.END
+    assert game.winner() is None  # no secondary tiebreak
+
+
+def test_the_time_limit_does_nothing_once_the_game_is_over():
+    game = new_game({"A": "Wembley Park", "B": "Stratford"}, bonus_interchanges=set())
+    A, _B = game.teams
+    _claim(game, A, _others(game, "Stratford", 3))
+    game.status = Status.END
+
+    game.time_limit()
+
+    assert game.declared_winner is None  # it ended some other way; don't overwrite the result
+
+
+# --- acting after the game has ended -----------------------------------------
+
+_AFTER_THE_END = {
+    "request_challenge": lambda g, a, b: g.request_challenge(a.role_id, "Bond Street"),
+    "complete_challenge": lambda g, a, b: g.complete_challenge(a.role_id, "Jubilee"),
+    "veto_challenges": lambda g, a, b: g.veto_challenges(a.role_id),
+    "unveto": lambda g, a, b: g.unveto(a.role_id),
+    "buy_powerup": lambda g, a, b: g.buy_powerup(a.role_id, "jump"),
+    "play_normal_powerup": lambda g, a, b: g.play_normal_powerup(a.role_id, "efficiency"),
+    "play_jump": lambda g, a, b: g.play_jump(a.role_id, station="Bond Street"),
+    "play_detour": lambda g, a, b: g.play_detour(a.role_id, line="Bakerloo"),
+    "play_curse": lambda g, a, b: g.play_curse(a.role_id, target_team_id=b.role_id, curse_id="pub"),
+}
+
+
+@pytest.mark.parametrize("name", sorted(_AFTER_THE_END))
+def test_no_event_acts_once_the_game_has_ended(name: str):
+    # Every one of these used to `raise` bare, which is a RuntimeError, not the
+    # ValueError the rest of the engine (and the bot) is written against.
+    game = new_game({"A": "Baker Street", "B": "Stratford"}, bonus_interchanges=set())
+    A, B = game.teams
+    game.complete_challenge(A.role_id, "Jubilee")
+    game.status = Status.END
+
+    with pytest.raises(ValueError, match="The game is not running"):
+        _AFTER_THE_END[name](game, A, B)
+
+
 # --- win-lead condition: your Body vs opponents' Body + Neck ----------------
 
 
@@ -122,14 +190,6 @@ def _game_with_lead(margin: int):
     return game, A, B
 
 
-def _scheduled(game: GameState, event_type: str) -> list:
-    return [e for e in game.scheduled_events if e.__type__ == event_type]
-
-
-def _minutes_away(game: GameState, scheduled) -> float:
-    return (scheduled.__time__ - game.game_time_now()) / 60_000
-
-
 def test_a_lead_alone_never_wins():
     game, A, _B = _game_with_lead(margin=1)
     assert game.has_winning_lead(A)
@@ -143,9 +203,9 @@ def test_declaring_costs_coins_and_schedules_the_check():
     game.declare_win(A.role_id)
     assert game.get_snake(A).coins == coins - DECLARE_WIN_COST
     assert game.get_snake(A).win_declared
-    [check] = _scheduled(game, "resolve_win_declaration")
+    [check] = scheduled(game, "resolve_win_declaration")
     assert list(check.args) == [A.role_id]
-    assert _minutes_away(game, check) == pytest.approx(DECLARE_WIN_WINDOW_MINUTES, abs=0.1)
+    assert minutes_away(game, check) == pytest.approx(DECLARE_WIN_WINDOW_MINUTES, abs=0.1)
 
 
 def test_a_declaration_that_still_leads_wins_and_ends_the_game():
@@ -175,8 +235,8 @@ def test_a_failed_declaration_blocks_declaring_again_until_the_cooldown_ends():
     assert game.resolve_win_declaration(A.role_id) is False
     snake = game.get_snake(A)
     assert snake.declare_cooldown and not snake.win_declared
-    [cooldown] = _scheduled(game, "end_declare_cooldown")
-    assert _minutes_away(game, cooldown) == pytest.approx(DECLARE_WIN_COOLDOWN_MINUTES, abs=0.1)
+    [cooldown] = scheduled(game, "end_declare_cooldown")
+    assert minutes_away(game, cooldown) == pytest.approx(DECLARE_WIN_COOLDOWN_MINUTES, abs=0.1)
     with pytest.raises(ValueError, match="cooldown"):
         game.declare_win(A.role_id)
     game.end_declare_cooldown(A.role_id)
@@ -208,10 +268,10 @@ def test_the_schedulers_tick_runs_the_check_when_the_window_ends():
     # second tick fires it when its time comes. Skip ahead to that moment.
     game, A, _B = _game_with_lead(margin=1)
     game.declare_win(A.role_id)
-    [check] = _scheduled(game, "resolve_win_declaration")
+    [check] = scheduled(game, "resolve_win_declaration")
     check.__time__ = game.game_time_now() - 1
     asyncio.run(game.schedule_tick())
-    assert not _scheduled(game, "resolve_win_declaration")
+    assert not scheduled(game, "resolve_win_declaration")
     assert game.winner() == A
     assert game.status == Status.END
 
@@ -226,4 +286,4 @@ def test_a_pending_declaration_survives_a_restart_without_doubling_the_check(tmp
     snake = reloaded.get_snake(reloaded.get_team(A.role_id))
     assert snake.win_declared
     assert snake.coins == game.get_snake(A).coins  # charged once, not twice
-    assert len(_scheduled(reloaded, "resolve_win_declaration")) == 1
+    assert len(scheduled(reloaded, "resolve_win_declaration")) == 1

@@ -1,9 +1,4 @@
-"""Executable specification for the powerups system (see PLAN_POWERUPS.md).
-
-Written ahead of the implementation: another model implements powerups to make
-this file pass. The whole module skips until a top-level ``powerups`` module
-exists, so the existing suite stays green today — creating ``powerups.py`` is
-the first implementation step, and doing so activates this spec.
+"""The powerups system: buying, playing, and each powerup's effect.
 
 Map facts used below (verified against map/connections.json):
   - Jubilee runs Baker Street — Bond Street — Green Park — Westminster (consecutive).
@@ -14,18 +9,15 @@ Map facts used below (verified against map/connections.json):
 
 from __future__ import annotations
 
-from pathlib import Path
 import random
+from pathlib import Path
 from typing import Any
 
 import pytest
 
 import config
 from new_game import new_game
-
-powerups = pytest.importorskip("powerups", reason="powerups.py not implemented yet — see PLAN_POWERUPS.md")
-Curse = powerups.Curse
-CurseDeck = powerups.CurseDeck
+from powerups import Curse, CurseDeck
 
 EXPECTED_COSTS = {"jump": 8, "efficiency": 4, "retreat": 3, "detour": 2, "curse": 3}
 
@@ -197,6 +189,25 @@ def test_failed_play_keeps_the_card(tmp_path: Path):
     with pytest.raises(ValueError):
         game.play_jump(A.role_id, station="Narnia")
     assert snake.hand == ["jump"]  # invalid target must not consume the powerup
+
+
+def test_playing_a_powerup_you_do_not_hold_raises(tmp_path: Path):
+    # Each parameterised play event has its own hand check; an empty hand must stop all of them.
+    game = _game(tmp_path)
+    A, B = game.teams
+    snake = game.get_snake(A)
+    assert snake.hand == []
+
+    with pytest.raises(ValueError, match="jump is not in"):
+        game.play_jump(A.role_id, station="Bond Street")
+    with pytest.raises(ValueError, match="detour is not in"):
+        game.play_detour(A.role_id, line="Bakerloo")
+    with pytest.raises(ValueError, match="curse is not in"):
+        game.play_curse(A.role_id, target_team_id=B.role_id, curse_id="pub")
+
+    assert game.jumped_stations == set()
+    assert snake.pending_detour is None
+    assert game.get_snake(B).curses == []
 
 
 # --- jump --------------------------------------------------------------------

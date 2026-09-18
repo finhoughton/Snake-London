@@ -5,6 +5,7 @@ import statistics
 from pathlib import Path
 
 import pytest
+from conftest import minutes_away, scheduled
 
 from config import (
     EASIER_REWARD,
@@ -26,14 +27,6 @@ from objectives import centrality, choose_objective, objective_score, team_costs
 
 def _game(teams: dict[str, str] | None = None) -> GameState:
     return new_game(teams or {"A": "Wembley Park", "B": "Stratford"}, bonus_interchanges=set())
-
-
-def _scheduled(game: GameState, event_type: str) -> list:
-    return [e for e in game.scheduled_events if e.__type__ == event_type]
-
-
-def _minutes_away(game: GameState, scheduled) -> float:
-    return (scheduled.__time__ - game.game_time_now()) / 60_000
 
 
 # --- choosing where it goes ---------------------------------------------------
@@ -147,19 +140,19 @@ def test_no_objective_once_only_one_team_is_left():
 
 def test_the_first_objective_comes_one_interval_after_the_start():
     game = _game()
-    [first] = _scheduled(game, "new_objective")
-    assert _minutes_away(game, first) == pytest.approx(OBJECTIVE_INTERVAL_MINUTES, abs=0.1)
+    [first] = scheduled(game, "new_objective")
+    assert minutes_away(game, first) == pytest.approx(OBJECTIVE_INTERVAL_MINUTES, abs=0.1)
 
 
-def test_a_new_objective_goes_live_and_the_next_is_scheduled():
+def test_a_new_objective_goes_live_and_the_next_isscheduled():
     game = _game()
     station = game.new_objective()
     assert station is not None
     assert game.objectives == [station]
-    scheduled = _scheduled(game, "new_objective")
-    assert len(scheduled) == 2  # the one from the start, plus the next one after this
-    latest = max(scheduled, key=lambda e: e.__time__)
-    assert _minutes_away(game, latest) == pytest.approx(OBJECTIVE_INTERVAL_MINUTES, abs=0.1)
+    pending = scheduled(game, "new_objective")
+    assert len(pending) == 2  # the one from the start, plus the next one after this
+    latest = max(pending, key=lambda e: e.__time__)
+    assert minutes_away(game, latest) == pytest.approx(OBJECTIVE_INTERVAL_MINUTES, abs=0.1)
 
 
 def test_unclaimed_objectives_stay_live_and_pile_up():
@@ -299,4 +292,4 @@ def test_live_objectives_and_the_next_timer_survive_a_restart(tmp_path: Path):
 
     reloaded = GameState.load(tmp_path, game.thread_id)  # what the bot does on restart
     assert reloaded.objectives == [station]
-    assert len(_scheduled(reloaded, "new_objective")) == len(_scheduled(game, "new_objective"))
+    assert len(scheduled(reloaded, "new_objective")) == len(scheduled(game, "new_objective"))

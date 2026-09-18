@@ -17,7 +17,7 @@ examples: list[tuple[str, str, str]] = [
 for line, start, end in examples:
     path = m.path_between_on_line(line, start, end)
     neck = path[1:]
-    xs = neck_weights(m, line, neck)
+    xs = neck_weights(m, neck)
     diff = get_difficulty(xs)
     names = [m.get_station(s).display_name for s in neck]
     print(f"{m.get_line(line).display_name}: {m.get_station(start).display_name} → {m.get_station(end).display_name}")

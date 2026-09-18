@@ -1,17 +1,17 @@
 from __future__ import annotations
 
 import math
-from pathlib import Path
 import re
+from pathlib import Path
 from typing import cast
 
 import pytest
 
 import render
 from config import BONUS_AT_FRONT, OBJECTIVE_STATIONS
+from game import GameState
 from new_game import new_game
 from render import ClipPolygon, ForkGroup, _clip_shapes_for_segment, _extract_svg_fork_geometry, render_map
-from game import GameState
 
 
 @pytest.fixture
@@ -630,17 +630,32 @@ def test_symbol_key_drops_the_bonus_row_once_every_bonus_is_claimed(tmp_path: Pa
 
 
 def test_render_greys_out_eliminated_snakes(tmp_path: Path) -> None:
-    # A requests through B's claimed Bond Street and crashes; its body is greyed.
-    game = new_game({"A": "Baker Street", "B": "Bond Street"}, bonus_interchanges=set())
+    # A builds a two-station body along the Jubilee, then walks into B's Westminster
+    # and crashes. Both its markers and its body segment must render grey, not in A's colour.
+    game = new_game({"A": "Baker Street", "B": "Westminster"}, bonus_interchanges=set())
     A = game.teams[0]
     B = game.teams[1]
     game.complete_challenge(A.role_id, "Jubilee")
     game.complete_challenge(B.role_id, "Jubilee")
-    game.request_challenge(A.role_id, "Green Park")
+    game.request_challenge(A.role_id, "Bond Street")
+    game.complete_challenge(A.role_id, "Jubilee")  # A's body: Baker Street — Bond Street
+    game.request_challenge(A.role_id, "Westminster")  # through Green Park into B's claim
     assert game.get_snake(A).crashed
 
     svg = render_map(game, tmp_path / "map.svg").read_text(encoding="utf-8")
-    assert render._CRASHED_COLOR in svg  # A's crashed body/segments rendered grey
+    a_color = game.get_snake(A).color
+
+    def marker_tag(station: str) -> str:
+        return re.search(rf'<(?:circle|rect)\b[^>]*\bid="{station} Marker"[^>]*>', svg).group(0)
+
+    for station in ("Baker Street", "Bond Street"):  # A's claimed body
+        assert render._CRASHED_COLOR in marker_tag(station)
+        assert a_color not in marker_tag(station)
+
+    overlays = render._build_segment_overlays(game)  # A's body segment is drawn grey too
+    assert render._CRASHED_COLOR in overlays
+    assert a_color not in overlays  # nothing of A's is drawn in A's colour any more
+
     assert "(crashed)" in svg  # and marked in the legend
 
 

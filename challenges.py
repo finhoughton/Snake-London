@@ -144,5 +144,5 @@ def get_difficulty(weights: list[int]) -> float:
     return max(0.0, _DIFFICULTY_OFFSET + _DIFFICULTY_SCALE * (1 - math.exp(-raw / _DIFFICULTY_RATE)))
 
 
-def neck_weights(game_map: Map, line: str, neck: list[str]) -> list[int]:
+def neck_weights(game_map: Map, neck: list[str]) -> list[int]:
     return [game_map.get_station(s).weight for s in neck]

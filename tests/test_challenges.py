@@ -10,6 +10,7 @@ import pytest
 from challenges import Challenge, ChallengePool, get_difficulty, neck_weights
 from config import HARDER_REWARD, INITIAL_DIFFICULTY_MAX, INITIAL_DIFFICULTY_MIN, STARTING_COINS
 from game import GameState
+from jloxgame.state import Status
 from network import Map
 from new_game import new_game
 
@@ -103,6 +104,48 @@ def test_veto_requires_an_active_challenge(tmp_path: Path):
     game.complete_challenge(A.role_id, "Jubilee")
     with pytest.raises(ValueError, match="no active challenge"):
         game.veto_challenges(A.role_id)
+
+
+# --- move validation ----------------------------------------------------------
+
+
+def test_requesting_a_challenge_at_your_own_anchor_is_illegal(tmp_path: Path):
+    # A settled rule: the Anchor is where you already are, so it is not somewhere to travel to.
+    game = _game(tmp_path)
+    A = game.teams[0]
+    game.complete_challenge(A.role_id, "Jubilee")  # Anchor = Wembley Park
+    with pytest.raises(ValueError, match="current Anchor"):
+        game.request_challenge(A.role_id, "Wembley Park")
+    assert not game.get_snake(A).neck_active
+
+
+def test_requesting_a_challenge_off_the_declared_line_is_illegal(tmp_path: Path):
+    game = _game(tmp_path)
+    A = game.teams[0]
+    game.complete_challenge(A.role_id, "Jubilee")
+    with pytest.raises(ValueError, match="is not on line 'Jubilee'"):
+        game.request_challenge(A.role_id, "Oxford Circus")  # a real station, but not on the Jubilee
+    assert not game.get_snake(A).neck_active
+
+
+def test_completing_with_a_line_the_front_is_not_on_is_illegal(tmp_path: Path):
+    game = _game(tmp_path)
+    A = game.teams[0]
+    game.complete_challenge(A.role_id, "Jubilee")
+    game.request_challenge(A.role_id, "Bond Street")
+    with pytest.raises(ValueError, match="is not on line 'Victoria'"):
+        game.complete_challenge(A.role_id, "Victoria")  # Bond Street is not on the Victoria
+    assert game.get_snake(A).neck_active  # nothing was claimed, the challenge is still live
+    assert not game.map.is_claimed("Bond Street")
+
+
+def test_a_move_cannot_be_made_once_the_game_has_ended(tmp_path: Path):
+    game = _game(tmp_path)
+    A = game.teams[0]
+    game.complete_challenge(A.role_id, "Jubilee")
+    game.status = Status.END
+    with pytest.raises(ValueError, match="not running"):
+        game.request_challenge(A.role_id, "Bond Street")
 
 
 def test_crashed_request_draws_no_offer(tmp_path: Path):
@@ -371,7 +414,7 @@ def test_typical_routes_are_sized_to_the_challenge_pool():
                 if a == b:
                     continue
                 path = game_map.path_between_on_line(line, a, b)
-                target = get_difficulty(neck_weights(game_map, line, path[1:]))
+                target = get_difficulty(neck_weights(game_map, path[1:]))
                 every_route.append(target)
                 if len(path) - 1 <= 2:
                     short_hops.append(target)
