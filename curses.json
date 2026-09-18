@@ -3,172 +3,162 @@
     {
       "id": "get_a_melon",
       "name": "Get a Melon",
-      "description": "Before starting another challenge, you must acquire a whole melon of any kind. Keep it with you for the rest of the game. If you have not obtained one within 30 minutes, this curse is cleared and you may continue."
+      "description": "Acquire a whole melon, of any kind, before you request another challenge. Keep it with you for the rest of the game. If you have not found one within 30 minutes, the curse is cleared and you may carry on."
     },
     {
       "id": "egg_partner",
       "name": "Egg Partner",
-      "description": "Before starting another challenge, you must acquire an egg (real). The egg is now an official team member for the rest of the game. If any team member is abandoned, or the egg suffers any visible crack, you immediately veto your current or next challenge. If you have not obtained an egg within 30 minutes, this curse is cleared and you may continue."
+      "description": "Acquire a real egg before you request another challenge. It is now an official team member for the rest of the game. If it is ever left behind or visibly cracked, veto your current or next challenge immediately. If you have not found one within 30 minutes, the curse is cleared and you may carry on."
     },
     {
       "id": "best_friends_forever",
       "name": "Best Friends Forever",
-      "description": "When you next board a train, choose two other passengers. You may not alight until one of them has left the train, and then only at the first interchange after they do. If you reach the end of the line first, you may alight there."
+      "description": "On the next train you board, pick two other passengers. You may not get off until one of them does, and then only at the first interchange after they leave. If the train terminates first, you may get off there."
     },
     {
       "id": "pub",
       "name": "Pub",
-      "description": "Before starting another challenge, go to a pub and buy one pint of liquid per team member. The team must finish it before leaving."
+      "description": "Before you request another challenge, go to a pub and buy one pint per team member. Any drink counts, and the team must finish them before leaving."
     },
     {
       "id": "together_forever",
       "name": "Together Forever",
-      "description": "For 60 minutes, two team members must link arms. You may change which two, but the linked pair must take part in every challenge. This does not apply at ticket barriers, on escalators or on stairs."
+      "description": "For 60 minutes, two team members must stay linked arm in arm. You may swap which two, but the linked pair must take part in every challenge. Ticket barriers, escalators and stairs are exempt."
     },
     {
       "id": "long_neck",
       "name": "Long Neck",
-      "description": "Your next challenge must be requested at least four interchanges along your declared line from your Anchor. If fewer than four remain, you must go to the last one. This curse ends when you next extend your Body."
+      "description": "Request your next challenge at least four interchanges along your declared line from your Anchor. If fewer than four remain, go to the last one. Ends when you next complete a challenge."
     },
     {
       "id": "short_leash",
       "name": "Short Leash",
-      "description": "Your next challenge must be requested at the first interchange you reach on your declared line. This curse ends when you next extend your Body."
+      "description": "Request your next challenge at the first interchange along your declared line from your Anchor. Ends when you next complete a challenge."
     },
     {
       "id": "blind_declaration",
       "name": "Blind Declaration",
-      "description": "Declare now, publicly, the line you will board after your current challenge. You are bound to it. If you are not currently attempting a challenge, declare before you request your next one."
+      "description": "Name a line now, publicly. You are bound to declare it when you next complete a challenge, so the Front you end up at must be served by it."
     },
     {
       "id": "stated_intent",
       "name": "Stated Intent",
-      "description": "Announce to all teams the interchange at which you will request your next challenge. You must request it there. This curse ends when you next extend your Body."
-    },
-    {
-      "id": "backwater",
-      "name": "Backwater",
-      "description": "Your next Neck may not include any interchange served by more than two lines. Void if every reachable interchange on your declared line breaks this. This curse ends when you next extend your Body."
+      "description": "Announce to all teams the interchange where you will request your next challenge. You must request it there. Ends when you next complete a challenge."
     },
     {
       "id": "second_guess",
       "name": "Second Guess",
-      "description": "The next line you declare may not be the line you arrived on. Void if your interchange is served by only one line."
+      "description": "When you next complete a challenge, the line you declare may not be the one you arrived on. If your Front is served by only one line, the curse is void."
     },
     {
       "id": "stairs_only",
       "name": "Stairs Only",
-      "description": "For 60 minutes you may not use escalators or lifts. Where a station offers no stair route (or it is blocked), you must instead wait three minutes before using the escalator or lift."
+      "description": "For 60 minutes, use only stairs: no escalators and no lifts. Where a station has no stair route, or it is closed, wait three minutes and then use the escalator or lift."
     },
     {
       "id": "scenic_route",
       "name": "Scenic Route",
-      "description": "Before requesting your next challenge, walk a full lap around the block containing the station. This applies once."
+      "description": "Before you request your next challenge, walk a full lap around the block the interchange sits on. Once only."
     },
     {
       "id": "sightseeing",
       "name": "Sightseeing",
-      "description": "Before requesting your next challenge, visit every street entrance of the interchange you are at. This applies once."
-    },
-    {
-      "id": "slowest_member",
-      "name": "No running",
-      "description": "For 60 minutes you may not run, and the whole team must move at the pace of its slowest member, staying within sight of each other."
+      "description": "Before you request your next challenge, visit every street entrance of the interchange you request it at. Where the interchange covers more than one station, do them all. Once only."
     },
     {
       "id": "front_carriage",
       "name": "Front Carriage",
-      "description": "For 120 minutes you may only board the front carriage of any train. If the front carriage is full or closed, you must wait for the next train."
+      "description": "For 120 minutes, board only the front carriage of any train. If it is full or closed, wait for the next train."
     },
     {
       "id": "long_veto",
       "name": "Long Veto",
-      "description": "Your next veto period is doubled. This applies once, whether the veto is chosen or caused by a failed challenge."
+      "description": "Your next veto period is doubled, whether you choose the veto or fail the challenge. Once only."
     },
     {
       "id": "no_way_out",
       "name": "No Way Out",
-      "description": "You may not veto your next challenge pair. If you fail a challenge, the veto period is doubled and this curse is spent"
+      "description": "You may not veto the next pair of challenges you face. If you fail one instead, your veto period is doubled. Once only."
     },
     {
       "id": "ambition",
       "name": "Ambition",
-      "description": "You may only attempt the harder of your two offered challenges. This curse ends when you next extend your Body."
+      "description": "You may only attempt the harder of the two challenges you are offered. Ends when you next complete a challenge."
     },
     {
       "id": "double_or_nothing",
       "name": "Double or Nothing",
-      "description": "You must complete both of your offered challenges before you may extend your Body. You receive the reward for the harder one."
+      "description": "You must complete both of the challenges you are offered. You are paid for the harder one only."
     },
     {
       "id": "one_hand",
       "name": "Invisible Hand",
-      "description": "Every member must keep one hand behind their back during challenge attempts. This curse ends when you next extend your Body."
+      "description": "Every member keeps one hand behind their back while attempting a challenge. Ends when you next complete a challenge."
     },
     {
       "id": "wrong_hand",
       "name": "Wrong Hand",
-      "description": "Members may use only their non-dominant hand during challenge attempts. This curse ends when you next extend your Body."
+      "description": "Every member uses only their non-dominant hand while attempting a challenge. Ends when you next complete a challenge."
     },
     {
       "id": "vow_of_silence",
       "name": "Vow of Silence",
-      "description": "Members may not speak to one another during challenge attempts. You may still speak to anyone else. This applies to your next two challenges."
+      "description": "Members may not speak to each other while attempting a challenge. Speaking to anyone else is fine. Lasts your next two challenges."
     },
     {
       "id": "understudy",
       "name": "Understudy",
-      "description": "Nominate one member now. Only that member may perform any physical action in your next challenge. The rest may advise but not touch anything."
+      "description": "Nominate one member now. In your next challenge, only they may do anything physical. The rest may advise, but not touch anything."
     },
     {
       "id": "spectator",
       "name": "Spectator",
-      "description": "The other teams nominate one of your members. That member may not take part in challenge attempts at all. This applies to your next two challenges."
+      "description": "Pick one of the other teams; they nominate one of your members. That person may not perform, advise or film during a challenge attempt, though they must stay with the team. Lasts your next two challenges."
     },
     {
       "id": "witness",
       "name": "Witness",
-      "description": "For the rest of the game you must send all other teams a photo of yourselves before entering any station"
+      "description": "For the rest of the game, send all other teams a photo of yourselves before you enter any station."
     },
     {
       "id": "bouquet",
       "name": "Bouquet",
-      "description": "Before starting another challenge, acquire a bunch of flowers. They must be visible in every piece of challenge evidence you submit for the rest of the game. If you have not obtained flowers within 30 minutes, this curse is cleared and you may continue."
+      "description": "Acquire a bunch of flowers before you request another challenge. They must be visible in every piece of challenge evidence you submit for the rest of the game. If you have not found any within 30 minutes, the curse is cleared and you may carry on."
     },
     {
       "id": "balloon",
       "name": "Balloon",
-      "description": "Acquire an inflated balloon within the next 30 minutes and keep it with you for an hour after that. If it pops or escapes in that hour, you immediately veto your current or next challenge. If you cannot obtain one in 30 minutes, this curse is cleared."
+      "description": "Acquire an inflated balloon within 30 minutes and keep it with you for an hour after that. If it pops or escapes within that hour, veto your current or next challenge immediately. If you have not found one within 30 minutes, the curse is cleared."
     },
     {
       "id": "rainy_day",
       "name": "Rainy Day",
-      "description": "For 60 minutes, one member must hold an open umbrella whenever any part of the team is under open sky. The umbrella may not strike anyone or anything."
+      "description": "Acquire an umbrella within 30 minutes. For the hour after that, one member must hold it open whenever any part of the team is under open sky, and it may not strike anyone or anything. If you cannot find one within 30 minutes, the curse is cleared."
     },
     {
       "id": "team_colours",
       "name": "Team Colours",
-      "description": "Until you next extend your Body, every member must be wearing something visible in the colour of the line you arrived on."
+      "description": "Every member must visibly wear or carry something in the colour of the line that brought you to your Anchor; buying something counts. Ends when you next complete a challenge. If you cannot manage it within 30 minutes, the curse is cleared."
     },
     {
       "id": "dead_weight",
       "name": "Dead Weight",
-      "description": "For 60 minutes, the team must carry at least one kilogram of additional weight by hand. It may not be set down while you are moving between interchanges."
+      "description": "For 60 minutes, the team carries at least one extra kilogram by hand. It may not be set down while you are moving between interchanges."
     },
     {
       "id": "hat_trick",
       "name": "Hat Trick",
-      "description": "Before starting another challenge, every member must acquire headwear and wear it for the rest of the game. It may not be something a member already had with them. If you have not obtained enough headwear within 30 minutes, this curse is cleared and you may continue."
+      "description": "Before you request another challenge, every member must acquire headwear and wear it for the rest of the game. It may not be anything you already had with you. If you have not found enough within 30 minutes, the curse is cleared and you may carry on."
     },
     {
       "id": "open_hand",
       "name": "Open Hand",
-      "description": "Immediately reveal to all teams how many coins you have and what powerups are in your hand."
+      "description": "Immediately reveal to all teams how many coins you have and which powerups are in your hand."
     },
     {
       "id": "no_signal",
       "name": "No Signal",
-      "description": "For 30 minutes you may not use any map or transport app, or look up any route. You may still use your phone for the game bot and for challenges, but try not to look at the map"
+      "description": "For 30 minutes you may not open a map or transport app, or look up a route by any other means. You may still use your phone for the game bot and for challenges."
     }
   ]
 }
