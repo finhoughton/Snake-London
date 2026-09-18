@@ -20,7 +20,7 @@ with quiet():
 
 TEAM = "test"
 COLOR = "#FF1493"  # deep pink — distinct from all line colours
-OUTPUT_DIR = "segment_debug"
+OUTPUT_DIR = "out/segment_debug"
 
 _UNSAFE = re.compile(r"[^A-Za-z0-9_-]")
 

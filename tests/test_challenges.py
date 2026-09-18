@@ -10,7 +10,7 @@ import pytest
 from challenges import Challenge, ChallengePool, get_difficulty, neck_weights
 from config import HARDER_REWARD, INITIAL_DIFFICULTY_MAX, INITIAL_DIFFICULTY_MIN, STARTING_COINS
 from game import GameState
-from map import Map
+from network import Map
 from new_game import new_game
 
 

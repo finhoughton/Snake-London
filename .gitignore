@@ -13,10 +13,8 @@ TODO.md
 *.png
 test_render.svg
 test.svg
-current_map.svg
 
 fork_examples/
-segment_debug/
 
 *.txt
 
@@ -28,5 +26,5 @@ TOKEN
 save
 generated_maps
 
-/segment_bleed/
+/out/
 tools/segment_bleed/target/

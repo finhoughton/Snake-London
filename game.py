@@ -33,7 +33,7 @@ from config import (
 )
 from jloxgame import GameContext, Team
 from jloxgame.state import Status, event
-from map import Map
+from network import Map
 from objectives import choose_objective
 from powerups import NORMAL_POWERUP_HANDLERS, POWERUP_ON_BUY, Curse, CurseDeck, handle_curse, handle_detour, handle_jump
 

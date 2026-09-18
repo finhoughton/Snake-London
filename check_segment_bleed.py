@@ -16,7 +16,7 @@ and the far side would look off route.
 
     python check_segment_bleed.py [Line ...]
 
-Pictures of each finding go to segment_bleed/. Exits 1 if anything is off route.
+Pictures of each finding go to out/segment_bleed/. Exits 1 if anything is off route.
 """
 
 from __future__ import annotations
@@ -49,7 +49,7 @@ with quiet():
     import render
     from new_game import new_game
 
-OUTPUT_DIR = Path("segment_bleed")
+OUTPUT_DIR = Path("out/segment_bleed")
 # Optional: a helper that rasterises every segment in one process with resvg, for the same
 # findings a good deal faster. Built on demand when a Rust toolchain is around; without one
 # this falls back to rsvg-convert per segment, so the repo needs no Rust to run.
@@ -441,7 +441,7 @@ def main() -> int:
         return 2
 
     rust_helper(build=True)
-    OUTPUT_DIR.mkdir(exist_ok=True)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     for stale in OUTPUT_DIR.glob("*.png"):
         stale.unlink()  # otherwise a fixed segment keeps its picture and looks unfixed
     off_route, no_route, shared = sweep(wanted)

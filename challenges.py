@@ -6,7 +6,7 @@ import random
 from collections.abc import Callable, Collection
 from dataclasses import dataclass
 
-from map import Map
+from network import Map
 
 
 @dataclass(frozen=True)

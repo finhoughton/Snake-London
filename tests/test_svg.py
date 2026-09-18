@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 
 import pytest
 
-from map import Map
+from network import Map
 from render import _extract_svg_fork_geometry
 
 SVG_PATH = "map/snake map.svg"

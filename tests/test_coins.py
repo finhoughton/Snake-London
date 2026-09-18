@@ -10,7 +10,7 @@ from game import (
     HARDER_REWARD,
     STARTING_COINS,
 )
-from map import Map
+from network import Map
 from new_game import new_game
 
 

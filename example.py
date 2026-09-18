@@ -1,4 +1,5 @@
 import random
+from pathlib import Path
 
 from challenges import get_difficulty, neck_weights
 from config import EASIER_REWARD, HARDER_REWARD, OBJECTIVE_COINS, OBJECTIVE_STATIONS
@@ -172,6 +173,8 @@ for team in game.snakes:
 
 # render
 
-render_map(game, "current_map.svg")
-svg_to_png("current_map.svg", "current_map.png")
-print("Map rendered to current_map.png")
+out = Path("out")
+out.mkdir(exist_ok=True)
+render_map(game, out / "current_map.svg")
+svg_to_png(out / "current_map.svg", out / "current_map.png")
+print(f"Map rendered to {out / 'current_map.png'}")

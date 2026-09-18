@@ -5,7 +5,7 @@ from typing import Any
 import pytest
 
 from jloxgame.state import Team
-from map import Map
+from network import Map
 
 # Fixtures
 
@@ -205,7 +205,7 @@ def test_no_unknown_lines(tube_map: Map):
     assert not errors, "\n".join(errors)
 
 
-def _connections() -> Any: # better than untyped dict
+def _connections() -> Any:  # better than untyped dict
     with open("map/connections.json") as f:
         return json.load(f)
 

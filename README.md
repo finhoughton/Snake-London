@@ -31,7 +31,7 @@ main.py              Discord bot — slash commands for challenges, powerups and
 events.py            the game events the bot records and replays
 game.py              game state machine — challenge flow, crash detection, win conditions
 new_game.py          offline game setup, for local scripts and the tests
-map.py               graph model of the tube network
+network.py           graph model of the tube network
 render.py            SVG/PNG renderer — overlays team colours onto the base map
 challenges.py        challenge pool and difficulty scaling
 powerups.py          curse deck and powerup handlers
@@ -57,8 +57,8 @@ game.complete_challenge(alpha, "Jubilee")
 game.request_challenge(alpha, "Bond Street")
 # ... etc
 
-render_map(game, "current_map.svg")
-svg_to_png("current_map.svg", "current_map.png")
+render_map(game, "out/current_map.svg")
+svg_to_png("out/current_map.svg", "out/current_map.png")
 ```
 
 See `example.py` for a full three-team game.

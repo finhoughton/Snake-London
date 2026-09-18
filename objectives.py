@@ -13,7 +13,7 @@ from functools import lru_cache
 from statistics import mean
 from typing import TYPE_CHECKING
 
-from map import Map
+from network import Map
 
 if TYPE_CHECKING:
     from game import GameState, Snake
