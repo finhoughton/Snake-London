@@ -81,7 +81,7 @@
     {
       "id": "station_couplet",
       "name": "Station couplet",
-      "description": "Write a rhyming couplet ending on this station's name and read it aloud to a stranger.",
+      "description": "Write a rhyming couplet ending on this station's name.",
       "difficulty": 2.5
     },
     {
@@ -1009,12 +1009,6 @@
       "difficulty": 8.5
     },
     {
-      "id": "the_knowledge",
-      "name": "The Knowledge",
-      "description": "Get a black cab driver to explain the Knowledge on camera. Don't waste their time etc.",
-      "difficulty": 8.5
-    },
-    {
       "id": "applause",
       "name": "Applause",
       "description": "Get unprompted applause from five different strangers. Need not be five at the same time.",
@@ -1219,8 +1213,8 @@
       "difficulty": 10.0
     },
     {
-      "id": "two_hundred_digits",
-      "name": "Two hundred digits",
+      "id": "one_hundred_digits",
+      "name": "One hundred digits",
       "description": "Recite one hundred digits of pi from memory.",
       "difficulty": 10.0
     },
