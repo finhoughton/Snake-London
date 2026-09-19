@@ -19,7 +19,7 @@ from discord import (
 )
 
 import jloxgame
-from config import POWERUP_COSTS, POWERUP_NAMES
+from config import POWERUP_COMMANDS, POWERUP_COSTS, POWERUP_NAMES
 from game import GameState
 from jloxgame.bot import JLOXBot
 from jloxgame.state import Status
@@ -359,7 +359,7 @@ powerup_play_group = powerup_group.create_subgroup("play")
 
 
 def normal(powerup: str):
-    @powerup_play_group.game_command(name=powerup)
+    @powerup_play_group.game_command(name=POWERUP_COMMANDS[powerup])
     async def command(dctx: ApplicationContext, gctx: GameState):
         assert isinstance(dctx.user, Member)
         team = gctx.get_user_team(dctx.user)

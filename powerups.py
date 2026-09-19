@@ -13,11 +13,12 @@ from __future__ import annotations
 
 import json
 import random
+import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from config import CURSE_OPTIONS, POWERUP_COSTS, POWERUP_NAMES
+from config import CURSE_OPTIONS, POWERUP_COMMANDS, POWERUP_COSTS, POWERUP_NAMES
 from jloxgame.state import Team
 
 if TYPE_CHECKING:
@@ -235,6 +236,15 @@ if set(NORMAL_POWERUP_HANDLERS) - set(
 # Every powerup needs a player-facing name, or the bot falls back to showing a raw id.
 if set(POWERUP_COSTS) - set(POWERUP_NAMES):
     raise RuntimeError(f"Powerups with no display name: {sorted(set(POWERUP_COSTS) - set(POWERUP_NAMES))}")
+
+# A display name with punctuation in it would derive a command Discord rejects, and the
+# bot would fail at startup registering it rather than here.
+_COMMAND_NAME = re.compile(r"^[a-z0-9_-]{1,32}$")
+if bad_commands := sorted(p for p, name in POWERUP_COMMANDS.items() if not _COMMAND_NAME.match(name)):
+    raise RuntimeError(
+        f"Display names that do not make a valid Discord command: "
+        f"{ {p: POWERUP_NAMES[p] for p in bad_commands} }"
+    )
 
 if set(POWERUP_ON_BUY) - set(POWERUP_COSTS):
     raise RuntimeError(f"Buy handlers for unpriced powerups: {sorted(set(POWERUP_ON_BUY) - set(POWERUP_COSTS))}")

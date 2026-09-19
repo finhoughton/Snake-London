@@ -10,6 +10,7 @@ Map facts used below (verified against map/connections.json):
 from __future__ import annotations
 
 import random
+import re
 from pathlib import Path
 from typing import Any
 
@@ -64,9 +65,21 @@ def test_powerup_costs_defined():
 
 
 def test_every_powerup_has_a_display_name():
-    # The ids are internal (event log, slash commands); this is what players are shown.
+    # The ids are internal (they travel in the event log); this is what players are shown.
     assert set(config.POWERUP_NAMES) == set(config.POWERUP_COSTS)
     assert config.POWERUP_NAMES["efficiency"] == "Good Service"
+
+
+def test_command_names_follow_the_display_names():
+    assert config.POWERUP_COMMANDS["efficiency"] == "good-service"
+    for powerup, command in config.POWERUP_COMMANDS.items():
+        assert re.fullmatch(r"[a-z0-9_-]{1,32}", command), f"{powerup} makes an invalid command: {command}"
+
+    # jump, detour and curse are hand-written commands in main.py, named after their Python
+    # function rather than from this table — so renaming one of those three renames the map
+    # entry and leaves the command behind. Rename the function in main.py too, or they drift.
+    for powerup in ("jump", "detour", "curse"):
+        assert config.POWERUP_COMMANDS[powerup] == powerup, f"rename the {powerup} command in main.py"
 
 
 def test_all_powerups_enabled_by_default(tmp_path: Path):

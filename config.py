@@ -70,6 +70,11 @@ POWERUP_NAMES = {
     "curse": "Curse",
 }
 
+# The bot's slash command for each, derived so what a player types matches what they are
+# shown: /powerup play good-service, not /powerup play efficiency. Discord allows only
+# lowercase letters, digits, - and _ in a command name; powerups.py checks that at import.
+POWERUP_COMMANDS = {powerup: name.lower().replace(" ", "-") for powerup, name in POWERUP_NAMES.items()}
+
 # --- Team colours ----------------------------------------------------------
 # Ordered by priority (first N used for N teams), boldest first. Chosen by
 # maximising the minimum CIEDE2000 distance between teams: every pair is ΔE >= 22
