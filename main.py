@@ -58,12 +58,22 @@ async def map(dctx: ApplicationContext, gctx: GameState):
     await dctx.respond(embed=embed, file=File(map_png_path, filename="map.png"))
 
 
+def choices(options: Iterable[tuple[str, str]], typed: str) -> list[OptionChoice]:
+    """Autocomplete choices that show a name but send the key the engine wants.
+
+    Matches anywhere in either, not just the start: the map calls Bank "Bank / Monument",
+    and a team standing in Monument will type that. Discord shows at most 25.
+    """
+    typed = typed.lower()
+    return [OptionChoice(shown, key) for shown, key in sorted(options) if typed in shown.lower() or typed in key.lower()]
+
+
 # Get Challenge
 
 challenge_group = bot.create_group("challenge")
 
 
-def challenge_station_autocomplete(ctx: AutocompleteContext) -> Iterable[str]:
+def challenge_station_autocomplete(ctx: AutocompleteContext) -> Iterable[OptionChoice]:
     assert isinstance(ctx.interaction.user, Member)
     bot = cast(JLOXBot[GameState], ctx.bot)
     gctx = bot.get_game_ctx(ctx)
@@ -75,7 +85,7 @@ def challenge_station_autocomplete(ctx: AutocompleteContext) -> Iterable[str]:
     line = gctx.get_snake(team).travel_line
     if line is None:
         return []
-    return filter(lambda station: station.lower().startswith(ctx.value.lower()), gctx.map.get_line(line).stations)
+    return choices(((gctx.map.get_station(s).display_name, s) for s in gctx.map.get_line(line).stations), ctx.value)
 
 
 @challenge_group.game_command()
@@ -178,7 +188,7 @@ async def get(dctx: ApplicationContext, gctx: GameState):
     await dctx.respond(embed=Embed(title="Your active challenges", fields=fields[easy == hard :]))
 
 
-def challenge_next_line_autocomplete(ctx: AutocompleteContext) -> Iterable[str]:
+def challenge_next_line_autocomplete(ctx: AutocompleteContext) -> Iterable[OptionChoice]:
     assert isinstance(ctx.interaction.user, Member)
     bot = cast(JLOXBot[GameState], ctx.bot)
     gctx = bot.get_game_ctx(ctx)
@@ -190,10 +200,8 @@ def challenge_next_line_autocomplete(ctx: AutocompleteContext) -> Iterable[str]:
     challenges = gctx.current_challenges(team)
     if challenges is None:
         return []
-    return filter(
-        lambda line: line.lower().startswith(ctx.value.lower()),
-        gctx.map.get_station(gctx.get_snake(team).front).line_keys(),
-    )
+    front = gctx.map.get_station(gctx.get_snake(team).front)
+    return choices(((gctx.map.get_line(line).display_name, line) for line in front.line_keys()), ctx.value)
 
 
 @challenge_group.game_command()
@@ -291,12 +299,7 @@ def powerup_autocomplete(ctx: AutocompleteContext) -> Iterable[OptionChoice]:
     team = gctx.get_user_team(ctx.interaction.user)
     if team is None:
         return []
-    typed = ctx.value.lower()
-    return [
-        OptionChoice(POWERUP_NAMES[powerup], powerup)
-        for powerup in sorted(gctx.enabled_powerups, key=lambda p: POWERUP_NAMES[p])
-        if typed in POWERUP_NAMES[powerup].lower() or typed in powerup
-    ]
+    return choices(((POWERUP_NAMES[powerup], powerup) for powerup in gctx.enabled_powerups), ctx.value)
 
 
 @powerup_group.game_command()
@@ -388,14 +391,14 @@ def normal(powerup: str):
 normal("efficiency")
 normal("retreat")
 
-def jump_station_autocomplete(ctx: AutocompleteContext) -> Iterable[str]:
+def jump_station_autocomplete(ctx: AutocompleteContext) -> Iterable[OptionChoice]:
     assert isinstance(ctx.interaction.user, Member)
     bot = cast(JLOXBot[GameState], ctx.bot)
     gctx = bot.get_game_ctx(ctx)
     if gctx is None: return []
     team = gctx.get_user_team(ctx.interaction.user)
     if team is None: return []
-    return filter(lambda station: station.lower().startswith(ctx.value.lower()), gctx.map.station_keys())
+    return choices(((gctx.map.get_station(s).display_name, s) for s in gctx.map.station_keys()), ctx.value)
 
 
 
@@ -429,7 +432,7 @@ async def jump(dctx: ApplicationContext, gctx: GameState, station: str):
     await dctx.respond(f"Successfully played {POWERUP_NAMES['jump']} on {station}!")
 
 
-def detour_autocomplete(ctx: AutocompleteContext) -> Iterable[str]:
+def detour_autocomplete(ctx: AutocompleteContext) -> Iterable[OptionChoice]:
     assert isinstance(ctx.interaction.user, Member)
     bot = cast(JLOXBot[GameState], ctx.bot)
     gctx = bot.get_game_ctx(ctx)
@@ -440,7 +443,8 @@ def detour_autocomplete(ctx: AutocompleteContext) -> Iterable[str]:
         return []
     snake = gctx.get_snake(team)
     boarding = snake.front if snake.neck_active else snake.anchor
-    return filter(lambda line: line.lower().startswith(ctx.value.lower()), gctx.map.get_station(boarding).line_keys())
+    lines = gctx.map.get_station(boarding).line_keys()
+    return choices(((gctx.map.get_line(line).display_name, line) for line in lines), ctx.value)
 
 
 @powerup_play_group.game_command()
@@ -483,8 +487,7 @@ def curse_autocomplete(ctx: AutocompleteContext) -> Iterable[OptionChoice]:
     if team is None:
         return []
     snake = gctx.get_snake(team)
-    typed = ctx.value.lower()
-    return [OptionChoice(curse.name, curse.id) for curse in snake.held_curses if typed in curse.name.lower()]
+    return choices(((curse.name, curse.id) for curse in snake.held_curses), ctx.value)
 
 
 @powerup_play_group.game_command()
