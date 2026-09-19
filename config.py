@@ -16,7 +16,7 @@ WINNING_THRESHOLD = 10
 # the lead is checked this long afterwards, giving rivals a last chance to respond.
 # A failed declaration stops that team declaring again for the cooldown. The last
 # team standing still wins immediately.
-DECLARE_WIN_COST = 2
+DECLARE_WIN_COST = 5
 DECLARE_WIN_WINDOW_MINUTES = 20
 DECLARE_WIN_COOLDOWN_MINUTES = 30
 

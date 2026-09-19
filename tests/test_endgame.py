@@ -231,6 +231,7 @@ def test_a_rival_can_deny_a_declaration_by_growing_a_neck():
 
 def test_a_failed_declaration_blocks_declaring_again_until_the_cooldown_ends():
     game, A, _B = _game_with_lead(margin=0)  # level with the bar, not over it
+    game.get_snake(A).coins = 2 * DECLARE_WIN_COST  # a failed declaration still charges, so fund both
     game.declare_win(A.role_id)
     assert game.resolve_win_declaration(A.role_id) is False
     snake = game.get_snake(A)
