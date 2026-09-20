@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import check_segment_bleed
 
 # Segments whose highlight paints track they don't run on, waiting on a hand-drawn group

@@ -19,8 +19,6 @@ and the far side would look off route.
 Pictures of each finding go to out/segment_bleed/. Exits 1 if anything is off route.
 """
 
-from __future__ import annotations
-
 import contextlib
 import json
 import math

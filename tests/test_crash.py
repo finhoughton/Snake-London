@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import pytest
 
 from new_game import new_game

@@ -5,8 +5,6 @@ to reach it, and similar numbers of stops. Passing an un-jumped claim needs a Ju
 Central stations are preferred. No randomness, so a restart replays the same choices.
 """
 
-from __future__ import annotations
-
 import heapq
 from collections import deque
 from functools import lru_cache

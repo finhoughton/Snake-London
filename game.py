@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 import re
 import traceback
 from dataclasses import dataclass, field
@@ -944,7 +942,7 @@ class GameState(GameContext):
             self.enabled_powerups.discard("curse")  # if there are no curses, this powerup is not playable
 
         if self.status in [Status.INIT, Status.SETUP]:
-            print(f"[{self.thread_id} | configure | info] resetting snakes")
+            self.logger.info("resetting snakes")
             for team, station, colour in zip(self.teams, team_positions, team_colors + DEFAULT_TEAM_COLORS):
                 team.colour = int(colour[1:], base=16)
                 self.snakes[team] = Snake(
@@ -959,7 +957,7 @@ class GameState(GameContext):
             self.bonus_chance = bonus_chance
             self.status = Status.SETUP
         else:
-            print(f"[{self.thread_id} | configure | info] game running, only changing colours/powerups")
+            self.logger.info("game running, only changing colours/powerups")
             for team, colour in zip(self.teams, team_colors):
                 self.snakes[team].color = colour
 
@@ -971,14 +969,14 @@ class GameState(GameContext):
         if self.status != Status.SETUP:
             return
 
-        print(f"[{self.thread_id} | start | info] randomising interchanges")
+        self.logger.info(f"randomising interchanges")
         # Origins are never bonus interchanges
         origins = {snake.origin for snake in self.snakes.values()}
         self.bonus_interchanges = {
             s for s in self.map.station_keys() if s not in origins and self.rng.random() < self.bonus_chance
         }
 
-        print(f"[{self.thread_id} | start | info] picking initial challenge")
+        self.logger.info(f"picking initial challenge")
         if self.challenges is not None:
             self.initial_challenge = self.challenges.pick_in_range(
                 INITIAL_DIFFICULTY_MIN, INITIAL_DIFFICULTY_MAX, rng=self.rng

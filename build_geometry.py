@@ -1,7 +1,5 @@
 """Extract station centre coordinates from the SVG and write geometry.json."""
 
-from __future__ import annotations
-
 import json
 import math
 import re

@@ -33,8 +33,7 @@ bot = jloxgame.JLOXBot(GameState, pathlib.Path() / "save", member_hostable=False
 
 @bot.event
 async def on_ready():
-    # await bot.sync_commands(force=True)
-    print(f"[snake london | info] {bot.user} is online!")
+    bot.logger.info(f"{bot.user} is online!")
 
 
 # Map

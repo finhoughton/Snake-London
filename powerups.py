@@ -9,8 +9,6 @@ plus one handler in ``NORMAL_POWERUP_HANDLERS`` — and, if it does something at
 time rather than when played, an optional entry in ``POWERUP_ON_BUY``.
 """
 
-from __future__ import annotations
-
 import json
 import random
 import re

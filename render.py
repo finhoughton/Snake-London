@@ -1,10 +1,7 @@
-from __future__ import annotations
-
 import json
 import math
 import re
 import subprocess
-import time
 import xml.etree.ElementTree as ET
 from collections.abc import Callable
 from pathlib import Path
@@ -111,8 +108,6 @@ _ANY_GROUP_RE = re.compile(r'<g\b[^>]*\bid="([^"]+)"')
 
 
 def render_map(game: GameState, output_path: str | Path, *, debug: bool = False) -> Path:
-    start = time.time()
-
     with open(SVG_SOURCE, "r", encoding="utf-8") as f:
         svg = f.read()
 
@@ -164,7 +159,6 @@ def render_map(game: GameState, output_path: str | Path, *, debug: bool = False)
     with open(dest, "w", encoding="utf-8") as f:
         f.write(svg)
 
-    print(f"[render | info] svg building took {time.time() - start:.03} seconds")
     return dest
 
 
@@ -233,8 +227,6 @@ def svg_to_png(svg_path: str | Path, png_path: str | Path) -> Path:
 
     # Here I invoke rsvg-convert if it is available (should always be on the VPS), and use resvg as a fallback.
 
-    start = time.time()
-
     dest = Path(png_path)
 
     if RSVG_PATH is not None:
@@ -244,13 +236,12 @@ def svg_to_png(svg_path: str | Path, png_path: str | Path) -> Path:
         subprocess.run([RSVG_PATH, "-w", "2000", "-f", "png", "-o", dest, svg_path], check=True)
 
     else:
-        import resvg_py  # I would have put this in the RSVG_PATH conditional, but pyright got mad :/
+        import resvg_py  # I would have put this in the RSVG_PATH conditional at the very top, but pyright got mad :/
 
         svg_str = Path(svg_path).read_text(encoding="utf-8")
         png_bytes = resvg_py.svg_to_bytes(svg_str, width=2000)
         dest.write_bytes(png_bytes)
 
-    print(f"[render | info] conversion took {time.time() - start:.03} seconds")
     return dest
 
 

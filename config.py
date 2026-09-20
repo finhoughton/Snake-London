@@ -4,8 +4,6 @@ Centralised here so the numbers can be adjusted in one place without touching th
 game logic (game.py) or the renderer (render.py).
 """
 
-from __future__ import annotations
-
 # --- Win condition ---------------------------------------------------------
 # A team can win early if its claimed stations (Body) lead every opponent's Body +
 # Neck by MORE than this — but only by declaring it (see below).

@@ -7,8 +7,6 @@ Map facts used below (verified against map/connections.json):
   - Picc runs Rayners Lane — Park Royal — Ealing Common — Acton Town — Turnham Green.
 """
 
-from __future__ import annotations
-
 import random
 import re
 from pathlib import Path
