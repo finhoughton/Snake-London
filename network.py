@@ -5,6 +5,7 @@ from typing import TypedDict, cast
 
 from config import CONNECTIONS_PATH
 from jloxgame import Team
+from util import GameError
 
 LineDict = TypedDict("LineDict", {"display_name": str, "has_branches": bool, "stations": tuple[str, ...]})
 
@@ -87,7 +88,7 @@ class Map:
         """Claim a station for a team. Raises ValueError if already claimed by another team."""
         current = self._claims.get(station_key)
         if current is not None and current != team:
-            raise ValueError(f"{station_key!r} is already claimed by {current!r}")
+            raise GameError(f"{station_key!r} is already claimed by {current!r}")
         self._claims[station_key] = team
 
     def get_claim(self, station_key: str) -> Team | None:
@@ -119,7 +120,7 @@ class Map:
         key = self._segment_key(line_key, station_a, station_b)
         current = self._claimed_segments.get(key)
         if current is not None and current != team:
-            raise ValueError(f"Segment {key!r} is already claimed by {current!r}")
+            raise GameError(f"Segment {key!r} is already claimed by {current!r}")
         self._claimed_segments[key] = team
 
     def get_segment_claim(self, line_key: str, station_a: str, station_b: str) -> Team | None:

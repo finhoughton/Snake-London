@@ -6,14 +6,16 @@ import xml.etree.ElementTree as ET
 from collections.abc import Callable
 from pathlib import Path
 from shutil import which
-from typing import Literal, TypedDict
+from typing import TYPE_CHECKING, Literal, TypedDict
 
 RSVG_PATH = which("rsvg-convert")
 if RSVG_PATH is None:
-    print("[render | warn] librsvg could not be found, falling back to resvg (8x slower)")
+    print("WARNING: librsvg could not be found, falling back to resvg (8x slower)")
 
 from config import BONUS_AT_FRONT, OBJECTIVE_COINS, OBJECTIVE_STATIONS
-from game import GameState
+
+if TYPE_CHECKING:
+    from game import GameState
 
 SVG_SOURCE = Path("map/snake map.svg")
 GEOMETRY_PATH = Path("map/geometry.json")

@@ -2,7 +2,7 @@ import re
 import traceback
 from dataclasses import dataclass, field
 
-from discord import ApplicationContext, Colour, Interaction, SelectOption
+from discord import ApplicationContext, Colour, File, Interaction, SelectOption
 from discord.ui import DesignerModal, InputText, Label, StringSelect, TextDisplay
 
 import jloxgame
@@ -33,10 +33,11 @@ from config import (
 )
 from jloxgame import GameContext, Team
 from jloxgame.state import Status, event
+
 from network import Map
 from objectives import choose_objective
 from powerups import NORMAL_POWERUP_HANDLERS, POWERUP_ON_BUY, Curse, CurseDeck, handle_curse, handle_detour, handle_jump
-
+from util import generate_new_map, GameError
 
 @dataclass
 class Snake:
@@ -140,7 +141,7 @@ class GameState(GameContext):
         if snake.front == snake.anchor:
             return []
         if snake.travel_line is None:
-            raise ValueError(f"{team!r} has no declared line")
+            raise GameError(f"{team!r} has no declared line")
         path = self.map.path_between_on_line(snake.travel_line, snake.anchor, snake.front)
         return path[1:]  # exclude anchor
 
@@ -162,9 +163,9 @@ class GameState(GameContext):
         """Look up a snake for an action, rejecting teams that are out of the game."""
         snake = self.get_snake(team)
         if snake.crashed:
-            raise ValueError(f"{team!r} has crashed and can no longer act")
+            raise GameError(f"{team!r} has crashed and can no longer act")
         if snake.conceded:
-            raise ValueError(f"{team!r} has conceded and can no longer act")
+            raise GameError(f"{team!r} has conceded and can no longer act")
         return snake
 
     def initial_request_challenge(self, team: Team) -> None:
@@ -178,9 +179,9 @@ class GameState(GameContext):
         """
         snake = self._acting_snake(team)
         if snake.travel_line is not None:
-            raise ValueError(f"{team!r} has already completed their initial challenge")
+            raise GameError(f"{team!r} has already completed their initial challenge")
         if snake.neck_active:
-            raise ValueError(f"{team!r} already has an active challenge request")
+            raise GameError(f"{team!r} already has an active challenge request")
         snake.neck_active = True
         self._sync_initial_offer(snake)
 
@@ -199,19 +200,21 @@ class GameState(GameContext):
         team = self.get_team(team_id)
         snake = self._acting_snake(team)
         if self.status != Status.RUNNING:
-            raise ValueError("The game is not running")
+            raise GameError("The game is not running")
         if snake.travel_line is None:
-            raise ValueError(f"{team!r} has no declared line — use initial_request_challenge() first")
+            raise GameError(f"{team!r} has no declared line — use initial_request_challenge() first")
         if not self.map.has_station(station):
-            raise ValueError(f"Unknown station: {station!r}")
+            raise GameError(f"Unknown station: {station!r}")
         if not self.map.get_station(station).has_line(snake.travel_line):
-            raise ValueError(f"{station!r} is not on line {snake.travel_line!r}")
+            raise GameError(f"{station!r} is not on line {snake.travel_line!r}")
         if station == snake.anchor:
-            raise ValueError(f"{station!r} is the current Anchor — travel to a different interchange")
+            raise GameError(f"{station!r} is the current Anchor — travel to a different interchange")
         if snake.neck_active:
-            raise ValueError(f"{team!r} already has an active challenge request")
+            raise GameError(f"{team!r} already has an active challenge request")
         if snake.blocked_station is not None and station == snake.blocked_station:
-            raise ValueError(f"{station!r} was just retreated from — request a different interchange")
+            raise GameError(f"{station!r} was just retreated from — request a different interchange")
+        if snake.vetoed:
+            raise GameError(f"{team!r} is in their veto period")
 
         # A neck that runs through any claimed interchange — your own or an
         # opponent's — crashes the snake, unless the interchange has been jumped
@@ -245,14 +248,16 @@ class GameState(GameContext):
         team = self.get_team(team_id)
         snake = self._acting_snake(team)
         if self.status != Status.RUNNING:
-            raise ValueError("The game is not running")
+            raise GameError("The game is not running")
         if not snake.neck_active:
-            raise ValueError(f"{team!r} has no active challenge request")
+            raise GameError(f"{team!r} has no active challenge request")
         is_initial = snake.travel_line is None
         if not self.map.has_line(next_line):
-            raise ValueError(f"Unknown line: {next_line!r}")
+            raise GameError(f"Unknown line: {next_line!r}")
         if not self.map.get_station(snake.front).has_line(next_line):
-            raise ValueError(f"Front interchange {snake.front!r} is not on line {next_line!r}")
+            raise GameError(f"Front interchange {snake.front!r} is not on line {next_line!r}")
+        if snake.vetoed:
+            raise GameError(f"{team!r} is in their veto period")
 
         segment = self.neck(team)
         if not segment:
@@ -349,14 +354,17 @@ class GameState(GameContext):
         team = self.get_team(team_id)
         snake = self._acting_snake(team)
         if self.status != Status.RUNNING:
-            raise ValueError("The game is not running")
+            raise GameError("The game is not running")
         if not snake.neck_active:
-            raise ValueError(f"{team!r} has no active challenge to veto")
+            raise GameError(f"{team!r} has no active challenge to veto")
+        if snake.vetoed:
+            raise GameError(f"{team!r} is in their veto period")
         free = snake.free_vetoes > 0
         if free:
             snake.free_vetoes = 0
         else:
             snake.vetoed = True
+            self.schedule_event(0, 2, 0, self.unveto, team.role_id)
         if snake.travel_line is None:
             self._draw_new_initial_offer(snake)
         else:
@@ -369,13 +377,15 @@ class GameState(GameContext):
             await team.thread.send("Your veto period has expired!")
 
     @event(callback=unveto_callback)
-    def unveto(self, team_id: int) -> None:
+    def unveto(self, team_id: int) -> int:
         team = self.get_team(team_id)
         snake = self._acting_snake(team)
         if self.status != Status.RUNNING:
-            raise ValueError("The game is not running")
+            raise GameError("The game is not running")
 
         snake.vetoed = False
+
+        return team_id
 
     @staticmethod
     def _mark_seen(snake: Snake) -> None:
@@ -427,7 +437,7 @@ class GameState(GameContext):
     def buy_powerup(self, team_id: int, powerup_id: str) -> list[Curse] | None:
         """Buy a powerup into the team's hand, deducting its coin cost.
 
-        Raises ValueError if the team is out of the game, the id is unknown, the
+        Raises GameError if the team is out of the game, the id is unknown, the
         powerup is not enabled this game, or the team can't afford it. (A missing
         curse deck already strips ``"curse"`` from ``enabled_powerups`` at
         ``new_game``, so no separate deck check is needed here.)
@@ -439,14 +449,14 @@ class GameState(GameContext):
         team = self.get_team(team_id)
         snake = self._acting_snake(team)
         if self.status != Status.RUNNING:
-            raise ValueError("The game is not running")
+            raise GameError("The game is not running")
         if powerup_id not in POWERUP_COSTS:
-            raise ValueError(f"Unknown powerup: {powerup_id!r}")
+            raise GameError(f"Unknown powerup: {powerup_id!r}")
         if powerup_id not in self.enabled_powerups:
-            raise ValueError(f"Powerup {powerup_id!r} is not enabled in this game")
+            raise GameError(f"Powerup {powerup_id!r} is not enabled in this game")
         cost = POWERUP_COSTS[powerup_id]
         if snake.coins < cost:
-            raise ValueError(f"Not enough coins to buy {powerup_id!r}: need {cost}, have {snake.coins}")
+            raise GameError(f"Not enough coins to buy {powerup_id!r}: need {cost}, have {snake.coins}")
         # Buy-time effects run only once every check has passed, so a rejected
         # purchase never consumes deck content (a drawn curse would be lost).
         on_buy = POWERUP_ON_BUY.get(powerup_id)
@@ -460,14 +470,14 @@ class GameState(GameContext):
         """Play a normal powerup (no parameters) from the team's hand, dispatching to its handler.
 
         The card is removed from the hand only *after* the handler returns, so a
-        failed play (the handler raises ValueError on bad input) keeps the card.
+        failed play (the handler raises GameError on bad input) keeps the card.
         """
         team = self.get_team(team_id)
         snake = self._acting_snake(team)
         if self.status != Status.RUNNING:
-            raise ValueError("The game is not running")
+            raise GameError("The game is not running")
         if powerup_id not in snake.hand:
-            raise ValueError(f"{powerup_id!r} is not in {team!r}'s hand")
+            raise GameError(f"{powerup_id!r} is not in {team!r}'s hand")
 
         NORMAL_POWERUP_HANDLERS[powerup_id](self, team)
         snake.hand.remove(powerup_id)
@@ -478,10 +488,10 @@ class GameState(GameContext):
         team = self.get_team(team_id)
         snake = self._acting_snake(team)
         if self.status != Status.RUNNING:
-            raise ValueError("The game is not running")
+            raise GameError("The game is not running")
         kept = next((c for c in snake.curse_choice if c.id == curse_id), None)
         if kept is None:
-            raise ValueError(f"{team!r} was not offered a curse with id {curse_id!r}")
+            raise GameError(f"{team!r} was not offered a curse with id {curse_id!r}")
         for curse in snake.curse_choice:
             if curse is not kept and self.curse_deck is not None:
                 self.curse_deck.put_back(curse)
@@ -502,9 +512,9 @@ class GameState(GameContext):
         target_team = self.get_team(target_team_id)
         snake = self._acting_snake(team)
         if self.status != Status.RUNNING:
-            raise ValueError("The game is not running")
+            raise GameError("The game is not running")
         if "curse" not in snake.hand:
-            raise ValueError(f"curse is not in {team!r}'s hand")
+            raise GameError(f"curse is not in {team!r}'s hand")
 
         result = handle_curse(self, team, target_team=target_team, curse_id=curse_id)
         snake.hand.remove("curse")
@@ -520,9 +530,9 @@ class GameState(GameContext):
         team = self.get_team(team_id)
         snake = self._acting_snake(team)
         if self.status != Status.RUNNING:
-            raise ValueError("The game is not running")
+            raise GameError("The game is not running")
         if "jump" not in snake.hand:
-            raise ValueError(f"jump is not in {team!r}'s hand")
+            raise GameError(f"jump is not in {team!r}'s hand")
 
         handle_jump(self, team, station=station)
         snake.hand.remove("jump")
@@ -539,9 +549,9 @@ class GameState(GameContext):
         team = self.get_team(team_id)
         snake = self._acting_snake(team)
         if self.status != Status.RUNNING:
-            raise ValueError("The game is not running")
+            raise GameError("The game is not running")
         if "detour" not in snake.hand:
-            raise ValueError(f"detour is not in {team!r}'s hand")
+            raise GameError(f"detour is not in {team!r}'s hand")
 
         handle_detour(self, team, line=line)
         snake.hand.remove("detour")
@@ -554,7 +564,7 @@ class GameState(GameContext):
         """Concede the game — a voluntary loss (a loss path alongside crashing)."""
         snake = self.get_snake(team)
         if snake.eliminated:
-            raise ValueError(f"{team!r} is already out of the game")
+            raise GameError(f"{team!r} is already out of the game")
         snake.conceded = True
 
     # Crash detection
@@ -634,16 +644,21 @@ class GameState(GameContext):
 
     # Contested objectives
 
-    @event()
+    async def new_objective_callback(self, station: str | None) -> None:
+        if station is not None and self.thread:
+            embed, map_png_path = generate_new_map(self)
+
+            await self.thread.send(f"A new objective has appeared at {self.map.get_station(station).display_name}!", embed=embed, file=File(map_png_path, filename="map.png"))
+
+    @event(callback=new_objective_callback)
     def new_objective(self) -> str | None:
-        """Place a new objective and schedule the next (not on reload: it's already in the save)."""
+        """Place a new objective and schedule the next."""
         if self.status != Status.RUNNING:
             return None
         station = choose_objective(self)
         if station is not None:
             self.objectives.append(station)
-        if not self.loading:
-            self.schedule_event(0, OBJECTIVE_INTERVAL_MINUTES, 0, self.new_objective)
+        self.schedule_event(0, OBJECTIVE_INTERVAL_MINUTES, 0, self.new_objective)
         return station
 
     # Declaring a win
@@ -652,24 +667,21 @@ class GameState(GameContext):
     def declare_win(self, team_id: int) -> None:
         """Pay DECLARE_WIN_COST to claim the lead win; it's checked DECLARE_WIN_WINDOW_MINUTES later.
 
-        Announcing it is the bot's job. The check is scheduled here so it can't be
-        forgotten — but not while a saved game is reloading, because the pending check
-        is already in the save and would otherwise run twice.
+        Announcing it is the bot's job. The check is scheduled here so it can't be forgotten.
         """
         team = self.get_team(team_id)
         snake = self._acting_snake(team)
         if self.status != Status.RUNNING:
-            raise ValueError("The game is not running")
+            raise GameError("The game is not running")
         if snake.win_declared:
-            raise ValueError(f"{team!r} has already declared a win")
+            raise GameError(f"{team!r} has already declared a win")
         if snake.declare_cooldown:
-            raise ValueError(f"{team!r} declared recently and failed; wait for the cooldown to end")
+            raise GameError(f"{team!r} declared recently and failed; wait for the cooldown to end")
         if snake.coins < DECLARE_WIN_COST:
-            raise ValueError(f"Not enough coins to declare a win: need {DECLARE_WIN_COST}, have {snake.coins}")
+            raise GameError(f"Not enough coins to declare a win: need {DECLARE_WIN_COST}, have {snake.coins}")
         snake.coins -= DECLARE_WIN_COST
         snake.win_declared = True
-        if not self.loading:
-            self.schedule_event(0, DECLARE_WIN_WINDOW_MINUTES, 0, self.resolve_win_declaration, team_id)
+        self.schedule_event(0, DECLARE_WIN_WINDOW_MINUTES, 0, self.resolve_win_declaration, team_id)
 
     @event()
     def resolve_win_declaration(self, team_id: int) -> bool:
@@ -691,8 +703,7 @@ class GameState(GameContext):
             self.status = Status.END
             return True
         snake.declare_cooldown = True
-        if not self.loading:
-            self.schedule_event(0, DECLARE_WIN_COOLDOWN_MINUTES, 0, self.end_declare_cooldown, team_id)
+        self.schedule_event(0, DECLARE_WIN_COOLDOWN_MINUTES, 0, self.end_declare_cooldown, team_id)
         return False
 
     @event()
@@ -987,9 +998,7 @@ class GameState(GameContext):
 
         self.status = Status.RUNNING
         self.unpause()
-        # Not on reload: it's already in the save.
-        if not self.loading:
-            self.schedule_event(0, OBJECTIVE_INTERVAL_MINUTES, 0, self.new_objective)
+        self.schedule_event(0, OBJECTIVE_INTERVAL_MINUTES, 0, self.new_objective)
 
 
 class ConfigModal(DesignerModal):
@@ -1011,7 +1020,7 @@ class ConfigModal(DesignerModal):
 
         if status == jloxgame.Status.INIT:
             self.team_names_input = InputText(
-                placeholder="Team Alpha, Team Beta, Team Gamma, Team Delta, Team Epsilon", value=", ".join(team_names)
+                placeholder="Team Alpha, Team Beta", value=", ".join(team_names)
             )
             self.add_item(Label("Teams (comma-separated)", self.team_names_input))  # pyright: ignore[reportUnknownMemberType]
         else:
@@ -1019,7 +1028,7 @@ class ConfigModal(DesignerModal):
 
         if status in [jloxgame.Status.INIT, jloxgame.Status.SETUP]:
             self.team_positions_input = InputText(
-                placeholder="Wembley Park, Abbey Wood, Tooting Broadway, Rayners Lane, Ealing Broadway",
+                placeholder="Wembley Park, Abbey Wood",
                 value=", ".join(team_positions),
             )
             self.add_item(Label("Team starting positions (comma-separated)", self.team_positions_input))  # pyright: ignore[reportUnknownMemberType]
@@ -1027,7 +1036,7 @@ class ConfigModal(DesignerModal):
             self.add_item(TextDisplay("Team starting positions: " + "".join(team_positions)))  # pyright: ignore[reportUnknownMemberType]
 
         self.team_colors_input = InputText(
-            placeholder=", ".join(DEFAULT_TEAM_COLORS), value=", ".join(team_colors), required=False
+            placeholder=", ".join(DEFAULT_TEAM_COLORS[:2]), value=", ".join(team_colors), required=False
         )
         self.add_item(Label("Team colours (comma-separated)", self.team_colors_input))  # pyright: ignore[reportUnknownMemberType]
 

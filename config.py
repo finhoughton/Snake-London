@@ -68,6 +68,14 @@ POWERUP_NAMES = {
     "curse": "Curse",
 }
 
+POWERUP_EMOJIS = {
+    "jump": "⬆️",
+    "efficiency": "🚂",
+    "retreat": "💨",
+    "detour": "🔄",
+    "curse": "<:curse:1326263019206086666>",
+}
+
 # The bot's slash command for each, derived so what a player types matches what they are
 # shown: /powerup play good-service, not /powerup play efficiency. Discord allows only
 # lowercase letters, digits, - and _ in a command name; powerups.py checks that at import.

@@ -18,6 +18,7 @@ from typing import TYPE_CHECKING
 
 from config import CURSE_OPTIONS, POWERUP_COMMANDS, POWERUP_COSTS, POWERUP_NAMES
 from jloxgame.state import Team
+from util import GameError
 
 if TYPE_CHECKING:
     from game import GameState
@@ -77,7 +78,7 @@ class CurseDeck:
         """
         picker = rng if rng is not None else random
         if not self._catalog:
-            raise ValueError("Cannot draw from a curse deck with no curses")
+            raise GameError("Cannot draw from a curse deck with no curses")
         drawn: list[Curse] = []
         for _ in range(min(count, len(self._catalog))):
             if not self._remaining:
@@ -97,7 +98,7 @@ class CurseDeck:
 
 # --- Play handlers -----------------------------------------------------------
 # Each handler is ``handler(game, team, **kwargs)``. Handlers validate *before*
-# mutating anything and raise ValueError on bad input, so a failed play never
+# mutating anything and raise GameError on bad input, so a failed play never
 # consumes the card (`play_normal_powerup`/`play_jump`/`play_detour`/`play_curse` remove
 # the card only after the handler returns). Curse returns the Curse it played; every
 # other handler returns None.
@@ -106,7 +107,7 @@ class CurseDeck:
 def handle_jump(game: GameState, team: Team, *, station: str | None = None) -> None:
     """Make a station permanently passable for everyone (does not steal it)."""
     if station is None or not game.map.has_station(station):
-        raise ValueError(f"Unknown station for jump: {station!r}")
+        raise GameError(f"Unknown station for jump: {station!r}")
     game.jumped_stations.add(station)
 
 
@@ -119,9 +120,9 @@ def _handle_retreat(game: GameState, team: Team) -> None:
     """Cancel the active request; the next request must go to a different station."""
     snake = game.get_snake(team)
     if not snake.neck_active:
-        raise ValueError(f"{team!r} has no active challenge request to retreat")
+        raise GameError(f"{team!r} has no active challenge request to retreat")
     if snake.travel_line is None:
-        raise ValueError(f"{team!r} cannot retreat the initial challenge")
+        raise GameError(f"{team!r} cannot retreat the initial challenge")
     snake.blocked_station = snake.front
     snake.front = snake.anchor
     snake.neck_active = False
@@ -149,12 +150,12 @@ def handle_detour(game: GameState, team: Team, *, line: str | None = None) -> No
     """
     snake = game.get_snake(team)
     if snake.travel_line is None:
-        raise ValueError(f"{team!r} has no declared line to detour from")
+        raise GameError(f"{team!r} has no declared line to detour from")
     if line is None or not game.map.has_line(line):
-        raise ValueError(f"Unknown line for detour: {line!r}")
+        raise GameError(f"Unknown line for detour: {line!r}")
     boarding = snake.front if snake.neck_active else snake.anchor
     if not game.map.get_station(boarding).has_line(line):
-        raise ValueError(f"{boarding!r} is not on line {line!r}")
+        raise GameError(f"{boarding!r} is not on line {line!r}")
     if snake.neck_active:
         snake.pending_detour = line
     else:
@@ -170,19 +171,19 @@ def handle_curse(game: GameState, team: Team, *, target_team: Team, curse_id: st
     """
     snake = game.get_snake(team)
     if target_team == team:
-        raise ValueError("A curse must target another team")
+        raise GameError("A curse must target another team")
     if target_team not in game.snakes:
-        raise ValueError(f"Unknown team: {target_team!r}")
+        raise GameError(f"Unknown team: {target_team!r}")
     if game.get_snake(target_team).eliminated:
-        raise ValueError(f"{target_team!r} is already out of the game")
+        raise GameError(f"{target_team!r} is already out of the game")
     if not snake.held_curses:
-        raise ValueError(f"{team!r} holds no curse to play")
+        raise GameError(f"{team!r} holds no curse to play")
     if curse_id is None:
         curse = snake.held_curses[0]  # FIFO: the oldest curse still held
     else:
         curse = next((c for c in snake.held_curses if c.id == curse_id), None)
         if curse is None:
-            raise ValueError(f"{team!r} does not hold a curse with id {curse_id!r}")
+            raise GameError(f"{team!r} does not hold a curse with id {curse_id!r}")
     snake.held_curses.remove(curse)
     game.get_snake(target_team).curses.append(curse)
     return curse
@@ -191,7 +192,7 @@ def handle_curse(game: GameState, team: Team, *, target_team: Team, curse_id: st
 # --- Buy handlers ------------------------------------------------------------
 # Optional, keyed by powerup id: an effect that happens at *purchase* time rather
 # than when the card is played. Same contract as the play handlers — validate
-# before mutating, raise ValueError on failure — and GameState.buy_powerup runs
+# before mutating, raise GameError on failure — and GameState.buy_powerup runs
 # them only after every check passes, so a rejected buy consumes nothing.
 
 
@@ -202,10 +203,10 @@ def _on_buy_curse(game: GameState, team: Team) -> list[Curse]:
     that knows only one curse offers no choice, so that one is kept immediately.
     """
     if game.curse_deck is None:
-        raise ValueError("No curse deck available")
+        raise GameError("No curse deck available")
     snake = game.get_snake(team)
     if snake.curse_choice:
-        raise ValueError(f"{team!r} must keep one of the curses already drawn first")
+        raise GameError(f"{team!r} must keep one of the curses already drawn first")
     drawn = game.curse_deck.draw_options(CURSE_OPTIONS, rng=game.rng)
     if len(drawn) == 1:
         snake.held_curses.append(drawn[0])
