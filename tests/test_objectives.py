@@ -27,6 +27,11 @@ def _game(teams: dict[str, str] | None = None) -> GameState:
     return new_game(teams or {"A": "Wembley Park", "B": "Stratford"}, bonus_interchanges=set())
 
 
+def _new_objective(game: GameState) -> str | None:
+    """Place an objective now, without the bot's announcement (that callback needs the bot's event loop)."""
+    return game.new_objective.call_special(False, False)
+
+
 # --- choosing where it goes ---------------------------------------------------
 
 
@@ -120,7 +125,7 @@ def test_an_objective_is_never_next_to_a_live_one():
 def test_piled_up_objectives_never_touch():
     game = _game()
     for _ in range(6):
-        game.new_objective()
+        _new_objective(game)
     live = set(game.objectives)
     assert len(live) == 6
     for station in live:
@@ -144,7 +149,7 @@ def test_the_first_objective_comes_one_interval_after_the_start():
 
 def test_a_new_objective_goes_live_and_the_next_isscheduled():
     game = _game()
-    station = game.new_objective()
+    station = _new_objective(game)
     assert station is not None
     assert game.objectives == [station]
     pending = scheduled(game, "new_objective")
@@ -155,7 +160,7 @@ def test_a_new_objective_goes_live_and_the_next_isscheduled():
 
 def test_unclaimed_objectives_stay_live_and_pile_up():
     game = _game()
-    first, second = game.new_objective(), game.new_objective()
+    first, second = _new_objective(game), _new_objective(game)
     assert first != second
     assert game.objectives == [first, second]
 
@@ -164,7 +169,7 @@ def test_no_new_objectives_once_the_game_is_over():
     game = _game()
     game.status = Status.END
     before = len(game.scheduled_events)
-    assert game.new_objective() is None
+    assert _new_objective(game) is None
     assert game.objectives == []
     assert len(game.scheduled_events) == before
 
@@ -284,7 +289,7 @@ def test_objectives_count_in_the_tiebreak():
 
 def test_live_objectives_and_the_next_timer_survive_a_restart(tmp_path: Path):
     game = _game()
-    station = game.new_objective()
+    station = _new_objective(game)
     asyncio.run(game.schedule_tick())  # the bot's once-a-second tick, bringing last_update up to date
     asyncio.run(game.save(tmp_path))
 

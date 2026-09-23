@@ -373,6 +373,7 @@ def test_a_team_is_never_offered_the_same_challenge_twice(tmp_path: Path):
     for _ in range(15):
         shown += [c.id for c in game.current_challenges(A)]
         game.veto_challenges(A.role_id)
+        game.admin_end_veto(A.role_id)  # the engine enforces the veto period; don't wait it out
     shown += [c.id for c in game.current_challenges(A)]
     assert len(shown) == len(set(shown)), "a challenge was offered to the same team twice"
     assert set(shown) == game.get_snake(A).seen_challenges
