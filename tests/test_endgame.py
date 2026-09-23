@@ -209,7 +209,7 @@ def test_declaring_costs_coins_and_schedules_the_check():
 def test_a_declaration_that_still_leads_wins_and_ends_the_game():
     game, A, _B = _game_with_lead(margin=1)
     game.declare_win(A.role_id)
-    assert game.resolve_win_declaration(A.role_id) is True
+    assert game.resolve_win_declaration(A.role_id)[0] is True
     assert game.winner() == A
     assert game.status == Status.END
 
@@ -223,7 +223,7 @@ def test_a_rival_can_deny_a_declaration_by_growing_a_neck():
     assert not game.map.is_claimed(nxt)
     b = game.get_snake(B)
     b.travel_line, b.front, b.neck_active = "Jubilee", nxt, True  # anchor is still Stratford
-    assert game.resolve_win_declaration(A.role_id) is False
+    assert game.resolve_win_declaration(A.role_id)[0] is False
     assert game.winner() is None
 
 
@@ -231,7 +231,7 @@ def test_a_failed_declaration_blocks_declaring_again_until_the_cooldown_ends():
     game, A, _B = _game_with_lead(margin=0)  # level with the bar, not over it
     game.get_snake(A).coins = 2 * DECLARE_WIN_COST  # a failed declaration still charges, so fund both
     game.declare_win(A.role_id)
-    assert game.resolve_win_declaration(A.role_id) is False
+    assert game.resolve_win_declaration(A.role_id)[0] is False
     snake = game.get_snake(A)
     assert snake.declare_cooldown and not snake.win_declared
     [cooldown] = scheduled(game, "end_declare_cooldown")
@@ -257,7 +257,7 @@ def test_a_declarer_who_crashes_during_the_window_does_not_win():
     game, A, B = _game_with_lead(margin=1)
     game.declare_win(A.role_id)
     game.crash(A)
-    assert game.resolve_win_declaration(A.role_id) is False  # runs from the scheduler, so never raises
+    assert game.resolve_win_declaration(A.role_id)[0] is False  # runs from the scheduler, so never raises
     assert game.declared_winner is None
     assert game.winner() == B  # last team standing instead
 

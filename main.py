@@ -342,7 +342,7 @@ async def curses(dctx: ApplicationContext, gctx: GameState):
     for curse in snake.curses:
         hand_embed.add_field(name=curse.name, value=curse.description)
     
-    await dctx.respond("Here are all the curses that have been played on you!", embed=hand_embed, view=HandPlayPowerupView(team, gctx))
+    await dctx.respond("Here are all the curses that have been played on you!", embed=hand_embed)
 
 powerup_play_group = powerup_group.create_subgroup("play")
 

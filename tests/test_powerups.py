@@ -758,7 +758,7 @@ def test_playing_a_curse_id_you_do_not_hold_raises(tmp_path: Path):
     snake.coins = 50
     held = _buy_curse(game, A)
 
-    with pytest.raises(ValueError, match="does not hold"):
+    with pytest.raises(ValueError, match="is not in"):
         game.play_curse(A.role_id, target_team_id=B.role_id, curse_id="nonexistent")
 
     assert snake.hand == ["curse"]  # a failed play keeps the card...
