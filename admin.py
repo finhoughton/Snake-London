@@ -60,11 +60,10 @@ from collections.abc import Callable, Iterable, Iterator
 from dataclasses import dataclass, field
 from datetime import datetime, time, timedelta
 from pathlib import Path
-from typing import TYPE_CHECKING, ClassVar
+from typing import TYPE_CHECKING
 
 from config import (
     CURSES_PATH,
-    DECLARE_WIN_COOLDOWN_MINUTES,
     DECLARE_WIN_WINDOW_MINUTES,
     POWERUP_COMMANDS,
     POWERUP_NAMES,
@@ -79,9 +78,8 @@ with contextlib.redirect_stdout(io.StringIO()):  # the engine logs every event i
 if TYPE_CHECKING:
     from challenges import Challenge
     from game import Snake
-    from jloxgame.state import EventInstance, Team
+    from jloxgame.state import Team
 
-VETO_MINUTES = 15  # main.py schedules the unveto itself, not the engine
 MIN = 60_000
 
 
@@ -143,12 +141,6 @@ _FIX_EVENTS = {
     "admin_remove_objective",
 }
 _HIDDEN = {"configured", "started", "__reload__"}
-# Timers an event sets going, and how long after it they are due: undoing the event takes them too.
-_LINKS = {
-    "veto_challenges": (("unveto", VETO_MINUTES),),
-    "declare_win": (("resolve_win_declaration", DECLARE_WIN_WINDOW_MINUTES),),
-    "resolve_win_declaration": (("end_declare_cooldown", DECLARE_WIN_COOLDOWN_MINUTES),),
-}
 
 
 class AdminError(Exception):
@@ -180,16 +172,6 @@ class Changes:
     until: datetime | None = None
     undo: list[tuple[int, int]] = field(default_factory=list)  # (file line, history number)
     entries: list[tuple[int, datetime | None, str]] = field(default_factory=list)
-
-
-class _Game(GameState):
-    """Replays a save like the bot, without jloxgame writing ./save when a replay breaks."""
-
-    replaying: ClassVar[EventInstance | None] = None
-
-    def actualise_instance(self, inst: EventInstance) -> None:
-        _Game.replaying = inst
-        getattr(self, inst.__type__)(*inst.args, **inst.kwargs)
 
 
 @contextlib.contextmanager
@@ -419,35 +401,16 @@ def _elapsed(t: int) -> str:
 
 
 def _history(raw: dict) -> list[int]:
-    """Where each numbered event sits in the save's log: #1 is history[0]. Timers not yet due aren't numbered."""
-    return [
-        i
-        for i, e in enumerate(raw["event_log"])
-        if e["__type__"] not in _HIDDEN and e["__time__"] <= raw["last_update"]
-    ]
-
-
-def _with_timers(events: list[dict], i: int) -> list[int]:
-    """The event at i, and the timers it set going, whether they have gone off yet or not."""
-    found = [i]
-    event = events[i]
-    team = _event_params(event["__type__"], event["args"], event["kwargs"]).get("team_id")
-    for kind, minutes in _LINKS.get(event["__type__"], ()):
-        due = event["__time__"] + minutes * MIN
-        for j in range(i + 1, len(events)):
-            timer = events[j]
-            if (
-                timer["__type__"] == kind
-                and _event_params(kind, timer["args"], timer["kwargs"]).get("team_id") == team
-                and abs(timer["__time__"] - due) <= 10_000
-            ):
-                found += _with_timers(events, j)
-                break
-    return found
+    """Where each numbered move or fix sits in the save's log: #1 is history[0]."""
+    return [i for i, e in enumerate(raw["event_log"]) if e["__type__"] not in _HIDDEN]
 
 
 def _undo(raw: dict, undo: list[tuple[int, int]], labels: _Labels) -> tuple[dict, list[int], list[str]]:
-    """Takes events out of the log. Returns the new save, where each of its events came from, and what went."""
+    """Takes events out of the log. Returns the new save, where each of its events came from, and what went.
+
+    Timers aren't saved: loading rebuilds them from the moves that set them, so undoing a move
+    takes its timers with it.
+    """
     events, history = raw["event_log"], _history(raw)
     dropped: set[int] = set()
     said = []
@@ -458,51 +421,51 @@ def _undo(raw: dict, undo: list[tuple[int, int]], labels: _Labels) -> tuple[dict
         event = events[i]
         what = _describe(labels, event["__type__"], event["args"], event["kwargs"])
         if event["__type__"] not in _MOVE_EVENTS | _FIX_EVENTS:
-            raise AdminError(f"Line {line}: #{number} ({what}) went off by itself, so it can't be undone.")
-        for j in _with_timers(events, i):
-            if j in dropped:
-                continue
-            dropped.add(j)
-            e = events[j]
-            if j == i:
-                said.append(f"#{number}  {what}")
-            elif j in history:
-                said.append(f"#{history.index(j) + 1}  {_describe(labels, e['__type__'], e['args'], e['kwargs'])}")
-            else:
-                said.append(f"      the timer for: {_describe_due(labels, e['__type__'], e['args'], e['kwargs'])}")
+            raise AdminError(f"Line {line}: #{number} ({what}) isn't a move or a fix, so it can't be undone.")
+        if i not in dropped:
+            dropped.add(i)
+            said.append(f"#{number}  {what}")
     kept = [i for i in range(len(events)) if i not in dropped]
     return {**raw, "event_log": [events[i] for i in kept]}, kept, said
 
 
-def _load(raw: dict, game_id: int) -> _Game:
-    _Game.replaying = None
+def _load(raw: dict, game_id: int) -> GameState:
     with tempfile.TemporaryDirectory() as tmp:
         Path(tmp, f"{game_id}.json").write_text(json.dumps(raw), encoding="utf-8")
         with _quiet():
-            game = _Game.load(Path(tmp), game_id)
+            game = GameState.load(Path(tmp), game_id)
     # Loading logs the whole gap since the save as downtime; this isn't the bot restarting.
     if game.event_log and game.event_log[-1].__type__ == "__reload__":
         game.event_log.pop()
     return game
 
 
-def _broken_at(raw: dict) -> int | None:
-    """Where in the save's log the last failed load broke, if it broke on an event."""
-    inst = _Game.replaying
-    if inst is None:
+def _broken_at(raw: dict, game_id: int) -> int | None:
+    """Where in the save's log loading breaks: the shortest start of the log that won't load ends there."""
+    events = raw["event_log"]
+
+    def loads(k: int) -> bool:
+        part = {
+            **raw,
+            "event_log": events[:k],
+            "last_update": max([raw["last_update"], *(e["__time__"] for e in events[:k])]),
+        }
+        try:
+            _load(part, game_id)
+        except Exception:  # noqa: BLE001 - any failure counts; the caller has the error itself
+            return False
+        return True
+
+    if loads(len(events)):
         return None
-    for i, e in enumerate(raw["event_log"]):
-        if (e["__type__"], e["__time__"], e["args"], e["kwargs"]) == (
-            inst.__type__,
-            inst.__time__,
-            inst.args,
-            inst.kwargs,
-        ):
-            return i
-    return None
+    low, high = 0, len(events)  # loads(low) holds, loads(high) doesn't
+    while high - low > 1:
+        mid = (low + high) // 2
+        low, high = (mid, high) if loads(mid) else (low, mid)
+    return high - 1
 
 
-def _load_save(path: Path, game_id: int) -> tuple[dict, _Game]:
+def _load_save(path: Path, game_id: int) -> tuple[dict, GameState]:
     try:
         raw = json.loads(path.read_text(encoding="utf-8"))
     except OSError as e:
@@ -513,19 +476,20 @@ def _load_save(path: Path, game_id: int) -> tuple[dict, _Game]:
         return raw, _load(raw, game_id)
     except Exception as e:  # noqa: BLE001 - a broken or foreign file can fail anywhere in the replay
         where = ""
-        i = _broken_at(raw)
+        i = _broken_at(raw, game_id)
         if i is not None and i in _history(raw):
             ev = raw["event_log"][i]
-            where = f" It breaks at #{_history(raw).index(i) + 1} ({_describe(_Labels.of(raw), ev['__type__'], ev['args'], ev['kwargs'])})."
+            what = _describe(_Labels.of(raw), ev["__type__"], ev["args"], ev["kwargs"])
+            where = f" It breaks at #{_history(raw).index(i) + 1} ({what})."
         raise AdminError(f"Couldn't load the save: {e}.{where}") from None
 
 
-def _load_undone(raw: dict, undo: list[tuple[int, int]], game_id: int, labels: _Labels) -> tuple[_Game, list[str]]:
+def _load_undone(raw: dict, undo: list[tuple[int, int]], game_id: int, labels: _Labels) -> tuple[GameState, list[str]]:
     new_raw, kept, said = _undo(raw, undo, labels)
     try:
         return _load(new_raw, game_id), said
     except Exception as e:  # noqa: BLE001 - whatever breaks, the referee needs to know which event
-        j = _broken_at(new_raw)
+        j = _broken_at(new_raw, game_id)
         history = _history(raw)
         if j is None or kept[j] not in history:
             raise AdminError(f"Undoing that leaves a history that no longer loads: {e}") from None
@@ -583,14 +547,18 @@ class _Session:
         for line in lines:
             print(line)
 
-    def fire_timers(self, until: int) -> None:
+    def fire_timers(self, until: int, *, inclusive: bool) -> None:
         game = self.game
-        while game.scheduled_events and game.scheduled_events[0].__time__ <= until:
+        while game.scheduled_events and (
+            game.scheduled_events[0].__time__ < until or (inclusive and game.scheduled_events[0].__time__ == until)
+        ):
             inst = game.scheduled_events.pop(0)
             self._pin(inst.__time__)
             try:
-                with _quiet():
-                    result = getattr(game, inst.__type__)(*inst.args, **inst.kwargs)
+                with _quiet():  # as the bot's scheduler does, but with no announcement: there's no Discord here
+                    result = getattr(game, inst.__type__).call_special(
+                        inst.was_scheduled, False, *inst.args, **inst.kwargs
+                    )
             except Exception as e:
                 raise AdminError(
                     f"The '{inst.__type__}' timer due at {self.clock(inst.__time__)} failed: {e}\n"
@@ -598,10 +566,11 @@ class _Session:
                     "the referee guide, and keep this message for Anshul to look at after the game."
                 ) from e
             labels = _Labels({t.role_id: t.name for t in game.teams}, {})
-            self._say(inst.__time__, "(timer) " + _describe(labels, inst.__type__, inst.args, inst.kwargs, result))
+            timer = "(timer) " if inst.was_scheduled else ""  # otherwise a saved move that was still to come
+            self._say(inst.__time__, timer + _describe(labels, inst.__type__, inst.args, inst.kwargs, result))
 
     def apply(self, change: Change) -> None:
-        self.fire_timers(change.at)
+        self.fire_timers(change.at, inclusive=False)  # a move beats a timer due that same instant, as on reload
         self._pin(change.at)
         crashed = {t.role_id for t in self.game.teams if self.game.get_snake(t).crashed}
         try:
@@ -618,7 +587,7 @@ class _Session:
 
     def finish(self, resume_at: int) -> None:
         self.after_last = len(self.said)
-        self.fire_timers(resume_at)
+        self.fire_timers(resume_at, inclusive=True)
         self.unpin()
         self.game.last_update = resume_at  # anything later would be saved as a timer, not a move
 
@@ -681,9 +650,8 @@ class _Session:
         if self.game.veto_challenges(team.role_id):
             said = f"{team.name} vetoed · {POWERUP_NAMES['efficiency']} used, so no wait"
         else:
-            self.game.schedule_event(0, VETO_MINUTES, 0, self.game.unveto, team.role_id)
-            ends = self.game.game_time_now() + VETO_MINUTES * MIN
-            said = f"{team.name} vetoed · veto period ends {self.clock(ends)}"
+            ends = [e.__time__ for e in self.game.scheduled_events if e.__type__ == "unveto" and team.role_id in e.args]
+            said = f"{team.name} vetoed" + (f" · veto period ends {self.clock(max(ends))}" if ends else "")
         return "\n".join([said, *_offer(self.game.get_snake(team), full=True)])
 
     def _buy(self, team: Team, words: list[str]) -> str:
@@ -1019,14 +987,15 @@ def _show(game: GameState, raw: dict, game_id: int) -> None:
     print("\nHistory - use these numbers with 'undo':")
     for number, i in enumerate(_history(raw), 1):
         e = events[i]
-        timer = "" if e["__type__"] in _MOVE_EVENTS | _FIX_EVENTS else "(timer) "
-        what = _describe(labels, e["__type__"], e["args"], e["kwargs"])
-        print(f"  #{number:<4}{_elapsed(e['__time__']):>6}  {timer}{what}")
-    coming = [e for e in events if e["__time__"] > raw["last_update"]]
-    if coming:
+        print(f"  #{number:<4}{_elapsed(e['__time__']):>6}  {_describe(labels, e['__type__'], e['args'], e['kwargs'])}")
+    if game.scheduled_events:  # timers aren't saved: these are the ones loading the save set going again
         print("\nComing up:")
-        for e in coming:
-            print(f"  {_elapsed(e['__time__']):>11}  {_describe_due(labels, e['__type__'], e['args'], e['kwargs'])}")
+        for e in game.scheduled_events:
+            if e.was_scheduled:
+                what = _describe_due(labels, e.__type__, e.args, e.kwargs)
+            else:
+                what = "still to be applied: " + _describe(labels, e.__type__, e.args, e.kwargs)
+            print(f"  {_elapsed(e.__time__):>11}  {what}")
 
 
 def _game_id(path: Path) -> int:
@@ -1101,7 +1070,8 @@ async def run(
     to_game = (lambda at: base + round((at - changes.backup).total_seconds() * 1000)) if changes.backup else None
     entries, at = [], base
     for no, when, text in changes.entries:
-        at = to_game(when) if when is not None else at
+        # Each line gets its own millisecond, so no move ever lands on a timer set by another line.
+        at = to_game(when) + no if when is not None else at
         entries.append(Change(at, text, no, timed=when is not None))
     resume_at = max([base, *(c.at for c in entries), *([to_game(changes.until)] if changes.until else [])])
     if entries:
@@ -1116,7 +1086,7 @@ async def run(
     with tempfile.TemporaryDirectory(dir=out_dir) as tmp:
         with _quiet():
             await game.save(Path(tmp))
-            reloaded = _Game.load(Path(tmp), game_id)
+            reloaded = GameState.load(Path(tmp), game_id)
         if _facts(reloaded) != _facts(game):
             raise AdminError(
                 "The new save doesn't load back the way it should, so it hasn't been used. "

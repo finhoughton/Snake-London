@@ -47,11 +47,6 @@ async def _bot(game: GameState, t: int, move=None) -> None:
         move(game)
 
 
-def _veto_like_the_bot(game: GameState, team_id: int) -> None:
-    if not game.veto_challenges(team_id):
-        game.schedule_event(0, 15, 0, game.unveto, team_id)
-
-
 def _state(game: GameState) -> dict:
     snakes = {
         t.name: (
@@ -104,7 +99,7 @@ async def _round_trip(tmp_path) -> tuple[GameState, GameState]:
     lost = [
         (57 * MIN, "Alpha complete Central harder", lambda g: g.complete_challenge(a, "Central", hard=True)),
         (58 * MIN, "Beta request Liverpool Street", lambda g: g.request_challenge(b, "Liverpool Street")),
-        (59 * MIN, "Beta veto", lambda g: _veto_like_the_bot(g, b)),
+        (59 * MIN, "Beta veto", lambda g: g.veto_challenges(b)),
         (61 * MIN, "Beta buy curse", lambda g: g.buy_powerup(b, "curse")),
     ]
     for t, _, move in lost:
@@ -154,9 +149,13 @@ def test_no_move_is_left_waiting_as_a_timer(round_trip):
 
 
 def test_veto_period_runs_from_the_real_veto(round_trip):
-    _, rebuilt = round_trip
-    (unveto,) = [e for e in rebuilt.scheduled_events if e.__type__ == "unveto"]
-    assert unveto.__time__ == 74 * MIN
+    live, rebuilt = round_trip
+
+    def veto_ends(game):  # gone off already, or still to come
+        return [e.__time__ for e in game.event_log + game.scheduled_events if e.__type__ == "unveto"]
+
+    assert veto_ends(rebuilt)
+    assert veto_ends(rebuilt) == pytest.approx(veto_ends(live), abs=1000)  # the bot's tick is a second
 
 
 def test_timer_due_between_moves_fires_between_them(round_trip):
@@ -635,7 +634,7 @@ def test_ending_a_veto_removes_its_timer():
     a, _ = _ids(game)
     game.complete_challenge(a, "Jubilee")
     game.request_challenge(a, "Bond Street")
-    _veto_like_the_bot(game, a)
+    game.veto_challenges(a)
     game.admin_end_veto(a)
     assert not game.get_snake(game.teams[0]).vetoed
     assert not [e for e in game.scheduled_events if e.__type__ == "unveto"]
@@ -740,7 +739,7 @@ def _vetoed_game(*, timer_fired: bool) -> GameState:
         await _bot(game, 1 * MIN, lambda g: g.complete_challenge(a, "Jubilee"))
         await _bot(game, 2 * MIN, lambda g: g.complete_challenge(b, "Central"))
         await _bot(game, 3 * MIN, lambda g: g.request_challenge(a, "Bond Street"))
-        await _bot(game, 4 * MIN, lambda g: _veto_like_the_bot(g, a))
+        await _bot(game, 4 * MIN, lambda g: g.veto_challenges(a))
         await _bot(game, 30 * MIN if timer_fired else 5 * MIN)
 
     asyncio.run(go())
@@ -776,8 +775,7 @@ def test_undoing_a_veto_takes_its_timer_too(tmp_path, capsys, timer_fired):
     assert code == 0
     assert not game.get_snake(game.teams[0]).vetoed
     assert not [e for e in game.event_log + game.scheduled_events if e.__type__ == "unveto"]
-    out = capsys.readouterr().out
-    assert ("#5  Alpha's veto period ended" if timer_fired else "the timer for: Alpha's veto period ends") in out
+    assert "#4  Alpha vetoed" in capsys.readouterr().out
 
 
 def test_undo_says_what_else_it_breaks(tmp_path, backup_file, capsys):
@@ -786,8 +784,8 @@ def test_undo_says_what_else_it_breaks(tmp_path, backup_file, capsys):
     assert "breaks #3 (Alpha requested Bond Street)" in capsys.readouterr().err
 
 
-@pytest.mark.parametrize(("line", "complaint"), [("undo 5", "went off by itself"), ("undo 99", "no #99")])
-def test_undo_refuses_timers_and_missing_numbers(tmp_path, capsys, line, complaint):
+@pytest.mark.parametrize(("line", "complaint"), [("undo 5", "no #5"), ("undo 99", "no #99")])
+def test_undo_refuses_numbers_that_arent_in_the_history(tmp_path, capsys, line, complaint):
     code, _ = _run(tmp_path, _saved(_vetoed_game(timer_fired=True), tmp_path), line)
     assert code == 1
     assert complaint in capsys.readouterr().err
@@ -915,7 +913,7 @@ async def _round_trip_more(tmp_path) -> tuple[GameState, GameState]:
     lost = [
         (6 * MIN, "Alpha play Good Service", lambda g: g.play_normal_powerup(a, "efficiency")),
         (7 * MIN, "Alpha request Bond Street", lambda g: g.request_challenge(a, "Bond Street")),
-        (8 * MIN, "Alpha veto", lambda g: _veto_like_the_bot(g, a)),
+        (8 * MIN, "Alpha veto", lambda g: g.veto_challenges(a)),
         (9 * MIN, "Alpha jump Holborn", lambda g: g.play_jump(a, station="Holborn")),
         (10 * MIN, "Alpha play Retreat", lambda g: g.play_normal_powerup(a, "retreat")),
         (11 * MIN, "Alpha request Baker Street", lambda g: g.request_challenge(a, "Baker Street")),
@@ -965,7 +963,6 @@ def test_looking_at_a_save_describes_every_kind_of_move(fuller_round_trip, tmp_p
         "Alpha played Retreat",
         "Alpha completed (harder), now on the Met",
         "Alpha declared a win",
-        "Alpha's declared win was settled",
         "GAME OVER: Alpha won",
     ):
         assert said in out, said
@@ -1063,3 +1060,33 @@ def test_live_mode_from_the_command_line(tmp_path, backup_file, monkeypatch):
     assert admin.main(args) == 0
     with pytest.raises(SystemExit):
         admin.main([str(backup_file), "--live"])
+
+
+# --- times, to the minute ---------------------------------------------------------------------
+
+
+def _veto_minutes() -> int:
+    """How long the engine's veto period is, however that's been set."""
+    game = _new()
+    a, _ = _ids(game)
+    game.complete_challenge(a, "Jubilee")
+    game.request_challenge(a, "Bond Street")
+    _at(game, 0)
+    game.veto_challenges(a)
+    (ends,) = [e.__time__ for e in game.scheduled_events if e.__type__ == "unveto"]
+    return ends // MIN
+
+
+def test_a_move_in_the_minute_a_veto_ends_comes_after_it(tmp_path, backup_file):
+    period = _veto_minutes()
+    at = datetime.now().astimezone().replace(second=0, microsecond=0) - timedelta(minutes=period + 1)
+    later = at + timedelta(minutes=period)
+    code, game = _run(
+        tmp_path,
+        backup_file,
+        f"backup {at:%H:%M}",
+        f"{at:%H:%M} Alpha veto",
+        f"{later:%H:%M} Alpha complete Central harder",
+    )
+    assert code == 0  # refused, or a save that won't reload, if the completion tied with the veto's end
+    assert game.get_snake(game.teams[0]).anchor == "Bond Street"
