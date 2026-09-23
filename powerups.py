@@ -56,6 +56,10 @@ class CurseDeck:
         """The curses remaining in the current cycle."""
         return list(self._remaining)
 
+    def catalog(self) -> list[Curse]:
+        """Every curse the deck knows, drawn or not."""
+        return list(self._catalog)
+
     def get(self, curse_id: str) -> Curse:
         """Look a curse up by id from the full loaded catalog (raises KeyError if unknown)."""
         for curse in self._catalog:
@@ -86,6 +90,11 @@ class CurseDeck:
     def put_back(self, curse: Curse) -> None:
         """Return a curse that wasn't kept to the current cycle."""
         self._remaining.append(curse)
+
+    def take_out(self, curse: Curse) -> None:
+        """Remove a curse from the current cycle, if it's in it, because a team has been given it."""
+        if curse in self._remaining:
+            self._remaining.remove(curse)
 
 
 # --- Play handlers -----------------------------------------------------------
@@ -242,8 +251,7 @@ if set(POWERUP_COSTS) - set(POWERUP_NAMES):
 _COMMAND_NAME = re.compile(r"^[a-z0-9_-]{1,32}$")
 if bad_commands := sorted(p for p, name in POWERUP_COMMANDS.items() if not _COMMAND_NAME.match(name)):
     raise RuntimeError(
-        f"Display names that do not make a valid Discord command: "
-        f"{ {p: POWERUP_NAMES[p] for p in bad_commands} }"
+        f"Display names that do not make a valid Discord command: { {p: POWERUP_NAMES[p] for p in bad_commands} }"
     )
 
 if set(POWERUP_ON_BUY) - set(POWERUP_COSTS):

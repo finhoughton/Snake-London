@@ -715,6 +715,147 @@ class GameState(GameContext):
         self.declared_winner = self.tiebreak_winner()
         self.status = Status.END
 
+    # Referee fixes
+    #
+    # Direct corrections, for when the game has gone wrong in a way no move can put right.
+    # They are events like any other, so they survive a reload; a fix made by editing
+    # state directly would be lost the next time the log is replayed. None of them draw
+    # from the rng, and none check whether the game is running.
+
+    def _curse_by_id(self, curse_id: str) -> Curse:
+        if self.curse_deck is None:
+            raise ValueError("This game has no curses")
+        try:
+            return self.curse_deck.get(curse_id)
+        except KeyError:
+            raise ValueError(f"Unknown curse: {curse_id!r}") from None
+
+    @event()
+    def admin_set_coins(self, team_id: int, coins: int) -> None:
+        """Set a team's coins."""
+        snake = self.get_snake(self.get_team(team_id))
+        if coins < 0:
+            raise ValueError("Coins can't go below 0")
+        snake.coins = coins
+
+    @event()
+    def admin_give(self, team_id: int, powerup_id: str, curse_id: str = "") -> None:
+        """Put a powerup card in a team's hand, free. A curse needs `curse_id`, the curse it holds.
+
+        If the team is still choosing from a curse draw, giving a curse settles that choice
+        instead: they keep this one and the draw goes back, with no second card.
+        """
+        snake = self.get_snake(self.get_team(team_id))
+        if powerup_id not in POWERUP_COSTS:
+            raise ValueError(f"Unknown powerup: {powerup_id!r}")
+        if (powerup_id == "curse") != bool(curse_id):
+            raise ValueError("Say which curse to give" if not curse_id else "Only a curse takes a curse_id")
+        if not curse_id:
+            snake.hand.append(powerup_id)
+            return
+        curse = self._curse_by_id(curse_id)
+        if snake.curse_choice:
+            for drawn in snake.curse_choice:
+                if self.curse_deck is not None:
+                    self.curse_deck.put_back(drawn)
+            snake.curse_choice = []
+        else:
+            snake.hand.append("curse")
+        if self.curse_deck is not None:
+            self.curse_deck.take_out(curse)  # it's theirs now, drawn or not, so nobody can draw it again
+        snake.held_curses.append(curse)
+
+    @event()
+    def admin_take(self, team_id: int, powerup_id: str, curse_id: str = "") -> None:
+        """Remove a powerup card from a team's hand. A curse needs `curse_id`, the held curse to remove."""
+        team = self.get_team(team_id)
+        snake = self.get_snake(team)
+        if powerup_id not in snake.hand:
+            raise ValueError(f"{team!r} has no {POWERUP_NAMES.get(powerup_id, powerup_id)} card")
+        if (powerup_id == "curse") != bool(curse_id):
+            raise ValueError("Say which curse to take" if not curse_id else "Only a curse takes a curse_id")
+        if curse_id:
+            held = next((c for c in snake.held_curses if c.id == curse_id), None)
+            if held is None:
+                raise ValueError(f"{team!r} isn't holding the curse {curse_id!r}")
+            snake.held_curses.remove(held)
+        snake.hand.remove(powerup_id)
+
+    @event()
+    def admin_set_line(self, team_id: int, line: str) -> None:
+        """Put a team on a line at their Anchor; it becomes the line everyone is told, too."""
+        team = self.get_team(team_id)
+        snake = self.get_snake(team)
+        if snake.neck_active:
+            raise ValueError(f"{team!r} has a challenge on; cancel it first")
+        if not self.map.has_line(line):
+            raise ValueError(f"Unknown line: {line!r}")
+        if not self.map.get_station(snake.anchor).has_line(line):
+            raise ValueError(f"The {line} doesn't go through {snake.anchor}")
+        snake.travel_line = snake.announced_line = line
+        snake.pending_detour = None
+
+    @event()
+    def admin_cancel_challenge(self, team_id: int) -> None:
+        """Call off a team's challenge and put them back at their Anchor: a Retreat with no card and no block."""
+        team = self.get_team(team_id)
+        snake = self.get_snake(team)
+        if not snake.neck_active:
+            raise ValueError(f"{team!r} has no challenge on")
+        if snake.travel_line is None:
+            raise ValueError(f"{team!r} is on their first challenge, which can't be cancelled")
+        snake.front = snake.anchor
+        snake.neck_active = False
+        snake.offer = None
+        snake.pending_detour = None
+
+    @event()
+    def admin_end_veto(self, team_id: int) -> None:
+        """End a team's veto period now."""
+        team = self.get_team(team_id)
+        snake = self.get_snake(team)
+        if not snake.vetoed:
+            raise ValueError(f"{team!r} isn't in a veto period")
+        snake.vetoed = False
+        # Its timer would otherwise still fire, and tell them the veto is over a second time.
+        self.scheduled_events = [e for e in self.scheduled_events if not (e.__type__ == "unveto" and team_id in e.args)]
+
+    @event()
+    def admin_knock_out(self, team_id: int) -> None:
+        """Put a team out of the game, as if they had conceded."""
+        self.concede(self.get_team(team_id))
+
+    @event()
+    def admin_bring_back(self, team_id: int) -> None:
+        """Undo a crash or a concession. The team stands at their Anchor with no challenge on."""
+        team = self.get_team(team_id)
+        snake = self.get_snake(team)
+        if not snake.eliminated:
+            raise ValueError(f"{team!r} is still in the game")
+        snake.crashed = snake.conceded = False
+        snake.front = snake.anchor
+        snake.neck_active = snake.travel_line is None  # before their first completion, the first challenge is still on
+        snake.offer = None
+        snake.pending_detour = None
+        if snake.neck_active:
+            self._sync_initial_offer(snake)
+
+    @event()
+    def admin_add_objective(self, station: str) -> None:
+        """Make a station a live objective."""
+        if not self.map.has_station(station):
+            raise ValueError(f"Unknown station: {station!r}")
+        if station in self.objectives:
+            raise ValueError(f"{station!r} is already an objective")
+        self.objectives.append(station)
+
+    @event()
+    def admin_remove_objective(self, station: str) -> None:
+        """Take a live objective away."""
+        if station not in self.objectives:
+            raise ValueError(f"{station!r} isn't a live objective")
+        self.objectives.remove(station)
+
     # jloxgame functions
 
     async def configure(self, dctx: ApplicationContext) -> bool:
