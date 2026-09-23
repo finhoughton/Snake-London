@@ -40,7 +40,7 @@ def choices(options: Iterable[tuple[str, str]], typed: str) -> list[OptionChoice
     typed = typed.lower()
     return [OptionChoice(shown, key) for shown, key in sorted(options) if typed in shown.lower() or typed in key.lower()]
 
-class GameError(Exception):
+class GameError(ValueError):
     def __init__(self, message: str, *args: object) -> None:
-        super().__init__(*args)
+        super().__init__(message, *args)
         self.message = message
