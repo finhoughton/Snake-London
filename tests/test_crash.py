@@ -102,3 +102,37 @@ def test_requesting_through_own_claim_crashes_the_requester():
     game.request_challenge(A.role_id, "Baker Street")
     assert game.get_snake(A).crashed
     assert game.get_snake(A).front == "Baker Street"
+
+
+# --- a team going out during its own veto period --------------------------------------------
+
+
+@pytest.mark.parametrize("out", ["crashed", "conceded", "game over"])
+def test_the_veto_ending_after_a_team_is_out_still_loads(tmp_path, out):
+    """The veto's end fires from the scheduler and on every load, so it must not raise."""
+    import asyncio
+
+    from game import GameState
+    from jloxgame.state import Status
+
+    game = new_game({"A": "Wembley Park", "B": "Stratford"}, bonus_interchanges=set())
+    a, b = (t.role_id for t in game.teams)
+    game.complete_challenge(a, "Jubilee")
+    game.complete_challenge(b, "Jubilee")
+    game.request_challenge(a, "Bond Street")
+    game.veto_challenges(a)
+    if out == "crashed":
+        game.crash(game.teams[0])
+    elif out == "conceded":
+        game.admin_knock_out(a)
+    else:
+        game.status = Status.END
+    (ends,) = [e for e in game.scheduled_events if e.__type__ == "unveto"]
+
+    async def later():
+        game.game_time_now = lambda: ends.__time__ + 1000
+        await game.schedule_tick()  # the timer goes off, as the bot's scheduler would fire it
+        await game.save(tmp_path)
+
+    asyncio.run(later())
+    GameState.load(tmp_path, game.thread_id)  # and every load fires it again

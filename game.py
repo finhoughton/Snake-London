@@ -39,6 +39,7 @@ from objectives import choose_objective
 from powerups import NORMAL_POWERUP_HANDLERS, POWERUP_ON_BUY, Curse, CurseDeck, handle_curse, handle_detour, handle_jump
 from util import generate_new_map, GameError
 
+
 @dataclass
 class Snake:
     origin: str
@@ -378,13 +379,12 @@ class GameState(GameContext):
 
     @event(callback=unveto_callback)
     def unveto(self, team_id: int) -> int:
-        team = self.get_team(team_id)
-        snake = self._acting_snake(team)
-        if self.status != Status.RUNNING:
-            raise GameError("The game is not running")
+        """End a team's veto period.
 
-        snake.vetoed = False
-
+        Runs from the scheduler, and again every time the save loads, so it must never raise:
+        a team that has gone out, or a game that has ended, just has the flag cleared.
+        """
+        self.get_snake(self.get_team(team_id)).vetoed = False
         return team_id
 
     @staticmethod
@@ -648,7 +648,11 @@ class GameState(GameContext):
         if station is not None and self.thread:
             embed, map_png_path = generate_new_map(self)
 
-            await self.thread.send(f"A new objective has appeared at {self.map.get_station(station).display_name}!", embed=embed, file=File(map_png_path, filename="map.png"))
+            await self.thread.send(
+                f"A new objective has appeared at {self.map.get_station(station).display_name}!",
+                embed=embed,
+                file=File(map_png_path, filename="map.png"),
+            )
 
     @event(callback=new_objective_callback)
     def new_objective(self) -> str | None:
@@ -1019,9 +1023,7 @@ class ConfigModal(DesignerModal):
         enabled_powerups = enabled_powerups or {}
 
         if status == jloxgame.Status.INIT:
-            self.team_names_input = InputText(
-                placeholder="Team Alpha, Team Beta", value=", ".join(team_names)
-            )
+            self.team_names_input = InputText(placeholder="Team Alpha, Team Beta", value=", ".join(team_names))
             self.add_item(Label("Teams (comma-separated)", self.team_names_input))  # pyright: ignore[reportUnknownMemberType]
         else:
             self.add_item(TextDisplay("Teams: " + ", ".join(team_names)))  # pyright: ignore[reportUnknownMemberType]

@@ -117,11 +117,11 @@ def test_the_time_limit_does_nothing_once_the_game_is_over():
 
 # --- acting after the game has ended -----------------------------------------
 
+# Not unveto: it is a timer, so it must never raise (test_crash.py checks it once the game is over).
 _AFTER_THE_END = {
     "request_challenge": lambda g, a, b: g.request_challenge(a.role_id, "Bond Street"),
     "complete_challenge": lambda g, a, b: g.complete_challenge(a.role_id, "Jubilee"),
     "veto_challenges": lambda g, a, b: g.veto_challenges(a.role_id),
-    "unveto": lambda g, a, b: g.unveto(a.role_id),
     "buy_powerup": lambda g, a, b: g.buy_powerup(a.role_id, "jump"),
     "play_normal_powerup": lambda g, a, b: g.play_normal_powerup(a.role_id, "efficiency"),
     "play_jump": lambda g, a, b: g.play_jump(a.role_id, station="Bond Street"),
