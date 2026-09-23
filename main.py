@@ -458,13 +458,13 @@ class HandPlayPowerupView(View):
             async def callback(self, interaction: Interaction):
                 if self.powerup in NORMAL_POWERUP_HANDLERS.keys():
                     try:
-                        gctx.play_normal_powerup(team.role_id, powerup)
+                        gctx.play_normal_powerup(team.role_id, self.powerup)
                     except GameError as e:
                         await interaction.respond(e.message, ephemeral=True)
                         return
 
-                    await interaction.respond(f"Successfully played {POWERUP_NAMES[powerup]}!")
-                    if gctx.thread: await gctx.thread.send(f"{team.name} has activated their {POWERUP_NAMES[powerup]}!")
+                    await interaction.respond(f"Successfully played {POWERUP_NAMES[self.powerup]}!")
+                    if gctx.thread: await gctx.thread.send(f"{team.name} has activated their {POWERUP_NAMES[self.powerup]}!")
 
                 elif self.powerup == "detour":
                     await interaction.respond("Choose which line to detour to:", view=PlayDetourView(team, gctx))
