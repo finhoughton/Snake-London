@@ -900,6 +900,13 @@ class GameState(GameContext):
     
     @event()
     def won_game(self) -> None:
+        """End the game once someone has won. The bot calls it after the move that decided it.
+
+        Refuses when nobody has won, so a save whose deciding move has been undone stops loading at
+        this event, rather than loading as a finished game with no winner.
+        """
+        if self.winner() is None:
+            raise GameError("Nobody has won the game")
         self.status = Status.END
 
     # jloxgame functions

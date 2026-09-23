@@ -10,8 +10,9 @@ import pytest
 
 import admin
 from admin import AdminError, Change, read_changes, replay
-from config import EASIER_REWARD, HARDER_REWARD
+from config import DECLARE_WIN_COST, EASIER_REWARD, HARDER_REWARD
 from game import GameState
+from jloxgame.state import Status
 from new_game import new_game
 
 GAME_ID = 1541016481268240495
@@ -45,6 +46,8 @@ async def _bot(game: GameState, t: int, move=None) -> None:
     await game.schedule_tick()
     if move:
         move(game)
+        if game.winner() is not None and game.status == Status.RUNNING:
+            game.won_game()  # as the bot does after a move that leaves one team standing
 
 
 def _state(game: GameState) -> dict:
@@ -73,11 +76,16 @@ def _state(game: GameState) -> dict:
         for s in [game.get_snake(t)]
     }
     return {
+        "status": game.status,
         "snakes": snakes,
         "claims": sorted((station, team.name) for station, team in game.map.all_claims().items()),
         "objectives": list(game.objectives),
         "jumped": sorted(game.jumped_stations),
     }
+
+
+def _timers_of(game: GameState, kind: str) -> list:
+    return [e for e in game.scheduled_events if e.__type__ == kind]
 
 
 def _timers(game: GameState) -> list[tuple]:
@@ -944,11 +952,12 @@ def test_fuller_rebuilt_save_matches_the_live_game(fuller_round_trip):
     live, rebuilt = fuller_round_trip
     assert _state(rebuilt) == _state(live)
     assert _timers(rebuilt) == _timers(live)
-    alpha, beta = (rebuilt.get_snake(t) for t in rebuilt.teams)
+    _alpha, beta = (rebuilt.get_snake(t) for t in rebuilt.teams)
     assert beta.crashed  # through Baker Street, which Alpha claimed in the catch-up
     assert "Finchley Road" not in rebuilt.objectives  # passed through in Alpha's Neck, which ends it
     assert "Holborn" in rebuilt.jumped_stations
-    assert not alpha.win_declared  # settled 20 minutes after the declaration
+    assert rebuilt.status == Status.END  # Beta's crash left Alpha the last team standing
+    assert not _timers_of(rebuilt, "resolve_win_declaration")  # the declaration was still settled
 
 
 def test_looking_at_a_save_describes_every_kind_of_move(fuller_round_trip, tmp_path, capsys):
@@ -982,6 +991,53 @@ def test_summary_says_when_the_game_is_over():
     game = _new()
     _fix(game, "Beta out")
     assert "  GAME OVER: Alpha won" in admin._summary(game, str)
+
+
+def test_a_settled_declaration_says_whether_it_won():
+    game = _new()
+    a, _ = _ids(game)
+    game.complete_challenge(a, "Jubilee")
+    game.get_snake(game.teams[0]).coins = DECLARE_WIN_COST
+    game.declare_win(a)  # a lead of one station, nowhere near enough
+    result = game.resolve_win_declaration.call_special(True, False, a)
+    labels = admin._Labels({a: "Alpha"}, {})
+    said = admin._describe(labels, "resolve_win_declaration", [a], {}, result)
+    assert said == "Alpha's declared win was settled: failed"
+
+
+def _last_team_standing(tmp_path):
+    """History: #1 Alpha completes, #2 Beta completes, #3 Beta crashes into Alpha, #4 the bot ends the game."""
+    game = _new()
+    a, b = _ids(game)
+
+    async def go():
+        await _bot(game, 1 * MIN, lambda g: g.complete_challenge(a, "Jubilee"))
+        await _bot(game, 2 * MIN, lambda g: g.complete_challenge(b, "Jubilee"))
+        await _bot(game, 3 * MIN, lambda g: g.request_challenge(b, "Wembley Park"))
+
+    asyncio.run(go())
+    assert game.status == Status.END
+    return _saved(game, tmp_path)
+
+
+def test_a_catch_up_move_that_leaves_one_team_standing_ends_the_game(capsys):
+    game = _new()
+    _apply(game, "Alpha complete Jubilee", "Beta complete Jubilee", "Beta request Wembley Park")
+    assert game.status == Status.END
+    assert game.event_log[-1].__type__ == "won_game"
+    assert "GAME OVER: Alpha won" in capsys.readouterr().out
+
+
+def test_undoing_the_move_that_won_the_game_reopens_it(tmp_path, capsys):
+    save = _last_team_standing(tmp_path)
+    code, _ = _run(tmp_path, save, "undo 3")
+    assert code == 1
+    assert "Undo #4 as well" in capsys.readouterr().err  # the game would otherwise stay over, with nobody winning
+
+    code, game = _run(tmp_path, save, "undo 3", "undo 4")
+    assert code == 0
+    assert game.status == Status.RUNNING
+    assert not game.get_snake(game.teams[1]).crashed
 
 
 def test_giving_a_curse_from_the_draw_keeps_it_out_of_the_deck():

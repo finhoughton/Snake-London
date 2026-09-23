@@ -140,6 +140,9 @@ _FIX_EVENTS = {
     "admin_add_objective",
     "admin_remove_objective",
 }
+# The bot logs this when a move leaves one team standing. Undoing that move doesn't reopen the game, so
+# it has to be undoable too.
+_UNDOABLE = _MOVE_EVENTS | _FIX_EVENTS | {"won_game"}
 _HIDDEN = {"configured", "started", "__reload__"}
 
 
@@ -353,7 +356,12 @@ def _describe(labels: _Labels, kind: str, args: list, kwargs: dict, result: obje
         case "new_objective":
             return f"new objective at {result}" if result else "new objective"
         case "resolve_win_declaration":
-            return f"{team}'s declared win was settled" + ("" if result is None else ": won" if result else ": failed")
+            if result is None:
+                return f"{team}'s declared win was settled"
+            won, _ = result  # (won, team_id)
+            return f"{team}'s declared win was settled: {'won' if won else 'failed'}"
+        case "won_game":
+            return "the game was won"
         case "end_declare_cooldown":
             return f"{team} could declare a win again"
         case "time_limit":
@@ -420,7 +428,7 @@ def _undo(raw: dict, undo: list[tuple[int, int]], labels: _Labels) -> tuple[dict
         i = history[number - 1]
         event = events[i]
         what = _describe(labels, event["__type__"], event["args"], event["kwargs"])
-        if event["__type__"] not in _MOVE_EVENTS | _FIX_EVENTS:
+        if event["__type__"] not in _UNDOABLE:
             raise AdminError(f"Line {line}: #{number} ({what}) isn't a move or a fix, so it can't be undone.")
         if i not in dropped:
             dropped.add(i)
@@ -584,6 +592,13 @@ class _Session:
         for team in self.game.teams:
             if self.game.get_snake(team).crashed and team.role_id not in crashed:
                 self._say(change.at, f"!! {team.name} CRASHED")
+        # As the bot does after a move: the last team standing has won, and the game ends there.
+        # Not after a fix, which may be one of several putting things right.
+        winner = self.game.winner()
+        if change.timed and winner is not None and self.game.status == Status.RUNNING:
+            with _quiet():
+                self.game.won_game()
+            self._say(change.at, f"!! GAME OVER: {winner.name} won")
 
     def finish(self, resume_at: int) -> None:
         self.after_last = len(self.said)
@@ -1053,7 +1068,7 @@ async def run(
         print(f"Game {game_id}, {_elapsed(base)} into the game.")
 
     history = _history(raw)
-    recent = [(n, i) for n, i in enumerate(history, 1) if raw["event_log"][i]["__type__"] in _MOVE_EVENTS | _FIX_EVENTS]
+    recent = [(n, i) for n, i in enumerate(history, 1) if raw["event_log"][i]["__type__"] in _UNDOABLE]
     if recent:
         print("The save's latest moves:")
         for number, i in recent[-3:]:
