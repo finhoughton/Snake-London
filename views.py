@@ -1,4 +1,5 @@
-from typing import Any, cast
+import asyncio
+from typing import TYPE_CHECKING, Any, cast
 
 from discord import ButtonStyle, Embed, EmbedField, File, Interaction, SelectOption
 from discord.ui import Button, Select, View, button
@@ -7,14 +8,23 @@ from challenges import Challenge
 from jloxgame.state import Team
 
 from config import POWERUP_COSTS, POWERUP_EMOJIS, POWERUP_NAMES
-from game import GameState
 from powerups import NORMAL_POWERUP_HANDLERS, Curse
 from util import GameError, generate_new_map
+if TYPE_CHECKING:
+    from game import GameState
 
 
 class BuyPowerupView(View):
+    instances: dict[Team, BuyPowerupView] = {}
+
     def __init__(self, team: Team, gctx: GameState):
-        super().__init__()
+        super().__init__(timeout=None)
+
+        if team in BuyPowerupView.instances:
+            view = BuyPowerupView.instances[team]
+            view.disable_all_items()
+            if view.message: asyncio.create_task(view.message.edit(view=view))
+        BuyPowerupView.instances[team] = self
         
         class PowerupButton(Button[BuyPowerupView]):
             def __init__(self, powerup: str, *args: Any, **kwargs: Any):
@@ -55,8 +65,16 @@ class BuyPowerupView(View):
             self.add_item(button)
 
 class HandPlayPowerupView(View):
+    instances: dict[Team, HandPlayPowerupView] = {}
+
     def __init__(self, team: Team, gctx: GameState):
-        super().__init__()
+        super().__init__(timeout=None)
+
+        if team in HandPlayPowerupView.instances:
+            view = HandPlayPowerupView.instances[team]
+            view.disable_all_items()
+            if view.message: asyncio.create_task(view.message.edit(view=view))
+        HandPlayPowerupView.instances[team] = self
 
         self.snake = gctx.get_snake(team)
         self.team = team
@@ -69,7 +87,7 @@ class HandPlayPowerupView(View):
 
                 self.label = f"Play {POWERUP_NAMES[powerup]}!"
                 self.emoji = POWERUP_EMOJIS[powerup]
-                self.style = ButtonStyle.primary
+                self.style = ButtonStyle.green
             
             async def callback(self, interaction: Interaction):
                 if self.powerup in NORMAL_POWERUP_HANDLERS.keys():
@@ -85,7 +103,9 @@ class HandPlayPowerupView(View):
                 elif self.powerup == "detour":
                     await interaction.respond("Choose which line to detour to:", view=PlayDetourView(team, gctx))
                 elif self.powerup == "curse":
-                    await interaction.respond(f"Choose which curse to play {', and on which team' if len(gctx.teams) != 2 else ''}:", view=PlayCurseView(team, gctx))
+                    if len(gctx.get_snake(team).held_curses) != len([p for p in gctx.get_snake(team).hand if p == "curse"]):
+                        await interaction.respond(f"Choose which curse to keep first!")
+                    await interaction.respond(f"Choose which curse to play{', and on which team' if len(gctx.teams) != 2 else ''}:", view=PlayCurseView(team, gctx))
                 
                 if self.parent: # pyright: ignore[reportUnknownMemberType]
                     parent = cast(View, self.parent) # pyright: ignore[reportUnknownMemberType]
@@ -110,11 +130,19 @@ class HandPlayPowerupView(View):
         if self.message: await self.message.edit(view=self)
 
 class PlayPowerupView(View):
+    instances: dict[Team, PlayPowerupView] = {}
+
     def __init__(self, powerup: str, team: Team, gctx: GameState):
-        super().__init__()
+        super().__init__(timeout=None)
         self.team = team
         self.gctx = gctx
         self.powerup = powerup
+
+        if team in PlayPowerupView.instances:
+            view = PlayPowerupView.instances[team]
+            view.disable_all_items()
+            if view.message: asyncio.create_task(view.message.edit(view=view))
+        PlayPowerupView.instances[team] = self
     
     @button(label="Play it now!", emoji="🎯", style=ButtonStyle.green)
     async def play(self, button: Button[PlayPowerupView], interaction: Interaction):
@@ -136,8 +164,16 @@ class PlayPowerupView(View):
         if self.message: await self.message.edit(view=self)
 
 class PlayDetourView(View):
+    instances: dict[Team, PlayDetourView] = {}
+
     def __init__(self, team: Team, gctx: GameState):
-        super().__init__()
+        super().__init__(timeout=None)
+
+        if team in PlayDetourView.instances:
+            view = PlayDetourView.instances[team]
+            view.disable_all_items()
+            if view.message: asyncio.create_task(view.message.edit(view=view))
+        PlayDetourView.instances[team] = self
 
         class DetourSelect(Select):
             async def callback(self, interaction: Interaction):
@@ -165,13 +201,21 @@ class PlayDetourView(View):
         self.add_item(DetourSelect(options = [SelectOption(label=gctx.map.get_line(line).display_name, value=line) for line in lines]))
 
 class PlayCurseView(View):
+    instances: dict[Team, PlayCurseView] = {}
+
     def __init__(self, team: Team, gctx: GameState):
-        super().__init__()
+        super().__init__(timeout=None)
 
         self.curse_chosen: Curse | None = None
         self.team_chosen: Team | None = None
         self.team = team
         self.gctx = gctx
+
+        if team in PlayCurseView.instances:
+            view = PlayCurseView.instances[team]
+            view.disable_all_items()
+            if view.message: asyncio.create_task(view.message.edit(view=view))
+        PlayCurseView.instances[team] = self
 
         class TeamSelect(Select):
             async def callback(self, interaction: Interaction):
@@ -216,21 +260,30 @@ class PlayCurseView(View):
             return
 
         await interaction.respond(f"Successfully played {played_curse.name} on {self.team_chosen.name}!")
-        if self.gctx.thread:
+        if self.gctx.thread and self.team_chosen.thread and self.team_chosen.role:
             curse_embed = Embed()
             curse_embed.title = played_curse.name
             curse_embed.description = played_curse.description
-            await self.gctx.thread.send(f"{self.team.name} has cursed {self.team_chosen.name} with {played_curse.name}!", embed=curse_embed)
+            await self.gctx.thread.send(f"{self.team.name} has cursed {self.team_chosen.role.mention} with {played_curse.name}!", embed=curse_embed)
+            await self.team_chosen.thread.send(f"{self.team.name} has cursed you with {played_curse.name}!", embed=curse_embed)
         
         self.disable_all_items()
         if self.message: await self.message.edit(view=self)
 
 
 class CompleteChallengeView(View):
+    instances: dict[Team, CompleteChallengeView] = {}
+
     def __init__(self, challenge_1: Challenge, challenge_2: Challenge, team: Team, gctx: GameState):
-        super().__init__()
+        super().__init__(timeout=None)
         self.team = team
         self.gctx = gctx
+
+        if team in CompleteChallengeView.instances:
+            view = CompleteChallengeView.instances[team]
+            view.disable_all_items()
+            if view.message: asyncio.create_task(view.message.edit(view=view))
+        CompleteChallengeView.instances[team] = self
 
         class ChallengeButton(Button[CompleteChallengeView]):
             def __init__(self, hard: bool, *args: Any, **kwargs: Any):
@@ -267,8 +320,16 @@ class CompleteChallengeView(View):
         if self.message: await self.message.edit(view=self)
 
 class NextLineView(View):
+    instances: dict[Team, NextLineView] = {}
+
     def __init__(self, hard: bool, team: Team, gctx: GameState):
-        super().__init__()
+        super().__init__(timeout=None)
+
+        if team in NextLineView.instances:
+            view = NextLineView.instances[team]
+            view.disable_all_items()
+            if view.message: asyncio.create_task(view.message.edit(view=view))
+        NextLineView.instances[team] = self
 
         class NextLineSelect(Select[NextLineView]):
             def __init__(self, *args: Any, **kwargs: Any):
@@ -280,7 +341,7 @@ class NextLineView(View):
 
                 challenges = gctx.current_challenges(team)
                 snake = gctx.get_snake(team)
-                initial = snake.origin == snake.anchor
+                initial = snake.travel_line is None
                 coins_before = snake.coins
 
                 try:
@@ -291,7 +352,21 @@ class NextLineView(View):
 
                 assert challenges is not None
                 earnt = snake.coins - coins_before
-                await interaction.respond(f"Successfully completed {challenges[hard].name}!" + f" Earnt {earnt} coin{'s' * (earnt != 1)}!" * (not initial))
+                await interaction.respond(
+                    f"Successfully completed {challenges[hard].name}!" 
+                    + f" Earnt {earnt} coin{'s' * (earnt != 1)}!" * (not initial)
+                    + f"\nGetting on the {gctx.map.get_line(next_line).display_name}."
+                )
+
+
+                if gctx.thread:
+                    embed, map_png_path = generate_new_map(gctx)
+
+                    await gctx.thread.send(
+                        ((f"{team.name} has completed the initial challenge at {snake.anchor}!" if initial else f"{team.name} has extended their body to {snake.anchor}!") +
+                        f" They are getting on the {gctx.map.get_line(next_line).display_name}."),
+                        embed=embed, file=File(map_png_path, filename="map.png")
+                    )
 
                 for crashed_team in crashed_teams:
                     if crashed_team.thread:
@@ -307,15 +382,6 @@ class NextLineView(View):
                     if gctx.thread:
                         await gctx.thread.send(f"# {winner.name} has won the game!")
 
-                if gctx.thread:
-                    embed, map_png_path = generate_new_map(gctx)
-
-                    await gctx.thread.send(
-                        ((f"{team.name} has completed the initial challenge at {snake.anchor}!" if initial else f"{team.name} has extended their body to {snake.anchor}!") +
-                        f" They are getting on the {gctx.map.get_line(next_line).display_name}."),
-                        embed=embed, file=File(map_png_path, filename="map.png")
-                    )
-
                 if self.parent: # pyright: ignore[reportUnknownMemberType]
                     parent = cast(View, self.parent) # pyright: ignore[reportUnknownMemberType]
                     message = parent.message
@@ -327,8 +393,16 @@ class NextLineView(View):
 
 
 class KeepCurseView(View):
+    instances: dict[Team, KeepCurseView] = {}
+
     def __init__(self, curse_1: Curse, curse_2: Curse, team: Team, gctx: GameState):
-        super().__init__()
+        super().__init__(timeout=None)
+
+        if team in KeepCurseView.instances:
+            view = KeepCurseView.instances[team]
+            view.disable_all_items()
+            if view.message: asyncio.create_task(view.message.edit(view=view))
+        KeepCurseView.instances[team] = self
 
         class CurseButton(Button[KeepCurseView]):
             def __init__(self, curse: Curse, *args: Any, **kwargs: Any):
@@ -354,8 +428,16 @@ class KeepCurseView(View):
 
 
 class ConfirmRequestView(View):
+    instances: dict[Team, ConfirmRequestView] = {}
+
     def __init__(self, station: str, fatal: bool, team: Team, gctx: GameState):
-        super().__init__()
+        super().__init__(timeout=None)
+
+        if team in ConfirmRequestView.instances:
+            view = ConfirmRequestView.instances[team]
+            view.disable_all_items()
+            if view.message: asyncio.create_task(view.message.edit(view=view))
+        ConfirmRequestView.instances[team] = self
 
         class ConfirmButton(Button[KeepCurseView]):
             def __init__(self, *args: Any, **kwargs: Any):

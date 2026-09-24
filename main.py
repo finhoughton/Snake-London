@@ -117,7 +117,7 @@ async def get(dctx: ApplicationContext, gctx: GameState):
         return
     
     challenges = gctx.current_challenges(team)
-    if challenges == None:
+    if challenges is None:
         travel_line = gctx.get_snake(team).travel_line
         await dctx.respond(
             f"Your team has no challenge active!" + 
@@ -176,8 +176,13 @@ async def complete(dctx: ApplicationContext, gctx: GameState, next_line: str, ha
         await dctx.respond(e.message, ephemeral=True)
         return
 
+    earnt = snake.coins - coins_before
     assert challenges is not None
-    await dctx.respond(f"Successfully completed {challenges[hard].name}!" + f" Earnt {snake.coins - coins_before} coins!" * (not initial))
+    await dctx.respond(
+        f"Successfully completed {challenges[hard].name}!" 
+        + f" Earnt {earnt} coin{'s' * (earnt != 1)}!" * (not initial)
+        + f"\nGetting on the {gctx.map.get_line(next_line).display_name}."
+    )
 
     if gctx.thread:
         embed, map_png_path = generate_new_map(gctx)
@@ -490,11 +495,12 @@ async def curse(dctx: ApplicationContext, gctx: GameState, target_team: str, cur
         return
 
     await dctx.respond(f"Successfully played {played_curse.name} on {_target_team.name}!")
-    if gctx.thread:
+    if gctx.thread and _target_team.thread and _target_team.role:
         curse_embed = Embed()
         curse_embed.title = played_curse.name
         curse_embed.description = played_curse.description
-        await gctx.thread.send(f"{team.name} has cursed {_target_team.name} with {played_curse.name}!", embed=curse_embed)
+        await gctx.thread.send(f"{team.name} has cursed {_target_team.role.mention} with {played_curse.name}!", embed=curse_embed)
+        await _target_team.thread.send(f"{team.name} has cursed you with {played_curse.name}!", embed=curse_embed)
 
 @bot.game_command()
 async def declare_win(dctx: ApplicationContext, gctx: GameState):

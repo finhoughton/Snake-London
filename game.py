@@ -2,7 +2,7 @@ import re
 import traceback
 from dataclasses import dataclass, field
 
-from discord import ApplicationContext, Colour, File, Interaction, SelectOption
+from discord import ApplicationContext, Colour, Embed, EmbedField, File, Interaction, SelectOption
 from discord.ui import DesignerModal, InputText, Label, StringSelect, TextDisplay
 
 import jloxgame
@@ -29,6 +29,8 @@ from config import (
     POWERUP_COSTS,
     POWERUP_NAMES,
     STARTING_COINS,
+    TIEBREAK_TIME_LIMIT_MINUTES,
+    VETO_TIME_MINUTES,
     WINNING_THRESHOLD,
 )
 from jloxgame import GameContext, Team
@@ -38,6 +40,7 @@ from network import Map
 from objectives import choose_objective
 from powerups import NORMAL_POWERUP_HANDLERS, POWERUP_ON_BUY, Curse, CurseDeck, handle_curse, handle_detour, handle_jump
 from util import generate_new_map, GameError
+from views import CompleteChallengeView
 
 
 @dataclass
@@ -365,7 +368,7 @@ class GameState(GameContext):
             snake.free_vetoes = 0
         else:
             snake.vetoed = True
-            self.schedule_event(0, 15, 0, self.unveto, team.role_id)
+            self.schedule_event(0, VETO_TIME_MINUTES, 0, self.unveto, team.role_id)
         if snake.travel_line is None:
             self._draw_new_initial_offer(snake)
         else:
@@ -706,7 +709,7 @@ class GameState(GameContext):
 
             if self.thread: await self.thread.send(f"# {winner.name} has won the game by declaration!")
         
-        elif self.winner() is not None:
+        elif self.winner() is None:
             if self.thread: await self.thread.send(f"# {self.get_team(team_id).name}'s declaration has failed!")
 
     @event(callback=win_declaration_callback)
@@ -744,7 +747,14 @@ class GameState(GameContext):
         self.get_snake(self.get_team(team_id)).declare_cooldown = False
         return self.get_team(team_id)
 
-    @event()
+    async def time_limit_callback(self) -> None:
+        if self.thread: 
+            if self.declared_winner is None:
+                await self.thread.send(f"# The game has ended in a tie!")
+            else:
+                await self.thread.send(f"# {self.declared_winner.name} has won the game by tiebreaker!")
+
+    @event(callback=time_limit_callback)
     def time_limit(self) -> None:
         """End the game on the clock, settling it by `tiebreak_winner`.
 
@@ -1019,6 +1029,14 @@ class GameState(GameContext):
     async def start(self, dctx: ApplicationContext) -> None:
         self.started()
 
+        for team in self.teams:
+            assert self.initial_challenge
+            fields = [
+                EmbedField(name=f"{self.initial_challenge.name} (difficulty: {self.initial_challenge.difficulty})", value=self.initial_challenge.description)
+            ]
+
+            if team.thread: await team.thread.send(embed=Embed(title=f"Your active challenges at {self.get_snake(team).front}", fields=fields), view=CompleteChallengeView(self.initial_challenge, self.initial_challenge, team, self))
+
     @event()
     def started(self) -> None:
         if self.status != Status.SETUP:
@@ -1043,7 +1061,7 @@ class GameState(GameContext):
         self.status = Status.RUNNING
         self.unpause()
         self.schedule_event(0, OBJECTIVE_INTERVAL_MINUTES, 0, self.new_objective)
-        self.schedule_event(6, 30, 0, self.time_limit)
+        self.schedule_event(0, TIEBREAK_TIME_LIMIT_MINUTES, 0, self.time_limit)
 
 
 class ConfigModal(DesignerModal):
