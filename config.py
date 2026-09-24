@@ -19,8 +19,8 @@ DECLARE_WIN_WINDOW_MINUTES = 20
 DECLARE_WIN_COOLDOWN_MINUTES = 30
 
 # --- Other Time Limits ---------------------------------------------------------
-TIEBREAK_TIME_LIMIT_MINUTES = 5
-VETO_TIME_MINUTES = 2
+TIEBREAK_TIME_LIMIT_MINUTES = 390
+VETO_TIME_MINUTES = 15
 
 # --- Contested objectives ------------------------------------------------------
 OBJECTIVE_INTERVAL_MINUTES = 60  # a new one this often; unclaimed ones stay live
