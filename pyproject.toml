@@ -1,9 +1,7 @@
 [project]
 name = "snake-london"
 version = "0.1.0"
-# 3.12+ is a hard floor: the jloxgame submodule uses PEP 695 generic syntax
-# (`class JLOXBot[ContextType: GameContext]`), which 3.11 cannot parse.
-requires-python = ">=3.12"
+requires-python = ">=3.14"
 dependencies = [
     "resvg-py>=0.5",
     # discord is imported directly by game.py/main.py, not just by the bot layer,

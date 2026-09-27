@@ -37,10 +37,10 @@ Anshul can from their phone. Get them to confirm it's **staying** off: crashed s
 
 ### Step 3: Download the backups
 
-The bot posts each game's save to `#______` every ??? minutes.
+Every 2 minutes, the bot posts every game's save to the backup channel, all in one message. Each file is named by its game's ID, and saved just before it's posted.
 
-1. Download the newest save for each game into a `backups` folder in the repo, **not** `save`.
-2. Note the time each one was posted.
+1. Download every file from the newest backup message into a `backups` folder in the repo, **not** `save`.
+2. Note the time that message was posted.
 3. Empty the `save` folder.
 
 ### Step 4: Catch each game up
@@ -70,16 +70,16 @@ You will need information from both the game thread and team threads.
 
 | The game thread says                                                            | You write                                                                         |
 | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| _Alpha has extended their body to Bond Street, they are getting on the Central_ | `14:05 Alpha complete Central harder`                                             |
-| _Beta has extended their neck to Liverpool Street_                              | `14:06 Beta request Liverpool Street`                                             |
-| _Alpha has extended their neck to Tottenham Court Road_                         | `14:07 Alpha request Tottenham Court Road`                                        |
+| _Alpha has extended their body to Bond Street! They are getting on the Central_ | `14:05 Alpha complete Central harder`                                             |
+| _Beta has extended their neck to Liverpool Street from Stratford_               | `14:06 Beta request Liverpool Street`                                             |
+| _Alpha has extended their neck to Tottenham Court Road from Bond Street_        | `14:07 Alpha request Tottenham Court Road`                                        |
 | _Beta vetoed their challenge at Liverpool Street_                               | `14:08 Beta veto`                                                                 |
-| _Alpha has activated Jump on Holborn_                                           | `14:09 Alpha jump Holborn`                                                        |
+| _Alpha has played their Jump on Holborn_                                        | `14:09 Alpha jump Holborn`                                                        |
 | _Beta has cursed Alpha with Get a Melon_                                        | `14:10 Beta curse Alpha with Get a Melon`                                         |
 | _Alpha has activated their Good Service_                                        | `14:11 Alpha play Good Service`                                                   |
 | _Beta has activated their Retreat_                                              | `14:12 Beta play Retreat`                                                         |
-| _Alpha has declared a win_                                                      | `14:13 Alpha declare`                                                             |
-| _Beta has crashed_                                                              | Nothing: the script works out crashes from the moves. Check it flags the same one |
+| _Alpha has declared their intention to win in 20 minutes_                       | `14:13 Alpha declare`                                                             |
+| _Beta's snake has crashed_                                                      | Nothing: the script works out crashes from the moves. Check it flags the same one |
 
 **From each team's thread,** where the bot confirms secret moves:
 
@@ -105,7 +105,7 @@ The number is the game's ID, which is also the backup's file name. The script re
 - **A move that's already in the backup.** Leave it out. For moves in the same minute as the backup, the script lists the backup's last few moves.
 - **A curse that isn't in the team's draw.** Usually a move is missing or out of order. If not, use the fix it suggests, such as `Beta give curse Get a Melon`.
 - **Anything else that won't fit.** Leave it out and fix the result instead (section 3).
-- **A timer that failed.** Use _If the script won't work for a game_, below. The same timer will stop the bot's clock once, when it comes due. Restart the bot and it's gone.
+- **A timer that failed.** That's a fault in the game itself, and the bot would hit it too. Use _If the script won't work for a game_, below, and keep the message for Anshul.
 
 Keep the files. You'll need them if you end up running games by hand.
 
@@ -115,7 +115,7 @@ Once Anshul has confirmed the VPS is off, and you've caught up all games:
 
 1. Check `save` holds exactly one file for each game.
 2. From a terminal **in the repo folder**, run `python main.py`.
-3. You need one `loaded game` output per game. The bot stops at the first failure and silently skips the rest. It also overwrites the save that failed with a cut-down copy, so fix whatever the last warning says, run `admin.py` again for that game, and then start again.
+3. You need one `loaded game` line per game. A save that won't load is skipped, with a warning naming its file, and the other games load as normal. Stop the bot, fix whatever the warning says, run `admin.py` again for that game, and start the bot again.
 
 ### Step 6: Check and restart
 
@@ -131,8 +131,6 @@ Post in each game thread:
 2. Fix that game's changes file: add the missing move, or a fix (section 3).
 3. Run the same `admin.py` command again. It always starts from the untouched backup, so repeating it is safe, and it replaces that game's file in `save`.
 4. Start the bot again, check every game loads, and ask the team to check again.
-
-**Don't use `/game reload` instead.** As of writing it is current bugged and idk if Anshul will fix it before the game. It swaps a game's save into the running bot, but doesn't reconnect the game to Discord. The game stops posting to its thread, and the bot stops recognising anyone's team.
 
 When both teams agree everything's right, set a restart time a few minutes ahead and let everyone know. Keep the time between starting the bot and the restart short: the bot's clock runs from the moment it starts, so veto periods and other timers count down even though the teams are paused.
 
@@ -194,18 +192,15 @@ Then post in the game thread:
 | ---------------------------------- | ------------------------------------------------------------------------------------------ | ---------------------------------------------- |
 | Request                            | _Alpha has extended their neck to Tottenham Court Road_                                    | The two challenges the script shows            |
 | Veto                               | _Alpha vetoed their challenge at Tottenham Court Road_                                     | The two new challenges, and when the veto ends |
-| Completion                         | _Alpha has extended their body to Tottenham Court Road, they are getting on the Elizabeth_ | Their coins                                    |
+| Completion                         | _Alpha has extended their body to Tottenham Court Road! They are getting on the Elizabeth_ | Their coins                                    |
 | Jump, Good Service, Retreat, curse | What was played, and where or on whom                                                      |                                                |
-| Declaring a win                    | _Alpha has declared a win_                                                                 |                                                |
+| Declaring a win                    | _Alpha has declared their intention to win in 20 minutes_                                  |                                                |
 | Buying a curse                     | Nothing, it's secret                                                                       | The curses it drew, so they can choose one     |
 | Buying anything else, keeping a curse, Detour | Nothing, they're secret                                                         | Confirm it                                     |
 
-Announce crashes, new objectives and settled declarations. Post the map (`out/admin_<ID>.png`) after anything significant, and at least every half hour. Press Enter on its own every so often, and when a veto period or declared win is due to end, to see anything that has come due.
+Announce crashes, new objectives, settled declarations and the result when the time limit runs out. Post the map (`out/admin_<ID>.png`) after anything significant, and at least every half hour. Press Enter on its own every so often, and when a veto period or declared win is due to end, to see anything that has come due.
 
-Two things the bot handled that the script doesn't:
-
-- **Veto periods:** the script shows _vetoed until 14:23_. Refuse requests, completions and vetoes from that team until then.
-- **Secrecy:** its output shows every team's coins, cards and challenges. Never paste it into a game thread.
+The script enforces veto periods itself: it shows _vetoed until 14:23_ and refuses that team's requests, completions and vetoes until then. What it can't do is keep secrets: its output shows every team's coins, cards and challenges, so never paste it into a game thread.
 
 ### Going back to the bot
 
@@ -261,6 +256,6 @@ Do this the day before, running everything from the repo folder.
 - [ ] Clone the repo, then run `git submodule update --init`
 - [ ] Install the same Python version as the VPS, which must be 3.14. Create a virtual environment, then run `pip install -e ".[dev]"`
 - [ ] Copy the `TOKEN` file over. It isn't in the repo.
-- [ ] Check with Anshul that your copy matches the VPS (`git log -1`, and `git status` shows no changes), then don't update it.
-- [ ] **Test it with Anshul.** They switch the VPS off. You run `python main.py`, create a test game in a spare channel, complete a challenge and run `/map`. Then run `/game end`, stop your bot, and Anshul switches the VPS back on. Never start `main.py` while the VPS is running.
+- [ ] Check with Anshul that your copy matches the VPS: `git log -1` and `git -C jloxgame log -1` both match theirs, and `git status` shows no changes. Then don't update it.
+- [ ] **Test it with Anshul.** They switch the VPS off. You run `python main.py`, create a test game in a spare channel, complete a challenge and run `/map`. Then stop your bot, delete the test game's team roles in the server settings (`/game end` no longer does it), and Anshul switches the VPS back on. Never start `main.py` while the VPS is running.
 - [ ] Empty `save` afterwards, or the test game will come back alongside the real ones.
